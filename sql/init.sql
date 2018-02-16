@@ -1,0 +1,12 @@
+CREATE TABLE Users(
+	id SERIAL,
+	username VARCHAR(64) UNIQUE NOT NULL,
+	password VARCHAR(256) NOT NULL,
+	name VARCHAR(64) NOT NULL,
+    email varchar(255) NOT NULL DEFAULT '',
+	active BOOLEAN NOT NULL DEFAULT TRUE,
+	admin BOOLEAN NOT NULL DEFAULT FALSE,
+	PRIMARY KEY(id)
+);
+
+drop table users;
