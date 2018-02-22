@@ -9,7 +9,7 @@
     <meta name="author" content="">
     <!--link rel="icon" href="favicon-vault.png"-->
     <!--<link rel="shortcut icon" href="/favicon-vault.png">-->
-    <title>Sign in</title>
+    <title>Registeer</title>
     <!-- Bootstrap core CSS -->
     <link href="{{url_for('static', filename='bootstrap.min.css')}}" rel="stylesheet">
 
@@ -31,8 +31,8 @@
   <body>
 
     <div class="container">
-        <form id="loginform" action="{{url_for('login')}}" class="form-signin" method=post>
-          <h2 class="form-signin-heading">Sign in</h2>
+        <form id="loginform" action="{{url_for('register')}}" class="form-signin" method=post>
+          <h2 class="form-signin-heading">Registreer</h2>
           <div name=error style="color:#ff0000">
               {% if errors %}
                   {% for error in errors %}
@@ -44,11 +44,10 @@
           <input name="username" type="text" class="form-control" placeholder="username" autofocus>
           <label for="password" class="sr-only">Password</label>
           <input name=password  type="password" class="form-control" placeholder="password">
-          <button id=submitBtn class="btn btn-lg btn-primary btn-block">Login</button>
+
+          TODO: de rest
+          <button id=submitBtn class="btn btn-lg btn-primary btn-block">Registreer</button>
       </form>
-      <div class="form-signin">
-          <a href="{{url_for('register')}}" class="btn btn-lg btn-primary btn-block">Registreer</a>
-      </div>
 
   </body>
 </html>

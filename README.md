@@ -17,9 +17,11 @@ then update pdb's password and give it privileges by entering the psql commandli
 
 leave the commandline with \q
 
+to execute a bunch of queries from a file, e.g. when initializing the db, enter the command
+> psql -U pdb -d pdb -f init.sql -h localhost
+
 to enter the commandline interface as the user, enter the command
 > psql -U pdb -h localhost
-
 ### Venv
 
 initialize a venv with
