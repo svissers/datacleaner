@@ -3,4 +3,5 @@ env/bin
 env/include
 env/lib
 env/pip-selfcheck.json
-src/__pychache__
+__*__
+.*
