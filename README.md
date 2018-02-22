@@ -23,7 +23,10 @@ to enter the commandline interface as the user, enter the command
 ### Venv
 
 initialize a venv with
-> virtualenv .  
+> virtualenv .
+
 activate the venv
-> source bin/activate  
+
+> source bin/activate
+
 All the requirements that python needs are in pip.txt, install them using ```pip install -r pip.txt```
