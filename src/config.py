@@ -1,6 +1,6 @@
 config_data = {}
-config_data['app_name'] = 'DataCleaner'
-config_data['dbname'] = 'pdb'
-config_data['dbuser'] = 'pdb'
-config_data['dbpass'] = 'pdb'
+config_data['app_name'] = 'data_cleaner'
+config_data['dbname'] = 'data_cleaner'
+config_data['dbuser'] = 'flask'
+config_data['dbpass'] = 'flask'
 config_data['dbhost'] = 'localhost'
