@@ -5,9 +5,8 @@ psql -c "CREATE ROLE flask WITH LOGIN PASSWORD 'flask'"
 psql -c "ALTER ROLE flask CREATEDB"
 
 # Init database for website
-psql -c "CREATE DATABASE data_cleaner OWNER flask"
-psql -c "GRANT ALL PRIVILEGES ON DATABASE data_cleaner TO flask"
-psql -U flask -d data_cleaner -f sql/init.sql
+psql -c "CREATE DATABASE flask_db OWNER flask"
+psql -c "GRANT ALL PRIVILEGES ON DATABASE flask_db TO flask"
 
 # Create virtual environment for dependencies and enter
 virtualenv env
