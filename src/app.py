@@ -1,85 +1,63 @@
-from flask import make_response, Flask, request, render_template, redirect, \
-    url_for, session, escape, jsonify, send_from_directory
-from pbkdf2 import crypt
-from config import config_data
-from database_conn import DBConnection
+from flask import Flask, render_template, redirect, url_for, flash
+from flask_bootstrap import Bootstrap
+from forms import LoginForm, SignUpForm
+from db_manager import db, Account
+# from login_manager import login_manager, login_required
 
-app = Flask('DataCleaner')
-app.debug = True
-app.secret_key = '38346ab5755640fb0bc4af4fff10b170aba6ac9ba2660137'
+### App init ##################################################################
+app = Flask(__name__)
+### Configuration #############################################################
+# Needed for cryptographic modules
+app.config['SECRET_KEY'] = 'NotSoSecret'
+# SQLAlchemy URI uses following format:
+# dialect+driver://username:password@host:port/database
+# Many of the parts in the string are optional. 
+# If no driver is specified the default one is selected 
+# (make sure to not include the + in that case)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://flask:flask@localhost:5432/flask_db'
+# Init database link
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# reCAPTCHA keys
+app.config['RECAPTCHA_PUBLIC_KEY'] = '6LdPYUgUAAAAAInU3DELerQHnnEs-8hyYcSKYyrF'
+app.config['RECAPTCHA_PRIVATE_KEY'] = '6LdPYUgUAAAAABSDhKVli2MJJe4uyAVlTI2-j4ul'
+### Inits #####################################################################
+Bootstrap(app)
+db.init_app(app)
+# login_manager.init_app(app)
 
-app_data = {}
-app_data['app_name'] = config_data['app_name']
-connection = DBConnection(dbname=config_data['dbname'],
-                          dbuser=config_data['dbuser'],
-                          dbpass=config_data['dbpass'],
-                          dbhost=config_data['dbhost'])
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 
-@app.route("/")
-def main(errors=None):
-    return render_template('index.html', app_data=app_data, errors=errors)
-
-
-@app.route("/login/", methods=["POST", "GET"])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    cursor = connection.get_cursor()
-    user = str(request.form.get("username"))
-    pw = str(request.form.get("password"))
-    cursor.execute(
-        "SELECT username, password, name, email, active, admin FROM Users WHERE username=%s;",
-        [user])
-    result = cursor.fetchall()
-    print(result)
-    if len(result) == 0:
-        return main(errors=["No user found"])
-
-    pwhash = result[0][1]
-    if pwhash == crypt(pw, pwhash):
-        # login successful
-        # session["type"] = result[0][1]
-        # session["userid"] = result[0][2]
-        return redirect(url_for("home"))
-    else:
-        return main(errors=["Wrong password"])
+    form = LoginForm()
+    if form.validate_on_submit() and Account.validate_login_credentials(form):
+        return redirect(url_for('dashboard'))
+    return render_template('login.html', form=form)
 
 
-@app.route("/register/", methods=["POST", "GET"])
-def register():
-    if request.method == "POST":
-        cursor = connection.get_cursor()
-        # dit, maar dan met de juiste info,
-        # zie init.sql wat een user allemaal moet hebben
-        username = str(request.form.get("username"))
-        password = str(request.form.get("password"))
-        name = ""
-        email = ""
-        admin = True
-
-        # TODO check if username already exists
-
-        cursor.execute(
-            "INSERT INTO users (username, password, name, email, active,  admin) VALUES (%s, %s, %s, %s, %s, %s)",
-            [username, crypt(password), name, email, True, admin])
-        # na een update moet je altijd connection.commit() oproepen
-        connection.commit()
-        return render_template('hw.html', app_data=app_data)
-
-    elif request.method == "GET":
-        return render_template('register.html', app_data=app_data)
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    form = SignUpForm()
+    if form.validate_on_submit():
+        try:
+            Account.create_user(form)
+            flash('You have been registered and can now log in.', 'success')
+            return redirect(url_for('login'))
+        except Exception as error:
+            flash(str(error), 'danger')
+    return render_template('signup.html', form=form)
 
 
-@app.route("/home/", methods=["POST", "GET"])
-def home():
-    cursor = connection.get_cursor()
-    cursor.execute(
-        "SELECT username, password, name, email, active, admin FROM Users;",
-        [])
-    result = cursor.fetchall()
-    for row in result:
-        print(row)
-    return render_template('hw.html', app_data=app_data)
+@app.route('/dashboard')
+# @login_required
+def dashboard():
+    return render_template('dashboard.html')
 
 
-if __name__ == "__main__":
-    app.run(host=config_data['dbhost'], port=8080)
+if __name__ == '__main__':
+    db.create_all(app=app)
+    app.run(debug=True)
