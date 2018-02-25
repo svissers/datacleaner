@@ -1,35 +1,40 @@
-# datacleaner
+# Data Cleaner
 
-## setup
+## Requirements
+	
+1. PostgreSQL: [Download & Install](https://www.postgresql.org/download/)
+2. Python 3.3 or higher: [Download & Install](https://www.python.org/downloads/)
+3. Pip: [Download & Install](https://pip.pypa.io/en/stable/installing/)
+4. VirtualEnv [Download & Install](https://virtualenv.pypa.io/en/stable/installation/)
 
-### SQL server
-first install the postgresql server:
-> sudo apt-get install postgresql
+## Setup
 
-then, create the user and db which we will use:
-> sudo -u postgres createuser pdb  
-> sudo -u postgres createdb pdb
+You can run SETUP.sh to setup the environment for this project or do the following manually:
 
-then update pdb's password and give it privileges by entering the psql commandline as user postgres:
-> sudo -u postgres psql  
-> alter user pdb with encrypted password 'pdb';  
-> grant all privileges on database pdb to pdb;
+Create role for accessing website database:
+> psql -c "CREATE ROLE flask WITH LOGIN PASSWORD 'flask'"  
+> psql -c "ALTER ROLE flask CREATEDB"
 
-leave the commandline with \q
+Initialize website database:
+> psql -c "CREATE DATABASE flask_db OWNER flask"  
+> psql -c "GRANT ALL PRIVILEGES ON DATABASE flask_db TO flask"
 
-to execute a bunch of queries from a file, e.g. when initializing the db, enter the command
-> psql -U pdb -d pdb -f init.sql -h localhost
+Create virtual environment to install dependencies:
+> virtualenv env
 
-to enter the commandline interface as the user, enter the command
-> psql -U pdb -h localhost
+Install dependencies from env/REQUIREMENTS.txt:
+> source env/bin/activate  
+> pip install -r env/REQUIREMENTS.txt  
+> deactivate
 
-### Venv
 
-initialize a venv with
-> virtualenv .
+## Run
 
-activate the venv
+You can do the following manually or make your life easier by letting RUN.sh do the work for you:
 
-> source bin/activate
+Enter virtual environmnent created during setup:
+> source env/bin/activate
 
-All the requirements that python needs are in pip.txt, install them using ```pip install -r pip.txt```
+Run server:
+> cd src  
+> python app.py  
