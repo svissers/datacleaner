@@ -4,9 +4,9 @@ from forms import LoginForm, SignUpForm
 from db_manager import db, Account
 # from login_manager import login_manager, login_required
 
-### App init ##################################################################
+# App init ####################################################################
 app = Flask(__name__)
-### Configuration #############################################################
+# Configuration ###############################################################
 # Needed for cryptographic modules
 app.config['SECRET_KEY'] = 'NotSoSecret'
 # SQLAlchemy URI uses following format:
@@ -14,13 +14,16 @@ app.config['SECRET_KEY'] = 'NotSoSecret'
 # Many of the parts in the string are optional. 
 # If no driver is specified the default one is selected 
 # (make sure to not include the + in that case)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://flask:flask@localhost:5432/flask_db'
+app.config['SQLALCHEMY_DATABASE_URI'] \
+    = 'postgresql://flask:flask@localhost:5432/flask_db'
 # Init database link
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # reCAPTCHA keys
-app.config['RECAPTCHA_PUBLIC_KEY'] = '6LdPYUgUAAAAAInU3DELerQHnnEs-8hyYcSKYyrF'
-app.config['RECAPTCHA_PRIVATE_KEY'] = '6LdPYUgUAAAAABSDhKVli2MJJe4uyAVlTI2-j4ul'
-### Inits #####################################################################
+app.config['RECAPTCHA_PUBLIC_KEY'] \
+    = '6LdPYUgUAAAAAInU3DELerQHnnEs-8hyYcSKYyrF'
+app.config['RECAPTCHA_PRIVATE_KEY'] \
+    = '6LdPYUgUAAAAABSDhKVli2MJJe4uyAVlTI2-j4ul'
+# Inits #######################################################################
 Bootstrap(app)
 db.init_app(app)
 # login_manager.init_app(app)
