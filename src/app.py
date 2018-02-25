@@ -34,6 +34,8 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
+    # Upon submission of the form it gets validated, 
+    # if it's valid and de login info is valid we redirect to the dashboard
     if form.validate_on_submit() and Account.validate_login_credentials(form):
         return redirect(url_for('dashboard'))
     return render_template('login.html', form=form)
@@ -42,11 +44,15 @@ def login():
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     form = SignUpForm()
+    # Upon submission of the form it gets validated
     if form.validate_on_submit():
+        # We try to insert the provided user info into the database
+        # If this is successful we redirect to the login page
         try:
             Account.create_user(form)
             flash('You have been registered and can now log in.', 'success')
             return redirect(url_for('login'))
+        # If an exception occured, we print why the insert failed
         except Exception as error:
             flash(str(error), 'danger')
     return render_template('signup.html', form=form)
