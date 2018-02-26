@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, flash
 from flask_bootstrap import Bootstrap
 from forms import LoginForm, SignUpForm
-from db_manager import db, Account
+import db_manager
 # from login_manager import login_manager, login_required
 
 # App init ####################################################################
@@ -25,7 +25,7 @@ app.config['RECAPTCHA_PRIVATE_KEY'] \
     = '6LdPYUgUAAAAABSDhKVli2MJJe4uyAVlTI2-j4ul'
 # Inits #######################################################################
 Bootstrap(app)
-db.init_app(app)
+db_manager.db.init_app(app)
 # login_manager.init_app(app)
 
 
@@ -39,8 +39,13 @@ def login():
     form = LoginForm()
     # Upon submission of the form it gets validated, 
     # if it's valid and de login info is valid we redirect to the dashboard
-    if form.validate_on_submit() and Account.validate_login_credentials(form):
-        return redirect(url_for('dashboard'))
+    if form.validate_on_submit():
+        if db_manager.validate_login_credentials(
+                form.username.data,
+                form.password.data):
+            return redirect(url_for('dashboard'))
+        else:
+            flash('Incorrect username or password, please try again.', 'danger')
     return render_template('login.html', form=form)
 
 
@@ -52,10 +57,17 @@ def signup():
         # We try to insert the provided user info into the database
         # If this is successful we redirect to the login page
         try:
-            Account.create_user(form)
+            db_manager.create_user(
+                form.first_name.data,
+                form.last_name.data,
+                form.organization.data,
+                form.email.data,
+                form.username.data,
+                form.password.data
+            )
             flash('You have been registered and can now log in.', 'success')
             return redirect(url_for('login'))
-        # If an exception occured, we print why the insert failed
+        # If an exception occurred, we print why the insert failed
         except Exception as error:
             flash(str(error), 'danger')
     return render_template('signup.html', form=form)
@@ -68,5 +80,5 @@ def dashboard():
 
 
 if __name__ == '__main__':
-    db.create_all(app=app)
+    db_manager.db.create_all(app=app)
     app.run(debug=True)
