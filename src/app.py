@@ -2,7 +2,7 @@ from flask import Flask, render_template, redirect, url_for, flash
 from flask_bootstrap import Bootstrap
 from forms import LoginForm, SignUpForm
 import db_manager
-# from login_manager import login_manager, login_required
+from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user
 
 # App init ####################################################################
 app = Flask(__name__)
@@ -26,7 +26,21 @@ app.config['RECAPTCHA_PRIVATE_KEY'] \
 # Inits #######################################################################
 Bootstrap(app)
 db_manager.db.init_app(app)
-# login_manager.init_app(app)
+
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+
+@login_manager.user_loader
+def load_user(username):
+    return User(username)
+
+
+class User(UserMixin):
+    def __init__(self, username):
+        self.id = username
 
 
 @app.route('/')
@@ -43,9 +57,11 @@ def login():
         if db_manager.validate_login_credentials(
                 form.username.data,
                 form.password.data):
+            user = User(form.username)
+            login_user(user)
             return redirect(url_for('dashboard'))
         else:
-            flash('Incorrect username or password, please try again.', 'danger')
+            flash('Incorrect username or password, please try again', 'danger')
     return render_template('login.html', form=form)
 
 
@@ -74,9 +90,16 @@ def signup():
 
 
 @app.route('/dashboard')
-# @login_required
+@login_required
 def dashboard():
     return render_template('dashboard.html')
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
 
 
 if __name__ == '__main__':
