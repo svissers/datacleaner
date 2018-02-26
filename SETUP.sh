@@ -8,6 +8,10 @@ psql -c "ALTER ROLE flask CREATEDB"
 psql -c "CREATE DATABASE flask_db OWNER flask"
 psql -c "GRANT ALL PRIVILEGES ON DATABASE flask_db TO flask"
 
+# Init testing database
+psql -c "CREATE DATABASE flask_test_db OWNER flask"
+psql -c "GRANT ALL PRIVILEGES ON DATABASE flask_test_db TO flask"
+
 # Create virtual environment for dependencies and enter
 virtualenv env
 source env/bin/activate
