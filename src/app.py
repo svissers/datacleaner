@@ -39,8 +39,11 @@ def login():
     form = LoginForm()
     # Upon submission of the form it gets validated, 
     # if it's valid and de login info is valid we redirect to the dashboard
-    if form.validate_on_submit() and Account.validate_login_credentials(form):
-        return redirect(url_for('dashboard'))
+    if form.validate_on_submit():
+        if Account.validate_login_credentials(form):
+            return redirect(url_for('dashboard'))
+        else:
+            flash('Incorrect Username or Password', 'danger')
     return render_template('login.html', form=form)
 
 
