@@ -1,8 +1,12 @@
-from flask import Flask, render_template, redirect, url_for, flash
+from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_bootstrap import Bootstrap
-from forms import LoginForm, SignUpForm
+from forms import LoginForm, SignUpForm, UploadForm
 import db_manager
-from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user
+from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
+from werkzeug import secure_filename
+import os
+import pandas as pd
+from sqlalchemy import create_engine
 
 # App init ####################################################################
 app = Flask(__name__)
@@ -11,8 +15,8 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'NotSoSecret'
 # SQLAlchemy URI uses following format:
 # dialect+driver://username:password@host:port/database
-# Many of the parts in the string are optional. 
-# If no driver is specified the default one is selected 
+# Many of the parts in the string are optional.
+# If no driver is specified the default one is selected
 # (make sure to not include the + in that case)
 app.config['SQLALCHEMY_DATABASE_URI'] \
     = 'postgresql://flask:flask@localhost:5432/flask_db'
@@ -51,13 +55,13 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
-    # Upon submission of the form it gets validated, 
+    # Upon submission of the form it gets validated,
     # if it's valid and de login info is valid we redirect to the dashboard
     if form.validate_on_submit():
         if db_manager.validate_login_credentials(
                 form.username.data,
                 form.password.data):
-            user = User(form.username)
+            user = User(form.username.data)
             login_user(user)
             return redirect(url_for('dashboard'))
         else:
@@ -69,6 +73,7 @@ def login():
 def signup():
     form = SignUpForm()
     # Upon submission of the form it gets validated
+    # print form.first_name.data
     if form.validate_on_submit():
         # We try to insert the provided user info into the database
         # If this is successful we redirect to the login page
@@ -92,7 +97,28 @@ def signup():
 @app.route('/dashboard')
 @login_required
 def dashboard():
+    # print current_user.id
+    # print db_manager.Account.query.filter_by(username="svissers").first()
     return render_template('dashboard.html')
+
+@app.route('/upload', methods=['GET', 'POST'])
+@login_required
+def upload():
+    UPLOAD_PATH = './upload/'
+    # form = UploadForm()
+    form = UploadForm()
+    # if form.csvfile.data:
+    if form.validate_on_submit():
+        csvfile = request.files['csvfile']
+        #loads csv into pandas
+        csv = pd.read_csv(csvfile)
+        #saves pandas dataframe to sql
+        conn = db_manager.db.engine
+        csv.to_sql(name="test", con=conn, if_exists="replace")
+        # save csv to a file
+        # filename = secure_filename(form.csvfile.data.filename)
+        # file.save(os.path.join(UPLOAD_PATH, filename))
+    return render_template('upload.html', form=form)
 
 
 @app.route('/logout')

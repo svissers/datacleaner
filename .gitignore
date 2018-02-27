@@ -5,3 +5,4 @@ env/lib
 env/pip-selfcheck.json
 __*__
 .*
+*.pyc

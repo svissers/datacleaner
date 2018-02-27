@@ -7,3 +7,4 @@ flask_testing
 psycopg2
 psycopg2-binary
 wtforms
+pandas
