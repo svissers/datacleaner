@@ -110,6 +110,8 @@ def upload():
     # if form.csvfile.data:
     if form.validate_on_submit():
         csvfile = request.files['csvfile']
+        print form.csvfile.data.filename
+        # form.validate_csv(form.csvfile)
         #loads csv into pandas
         csv = pd.read_csv(csvfile)
         #saves pandas dataframe to sql
@@ -119,6 +121,19 @@ def upload():
         # filename = secure_filename(form.csvfile.data.filename)
         # file.save(os.path.join(UPLOAD_PATH, filename))
     return render_template('upload.html', form=form)
+
+@app.route('/browse/<int:table>')
+@app.route('/browse/')
+@login_required
+def browse(table=None):
+    if table == None:
+        #get the tables associated with this user
+        tables = []
+        return render_template("display_tables.html", tables=tables)
+    else:
+        #render the table requested
+        table = {}
+        return render_template("render_table.html", table=table)
 
 
 @app.route('/logout')
