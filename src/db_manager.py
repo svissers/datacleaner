@@ -19,6 +19,14 @@ class Account(db.Model):
     admin = db.Column(db.Boolean(False))
 
 
+def get_user(username):
+    return Account.query.filter_by(username=username).first()
+
+
+def get_user_by_id(userid):
+    return Account.query.filter_by(id=userid).first()
+
+
 def create_user(fname, lname, organization, email, uname, password):
     new_account = Account()
     new_account.first_name = fname
@@ -42,8 +50,31 @@ def create_user(fname, lname, organization, email, uname, password):
                 'A user has already been registered using this username.')
 
 
+def edit_user(userid, fname, lname, organization, email, uname, password):
+    user = get_user(Account.query.filter_by(id=userid).first().username)
+    if fname != '':
+        user.first_name = fname
+    if lname != '':
+        user.last_name = lname
+    if organization != '':
+        user.organization = organization
+    if email != '':
+        user.email = email
+    if uname != '':
+        user.username = uname
+    if password != '':
+        user.password = generate_password_hash(password, method='sha256')
+    try:
+        db.session.commit()
+    except sql_alchemy_exceptions.IntegrityError:
+        db.session.rollback()
+        raise Exception('Something went wrong')
+
+
 def validate_login_credentials(uname, password):
-    user = Account.query.filter_by(username=uname).first()
+    user = get_user(uname)
     if user and check_password_hash(user.password, password):
         return True
     return False
+
+

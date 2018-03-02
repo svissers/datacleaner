@@ -1,7 +1,8 @@
 from flask_wtf import FlaskForm, RecaptchaField
-from wtforms import StringField, PasswordField, BooleanField, FileField,TextAreaField
+from wtforms import StringField, PasswordField, BooleanField, FileField, TextAreaField
 from wtforms.validators import InputRequired, Email, Length, EqualTo, regexp
 import re
+
 
 class SignUpForm(FlaskForm):
     """docstring for RegistrationForm"""
@@ -52,14 +53,51 @@ class LoginForm(FlaskForm):
     )
     remember = BooleanField('Remember me?')
 
+
 class UploadForm(FlaskForm):
     """docstring for UploadForm"""
-    csvfile      = FileField('Upload CSV file'#,
-                    # validators=[FileAllowed(["csv"])]#regexp(r'^[^\/\\]+\.(csv|CSV)$')]
-                    )
+    csvfile = FileField('Upload CSV file'  # ,
+                        # validators=[FileAllowed(["csv"])]#regexp(r'^[^\/\\]+\.(csv|CSV)$')]
+                        )
     # csvfile      = FileField()
-    description  = TextAreaField(u'Description')
+    description = TextAreaField(u'Description')
 
     # def validate_csv(form, field):
     #     if field.data:
     #         field.data = re.sub(r'[^a-z0-9_.-]', '_', field.data)
+
+
+class EditProfileForm(FlaskForm):
+    """docstring for EditProfileForm"""
+    first_name = StringField(
+        'First Name',
+        validators=[Length(max=25)]
+    )
+    last_name = StringField(
+        'Last name',
+        validators=[Length(max=25)]
+    )
+    organization = StringField(
+        'Organization',
+        validators=[Length(max=25)]
+    )
+    email = StringField(
+        'Email',
+        validators=[Email('Invalid email'), Length(max=50)]
+    )
+    username = StringField(
+        'Username',
+        validators=[Length(min=4, max=20)]
+    )
+    password = PasswordField(
+        'new Password',
+        validators=[Length(min=4, max=80)]
+    )
+    confirm_password = PasswordField(
+        'Confirm new password',
+        validators=[EqualTo('password')]
+    )
+    current_password = PasswordField(
+        'Confirm new password',
+        validators=[InputRequired()]
+    )
