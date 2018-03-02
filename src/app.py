@@ -44,6 +44,7 @@ def load_user(username):
 class User(UserMixin):
     def __init__(self, userid):
         self.id = userid
+        self.username = db_manager.get_user_by_id(userid).username
 
 
 @app.route('/')
@@ -124,15 +125,16 @@ def edit_profile():
             flash('Current password is not correct', 'danger')
             return render_template('edit_profile.html', info=info, form=form)
         try:
-            db_manager.edit_user(info['id'],
-                                 form.first_name.data,
-                                 form.last_name.data,
-                                 form.organization.data,
-                                 form.email.data,
-                                 form.username.data,
-                                 form.password.data
-                                 )
-            flash('Your account has been edited', 'success')
+            db_manager.edit_user(
+                info['id'],
+                form.first_name.data,
+                form.last_name.data,
+                form.organization.data,
+                form.email.data,
+                form.username.data,
+                form.password.data
+            )
+            flash('Your account has been edited.', 'success')
             return redirect(url_for('profile'))
         except Exception as error:
             flash(str(error), 'danger')
