@@ -44,7 +44,9 @@ def load_user(username):
 class User(UserMixin):
     def __init__(self, userid):
         self.id = userid
-        self.username = db_manager.get_user_by_id(userid).username
+        user = db_manager.get_user_by_id(userid)
+        if user is not None:
+            self.username = db_manager.get_user_by_id(userid).username
 
 
 @app.route('/')
