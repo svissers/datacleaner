@@ -27,6 +27,13 @@ def get_user_by_id(userid):
     return Account.query.filter_by(id=userid).first()
 
 
+def is_admin(username):
+    if get_user(username).admin:
+        return True
+    else:
+        return False
+
+
 def create_user(fname, lname, organization, email, uname, password):
     new_account = Account()
     new_account.first_name = fname
@@ -35,6 +42,7 @@ def create_user(fname, lname, organization, email, uname, password):
     new_account.email = email
     new_account.username = uname
     new_account.password = generate_password_hash(password, method='sha256')
+    new_account.admin = False
     try:
         db.session.add(new_account)
         db.session.commit()
@@ -68,7 +76,14 @@ def edit_user(userid, fname, lname, organization, email, uname, password):
         db.session.commit()
     except sql_alchemy_exceptions.IntegrityError:
         db.session.rollback()
-        raise Exception('Something went wrong')
+        email_exists = Account.query.filter_by(email=email).first()
+        username_exists = Account.query.filter_by(username=uname).first()
+        if email_exists:
+            raise Exception(
+                'A user has already been registered using this email.')
+        elif username_exists:
+            raise Exception(
+                'A user has already been registered using this username.')
 
 
 def validate_login_credentials(uname, password):

@@ -36,6 +36,7 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 
+
 @login_manager.user_loader
 def load_user(username):
     return User(username)
@@ -51,11 +52,15 @@ class User(UserMixin):
 
 @app.route('/')
 def index():
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
     return render_template('index.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        logout_user()
     form = LoginForm()
     # Upon submission of the form it gets validated,
     # if it's valid and de login info is valid we redirect to the dashboard
@@ -74,6 +79,8 @@ def login():
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
+    if current_user.is_authenticated:
+        logout_user()
     form = SignUpForm()
     # Upon submission of the form it gets validated
     # print form.first_name.data
@@ -143,6 +150,22 @@ def edit_profile():
     return render_template('edit_profile.html', info=info, form=form)
 
 
+@app.route('/settings')
+@login_required
+def settings():
+    if db_manager.is_admin(current_user.username):
+        users = db_manager.Account.query.all()
+        for user in users:
+            print(user.username)
+            print(user.password)
+            print(user.email)
+            print(user.first_name)
+        return render_template('settings.html', users=users)
+    else:
+        flash('Permissions denied', 'danger')
+        return redirect(url_for('dashboard'))
+
+
 @app.route('/dashboard')
 @login_required
 def dashboard():
@@ -191,7 +214,7 @@ def browse(table=None):
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('login'))
+    return redirect(url_for('index'))
 
 
 if __name__ == '__main__':
