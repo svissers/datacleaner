@@ -5,8 +5,8 @@ from flask import Blueprint, render_template, flash, redirect, url_for
 from flask_login import login_user, logout_user, login_required, current_user
 
 
-_user = Blueprint('user', __name__, url_prefix='/user')
-lm.login_view = 'user.login'
+_user = Blueprint('user_bp', __name__, url_prefix='/user')
+lm.login_view = 'user_bp.login'
 
 
 @lm.user_loader
@@ -29,7 +29,7 @@ def signup():
             )
             new_user.add_to_database()
             flash('You have been registered and can now log in.', 'success')
-            return redirect(url_for('user.login'))
+            return redirect(url_for('user_bp.login'))
         except Exception as error:
             flash(str(error), 'danger')
     return render_template('_user/signup.html', form=form)
@@ -41,14 +41,14 @@ def login():
     # Upon submission of the form it gets validated,
     # if it's valid and de login info is valid we redirect to the dashboard
     if form.validate_on_submit():
-        if User.validate_login_credentials(
-                form.username.data,
-                form.password.data):
+        result = User.validate_login_credentials(form.username.data,
+                                                 form.password.data)
+        if result[0] is True:
             user = User.get_by_name(form.username.data)
             login_user(user)
-            return redirect(url_for('user.profile'))
+            return redirect(url_for('user_bp.profile'))
         else:
-            flash('Incorrect username or password, please try again', 'danger')
+            flash(result[1], 'danger')
     return render_template('_user/login.html', form=form)
 
 
@@ -56,7 +56,7 @@ def login():
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('user.login'))
+    return redirect(url_for('user_bp.login'))
 
 
 @_user.route('/profile')
@@ -101,7 +101,7 @@ def edit_profile():
                 form.password.data
             )
             flash('Your account information has been updated.', 'success')
-            return redirect(url_for('user.profile'))
+            return redirect(url_for('user_bp.profile'))
         except Exception as error:
             flash(str(error), 'danger')
     return render_template('_user/edit_profile.html', info=info, form=form)

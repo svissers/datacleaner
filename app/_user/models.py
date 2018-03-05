@@ -19,8 +19,9 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(50), unique=True)
     username = db.Column(db.String(20), unique=True)
     password = db.Column(db.String(80))
-    is_staff = db.Column(db.Boolean(False))
-    is_admin = db.Column(db.Boolean(False))
+    staff = db.Column(db.Boolean(), default=0)
+    admin = db.Column(db.Boolean(), default=0)
+    disabled = db.Column(db.Boolean(), default=0)
 
     def __init__(self, fname, lname, organization, email, uname, password):
         """Initializes a user instance"""
@@ -84,5 +85,7 @@ class User(db.Model, UserMixin):
         """
         user_info = User.get_by_name(uname_candidate)
         if user_info and check_password_hash(user_info.password, pw_candidate):
-            return True
-        return False
+            if user_info.disabled:
+                return False, 'User disabled, contact system administrator.'
+            return True, 'Valid Credentials'
+        return False, 'Incorrect username or password, please try again.'
