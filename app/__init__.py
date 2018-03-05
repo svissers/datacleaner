@@ -18,12 +18,14 @@ database = SQLAlchemy(app)
 login_manager = LoginManager(app)
 
 # Setup Admin
-admin = Admin(app)
+admin = Admin()
 
 # Import user modules, needs to be after login_manager instantiation
 from app._user.controllers import _user as user_module
-from app._admin.controllers import _admin as admin_module
+from app._admin.controllers import _admin as admin_module, CustomAdminIndexView
 from app._main.controllers import _main as main_module
+
+admin.init_app(app=app, index_view=CustomAdminIndexView())
 
 # Register blueprints
 app.register_blueprint(user_module)
