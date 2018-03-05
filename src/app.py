@@ -36,7 +36,6 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 
-
 @login_manager.user_loader
 def load_user(username):
     return User(username)
@@ -155,11 +154,6 @@ def edit_profile():
 def settings():
     if db_manager.is_admin(current_user.username):
         users = db_manager.Account.query.all()
-        for user in users:
-            print(user.username)
-            print(user.password)
-            print(user.email)
-            print(user.first_name)
         return render_template('settings.html', users=users)
     else:
         flash('Permissions denied', 'danger')
