@@ -46,7 +46,7 @@ def login():
         if result[0] is True:
             user = User.get_by_name(form.username.data)
             login_user(user)
-            return redirect(url_for('user_bp.profile'))
+            return redirect(url_for('main_bp.dashboard'))
         else:
             flash(result[1], 'danger')
     return render_template('_user/login.html', form=form)
