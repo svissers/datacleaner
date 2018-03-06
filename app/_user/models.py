@@ -94,5 +94,8 @@ class User(db.Model, UserMixin):
         username_exists = User.query.filter_by(username='admin').first()
         if not username_exists:
             new = User('', '', '', 'admin@datacleaner.com', 'admin', 'admin')
-            new.admin = 1
+            new.admin = True
             new.add_to_database()
+        elif username_exists and not User.query.filter_by(username='admin').first().admin:
+            User.query.filter_by(username='admin').first().admin = True
+            db.session.commit()
