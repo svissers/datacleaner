@@ -22,7 +22,8 @@ class CustomAdminIndexView(AdminIndexView):
 class UserAdminView(ModelView):
     # Don't display the password on the list of Users
     column_exclude_list = ('password')
-    column_searchable_list = ['first_name', 'last_name', 'email']
+    column_searchable_list = ['first_name', 'last_name', 'organization',
+                              'email']
     column_editable_list = ['staff', 'admin', 'disabled']
     can_create = False
     can_edit = False

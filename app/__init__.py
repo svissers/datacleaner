@@ -34,3 +34,7 @@ app.register_blueprint(main_module)
 
 # Build database
 database.create_all()
+
+# Init admin user
+from app._user.models import User
+User.init_admin()

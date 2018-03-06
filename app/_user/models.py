@@ -60,8 +60,7 @@ class User(db.Model, UserMixin):
     def update_by_id(cls, id, fname, lname, organization, email, uname, pw):
         """Updates user info associated with given id"""
         user = User.get_by_id(id)
-        if fname != '':
-            print("ello")
+        if fname:
             user.first_name = fname
         if lname:
             user.last_name = lname
@@ -81,7 +80,7 @@ class User(db.Model, UserMixin):
         Validates candidate user credentials
         Returns:
         --> True if candidate credentials are valid
-        --> False otherwise    
+        --> False otherwise
         """
         user_info = User.get_by_name(uname_candidate)
         if user_info and check_password_hash(user_info.password, pw_candidate):
@@ -89,3 +88,11 @@ class User(db.Model, UserMixin):
                 return False, 'User disabled, contact system administrator.'
             return True, 'Valid Credentials'
         return False, 'Incorrect username or password, please try again.'
+
+    @classmethod
+    def init_admin(cls):
+        username_exists = User.query.filter_by(username='admin').first()
+        if not username_exists:
+            new = User('', '', '', 'admin@datacleaner.com', 'admin', 'admin')
+            new.admin = 1
+            new.add_to_database()
