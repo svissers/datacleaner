@@ -3,7 +3,7 @@ from flask_login import login_required
 from app._data.forms import UploadForm
 from app._data.models import Dataset
 
-_data = Blueprint('data_import', __name__, url_prefix='data')
+_data = Blueprint('data_bp', __name__, url_prefix='/data')
 
 
 @_data.route('/upload', methods=['GET', 'POST'])
