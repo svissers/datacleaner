@@ -2,7 +2,23 @@ from app import database as db
 from flask_login import current_user
 import pandas as pd
 import datetime
+from app._user.models import User
 
+class Project(db.Model):
+    """Represents a Project"""
+    __tablename__ = 'project'
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    name = db.Column(db.String(25))
+    description = db.Column(db.Text())
+
+    def __init__(self, name, descr):
+        self.name = name
+        self.description = descr
+
+    def add_to_database(self):
+        """Adds project instance to database"""
+        db.session.add(self)
+        db.session.commit()
 
 class DataAccess(db.Model):
     """
@@ -11,8 +27,8 @@ class DataAccess(db.Model):
 
     __tablename__ = 'dataset_access'
 
-    user_id = db.Column(db.Integer, primary_key=True)
-    dataset_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user_data.id"), primary_key=True)
+    project_id = db.Column(db.Integer, db.ForeignKey("project.id"), primary_key=True)
 
     def __init__(self, user_id, dataset_id):
         self.user_id = user_id
@@ -27,6 +43,7 @@ class Dataset(db.Model):
     __tablename__ = 'dataset'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    project_id = db.Column(db.Integer, db.ForeignKey("project.id"))
     name = db.Column(db.String(50))
     sql_table_name = db.Column(db.String(50))
     description = db.Column(db.String(255))

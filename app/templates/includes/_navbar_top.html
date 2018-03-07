@@ -11,8 +11,9 @@
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav navbar-left">
+        <li><a href="{{ url_for('data_bp.projects') }}">Projects</a></li>
         <li><a href="{{ url_for('data_bp.upload') }}">Upload</a></li>
-        <li><a href="#">Browse</a></li>
+        <!--li><a href="#">Browse</a></li-->
       </ul>
       <ul class="nav navbar-nav navbar-right">
         {% if current_user.admin %}
