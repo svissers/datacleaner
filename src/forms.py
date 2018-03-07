@@ -1,7 +1,10 @@
 from flask_wtf import FlaskForm, RecaptchaField
-from wtforms import StringField, PasswordField, BooleanField, FileField, TextAreaField
+<<<<<<< HEAD
+from wtforms import StringField, PasswordField, BooleanField, FileField,TextAreaField,SelectField
 from wtforms.validators import InputRequired, Email, Length, EqualTo, regexp, Optional
 import re
+from db_manager import Account, User_access, Project, Table
+
 
 
 class SignUpForm(FlaskForm):
@@ -56,9 +59,20 @@ class LoginForm(FlaskForm):
 
 class UploadForm(FlaskForm):
     """docstring for UploadForm"""
-    csvfile = FileField('Upload CSV file'  # ,
-                        # validators=[FileAllowed(["csv"])]#regexp(r'^[^\/\\]+\.(csv|CSV)$')]
-                        )
+    #TODO get projects from db
+    projects = [(0,"project 0"), (1,"project 1"), (2,"project 2")]
+    # print kwargs
+    project = SelectField(
+        label='Project', choices=projects
+    )
+    table_name = StringField(
+        'Table name',
+        validators=[InputRequired()]
+    )
+    csvfile      = FileField('Upload CSV file',
+                    validators=[InputRequired()]
+                    # validators=[FileAllowed(["csv"])]#regexp(r'^[^\/\\]+\.(csv|CSV)$')]
+                    )
     # csvfile      = FileField()
     description = TextAreaField(u'Description')
 

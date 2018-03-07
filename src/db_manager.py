@@ -9,6 +9,7 @@ db = SQLAlchemy()
 
 class Account(db.Model):
     """docstring for User"""
+    __tablename__ = 'account'
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     first_name = db.Column(db.String(25))
     last_name = db.Column(db.String(25))
@@ -18,6 +19,28 @@ class Account(db.Model):
     password = db.Column(db.String(80))
     admin = db.Column(db.Boolean(False))
 
+class User_access(db.Model):
+    """docstring for Project"""
+    __tablename__ = 'user_access'
+    user_id = db.Column(db.Integer, db.ForeignKey("account.id"), primary_key=True)
+    table_id = db.Column(db.Integer, db.ForeignKey("table_info.id"), primary_key=True)
+
+class Project(db.Model):
+    """docstring for Project"""
+    __tablename__ = 'project'
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    name = db.Column(db.String(25))
+    description = db.Column(db.Text())
+
+class Table(db.Model):
+    """docstring for Table"""
+    __tablename__ = 'table_info' # "table" is a SQL keyword
+    #the actual data will be in 2 tables: raw_{id} and current_{id}
+    #those table structures aren't defined, because they are dynamical
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    name = db.Column(db.String(25))
+    description = db.Column(db.Text())
+    project_id = db.Column(db.Integer, db.ForeignKey("project.id"))
 
 def get_user(username):
     return Account.query.filter_by(username=username).first()
@@ -57,6 +80,25 @@ def create_user(fname, lname, organization, email, uname, password):
             raise Exception(
                 'A user has already been registered using this username.')
 
+def create_table(table_name, description, project_id):
+    table = Table()
+    table.table_name = table_name
+    table.description = description
+    table.project_id = project_id
+    try:
+        db.session.add(table)
+        db.session.commit()
+    except sql_alchemy_exceptions.IntegrityError:
+        db.session.rollback()
+        project_exists = Project.query.filter_by(id=project_id).first()
+        # username_exists = Table.query.filter_by(username=uname).first()
+        if not project_exists:
+            raise Exception(
+                'No such project exists')
+        # elif username_exists:
+        #     raise Exception(
+        #         'A user has already been registered using this username.')
+    return table.id
 
 def edit_user(userid, fname, lname, organization, email, uname, password):
     user = get_user(Account.query.filter_by(id=userid).first().username)

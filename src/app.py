@@ -172,30 +172,58 @@ def dashboard():
 @login_required
 def upload():
     UPLOAD_PATH = './upload/'
-    # form = UploadForm()
+    projects = db_manager.Project.query.all()
     form = UploadForm()
     # if form.csvfile.data:
     if form.validate_on_submit():
         csvfile = request.files['csvfile']
-        print(form.csvfile.data.filename)
+        table_name = form.table_name
+        table_desc = form.description
+        project_id = form.project_id
+        print form.csvfile.data.filename
+        print table_name
+        table_id = db_manager.create_table(table_name, description, project_id)
+        print table_id
         # form.validate_csv(form.csvfile)
         # loads csv into pandas
         csv = pd.read_csv(csvfile)
         # saves pandas dataframe to sql
         conn = db_manager.db.engine
-        csv.to_sql(name="test", con=conn, if_exists="replace")
+        # csv.to_sql(name="raw_"+str(table_id), con=conn, if_exists="replace")
+        csv.to_sql(name="raw_"+str(table_id), con=conn, if_exists="fail")
+        csv.to_sql(name="processed_"+str(table_id), con=conn, if_exists="fail")
         # save csv to a file
         # filename = secure_filename(form.csvfile.data.filename)
         # file.save(os.path.join(UPLOAD_PATH, filename))
     return render_template('upload.html', form=form)
 
-
-@app.route('/browse/<int:table>')
-@app.route('/browse/')
+@app.route('/projects/<int:project>')
+@app.route('/projects/', methods=['GET', 'POST'])
 @login_required
-def browse(table=None):
-    if table is None:
-        # get the tables associated with this user
+def projects(project=None):
+    """ - Show all projects if no project is provided, else show information about that specific project
+        - Create new projects and update user permissions
+    """
+    if request.method == "GET":
+        if project == None:
+            #get the projects associated with this user
+            projects = []
+            return render_template("display_projects.html", projects=projects)
+        else:
+            #render the project requested
+            project = {}
+            return render_template("render_project.html", project=project)
+    else:
+        #create new project
+
+        pass
+@app.route('/tables/<int:table>')
+@app.route('/tables/')
+@login_required
+def tables(table=None):
+    """Show entries of a specific table, or just list tables in the system if no parameter is provided"""
+    if table == None:
+        #get the tables associated with this user
         tables = []
         return render_template("display_tables.html", tables=tables)
     else:
