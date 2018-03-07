@@ -27,9 +27,10 @@ def upload():
     form.project.choices = get_projects()
     print form.project.data
     if form.validate_on_submit():
+        file = request.files['csvfile']
         Dataset.import_from_csv(form.name.data,
                                 form.description.data,
-                                form.csvfile.data.filename)
+                                file)
     return render_template('upload.html', form=form)
 
 @_data.route('/projects/<int:project>')
