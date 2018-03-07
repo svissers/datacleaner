@@ -4,9 +4,7 @@
 source env/bin/activate
 
 # Run server
-cd src
-python app.py
-cd ..
+python run_server.py
 
 # Exit virtual environment
 deactivate
