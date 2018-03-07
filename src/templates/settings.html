@@ -15,30 +15,33 @@ Dashboard
     <div class="container-fluid">
       <div class="row">
           {% include 'navbar_side.html' %}
+          {% include 'includes/_messages.html' %}
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h1 class="page-header">Tables of {{ current_user.username }}</h1>
+          <h1 class="page-header">Welcome, {{ current_user.username }}</h1>
+
           <h2 class="sub-header">Section title</h2>
           <div class="table-responsive">
             <table class="table table-striped">
               <thead>
                 <tr>
-                  <th>#</th>
-                  <th>Table name</th>
-                  <th>Description</th>
+                  <th>id</th>
+                  <th>username</th>
+                  <th>name</th>
+                  <th>email</th>
+                  <th>admin</th>
                 </tr>
               </thead>
+              {% for user in users %}
               <tbody>
-                  <tr>
-                    <td><a href="{{url_for('tables', table='1001')}}">1,001</a></td>
-                    <td>click number</td>
-                    <td>Lorem ipsum</td>
-                  </tr>
-                  <tr onclick="location.href='{{url_for('tables', table='1001')}}'">
-                    <td>1,001</td>
-                    <td>Click row</td>
-                    <td>Lorem ipsum</td>
-                  </tr>
+                <tr>
+                  <td>{{ user.id }}</td>
+                  <td>{{ user.username }}</td>
+                  <td>{{ user.first_name }} {{ user.last_name }}</td>
+                  <td>{{ user.email }}</td>
+                  <td>{{ user.admin }}</td>
+                </tr>
               </tbody>
+              {% endfor %}
             </table>
           </div>
         </div>

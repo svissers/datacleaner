@@ -1,0 +1,52 @@
+{% extends "bootstrap/base.html" %}
+
+{% block title %}
+Dashboard
+{% endblock %}
+
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('static', filename='dashboard.css')}}">
+{% endblock %}
+
+{% block content %}
+{% include 'includes/_navbar_top.html' %}
+{% include 'includes/_messages.html' %}
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <h1 class="page-header">{{ Profile }}</h1>
+            <table class="table table-striped">
+              <tbody>
+                <tr>
+                  <td>Name:</td>
+                  <td>{{ info.fname }} {{ info.lname }}</td>
+                </tr>
+              </tbody>
+              <tbody>
+                <tr>
+                  <td>Username</td>
+                  <td>{{ info.username }}</td>
+                </tr>
+              </tbody>
+              <tbody>
+                <tr>
+                  <td>Email</td>
+                  <td>{{ info.email }}</td>
+                </tr>
+              <tbody>
+                <tr>
+                  <td>Organization</td>
+                  <td>{{ info.organization }}</td>
+                </tr>
+
+            </table>
+          <a class="btn btn-link" href="{{ url_for('user_bp.edit_profile') }}" role="button">edit</a>
+
+        </div>
+      </div>
+    </div>
+{% endblock %}
+
+

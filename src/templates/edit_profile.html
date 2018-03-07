@@ -1,0 +1,37 @@
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}
+Dashboard
+{% endblock %}
+
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('.static', filename='dashboard.css')}}">
+{% endblock %}
+
+{% block content %}
+{% include 'navbar_top.html' %}
+{% include 'includes/_messages.html' %}
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <h1 class="page-header">{{ Profile }}</h1>
+              <form class="form-horizontal" method="POST">
+                <h2 class="form-signin-heading">Edit Profile</h2>
+                {{ form.hidden_tag() }}
+                {{ wtf.form_field(form.first_name) }}
+                {{ wtf.form_field(form.last_name) }}
+                {{ wtf.form_field(form.organization) }}
+                {{ wtf.form_field(form.email) }}
+                {{ wtf.form_field(form.username) }}
+                {{ wtf.form_field(form.password) }}
+                {{ wtf.form_field(form.confirm_password) }}
+                {{ wtf.form_field(form.current_password) }}
+                <button class="btn btn-lg btn-primary btn-block" type="submit">Submit</button>
+              </form>
+        </div>
+      </div>
+    </div>
+{% endblock %}
