@@ -2,15 +2,17 @@ from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_required
 from app._data.forms import UploadForm, ProjectForm
 from app._data.models import Dataset
-from models import Project
+from .models import Project
 
 _data = Blueprint('data_bp', __name__, url_prefix='/data')
+
 
 def get_projects(description=False):
     #TODO only projects associated with user
     if description:
         return  [(p.id, p.name, p.description) for p in Project.query.order_by('id desc')]
     return  [(p.id, p.name) for p in Project.query.order_by('id')]
+
 
 def get_tables(project):
     #TODO check if project is associated with user
@@ -25,7 +27,7 @@ def upload():
     # for project in get_projects():
     #     form.project.append_entry(project)
     form.project.choices = get_projects()
-    print form.project.data
+    # print form.project.data
     if form.validate_on_submit():
         file = request.files['csvfile']
         Dataset.import_from_csv(form.name.data,
