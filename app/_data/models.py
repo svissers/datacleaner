@@ -28,7 +28,7 @@ class Dataset(db.Model):
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     name = db.Column(db.String(50))
-    sql_table_name = db.Column(db.String(50))
+    sql_table_name = db.Column(db.String(50), unique=True)
     description = db.Column(db.String(255))
 
     def __init__(self, name, table_name, description):
@@ -42,15 +42,19 @@ class Dataset(db.Model):
         csv_dataframe = pd.read_csv(file)
 
         table_name = str(datetime.datetime.now())
-        table_name.replace(" ", "")
-        table_name.replace("-", "")
-        table_name.replace(":", "")
-        table_name.replace(".", "")
+        table_name = table_name.replace(" ", "")
+        table_name = table_name.replace("-", "")
+        table_name = table_name.replace(":", "")
+        table_name = table_name.replace(".", "")
+        table_name = "t" + table_name
+
+        print(table_name)
 
         csv_dataframe.to_sql(name=table_name, con=db_engine, if_exists="fail")
 
         new_set = Dataset(name, table_name, description)
         db.session.add(new_set)
+        db.session.commit()
         user_link = DataAccess(current_user.id, new_set.id)
         db.session.add(user_link)
         db.session.commit()
