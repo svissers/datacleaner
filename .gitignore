@@ -1,0 +1,8 @@
+.idea
+env/bin
+env/include
+env/lib
+env/pip-selfcheck.json
+__*__
+.*
+*.pyc
