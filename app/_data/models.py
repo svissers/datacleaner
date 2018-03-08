@@ -87,9 +87,14 @@ class Dataset(db.Model):
         new_set = Dataset(name, table_name, description, project)
         db.session.add(new_set)
         db.session.commit()
-        user_link = ProjectAccess(current_user.id, project)
-        db.session.add(user_link)
-        db.session.commit()
+        #doesnt have to be added each time
+        #TODO make this clean
+        try:
+            user_link = ProjectAccess(current_user.id, project)
+            db.session.add(user_link)
+            db.session.commit()
+        except:
+            pass
 
     @classmethod
     def import_from_zip(cls, file):

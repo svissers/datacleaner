@@ -39,15 +39,20 @@ def upload():
                                 form.description.data,
                                 file,
                                 form.project.data)
+
+        flash('Your csv has been uploaded.', 'success')
+        # return redirect(url_for("upload"))
+        print url_for('data_bp.projects', project=form.project.data)
+        return redirect(url_for('data_bp.projects', project=form.project.data))
     return render_template('upload.html', form=form)
 
-@_data.route('/projects/<int:project>')
 @_data.route('/projects/', methods=['GET', 'POST'])
 @login_required
-def projects(project=None):
+def projects():
     """ - Show all projects if no project is provided, else show information about that specific project
         - Create new projects and update user permissions
     """
+    project = request.args.get('project', None)
     form = ProjectForm()
     if request.method == "GET":
         if project == None:
@@ -74,6 +79,7 @@ def projects(project=None):
                 flash('failed to create project.', 'failure')
                 pass
         else:
+            print 'test'
             projects = get_projects(True)
             return render_template("display_projects.html", projects=projects, form=form)
 
@@ -85,7 +91,7 @@ def datasets(dataset=None):
     """Show entries of a specific table, or just list tables in the system if no parameter is provided"""
     if dataset == None:
         #get the tables associated with this user
-        get_tables()
+        tables = get_tables()
         return render_template("display_tables.html", tables=tables)
     else:
         #get info from requested table out of dataset table
@@ -94,4 +100,4 @@ def datasets(dataset=None):
         csv_dataframe = pd.read_sql_table(dataset_info.sql_table_name, db_engine)
         # print csv_dataframe
         # render the table requested
-        return render_template("render_table.html", table=csv_dataframe.to_html())
+        return render_template("render_table.html", table=csv_dataframe.to_html(classes="table table-striped"))

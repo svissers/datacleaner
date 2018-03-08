@@ -27,16 +27,13 @@ Dashboard
                 </tr>
               </thead>
               <tbody>
-                  <tr>
-                    <td><a href="{{url_for('browse', table='1001')}}">1,001</a></td>
-                    <td>click number</td>
-                    <td>Lorem ipsum</td>
+                  {% for table in tables %}
+                  <tr onclick="location.href='{{url_for('data_bp.datasets', dataset=table[0])}}'">
+                    <td>{{table[0]}}</td>
+                    <td>{{table[1]}}</td>
+                    <td>{{table[2]}}</td>
                   </tr>
-                  <tr onclick="location.href='{{url_for('browse', table='1001')}}'">
-                    <td>1,001</td>
-                    <td>Click row</td>
-                    <td>Lorem ipsum</td>
-                  </tr>
+                  {% endfor %}
               </tbody>
             </table>
           </div>
