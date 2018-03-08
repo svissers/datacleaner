@@ -25,9 +25,9 @@ class ProjectAccess(db.Model):
         primary_key=True
     )
 
-    def __init__(self, user_id, dataset_id):
+    def __init__(self, user_id, project_id):
         self.user_id = user_id
-        self.dataset_id = dataset_id
+        self.project_id = project_id
 
 
 class Project(db.Model):
@@ -62,13 +62,14 @@ class Dataset(db.Model):
     project = db.relationship('Project', backref='project1')
     project_id = db.Column(db.Integer, db.ForeignKey("project.id"))
 
-    def __init__(self, name, table_name, description):
+    def __init__(self, name, table_name, description, project):
         self.name = name
         self.sql_table_name = table_name
         self.description = description
+        self.project_id = project
 
     @classmethod
-    def import_from_csv(cls, name, description, file):
+    def import_from_csv(cls, name, description, file, project):
         db_engine = db.engine
         csv_dataframe = pd.read_csv(file)
 
@@ -83,10 +84,10 @@ class Dataset(db.Model):
 
         csv_dataframe.to_sql(name=table_name, con=db_engine, if_exists="fail")
 
-        new_set = Dataset(name, table_name, description)
+        new_set = Dataset(name, table_name, description, project)
         db.session.add(new_set)
         db.session.commit()
-        user_link = ProjectAccess(current_user.id, new_set.id)
+        user_link = ProjectAccess(current_user.id, project)
         db.session.add(user_link)
         db.session.commit()
 

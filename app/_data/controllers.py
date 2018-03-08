@@ -3,6 +3,8 @@ from flask_login import login_required
 from app._data.forms import UploadForm, ProjectForm
 from app._data.models import Dataset
 from .models import Project
+import pandas as pd
+from app import database as db
 
 _data = Blueprint('data_bp', __name__, url_prefix='/data')
 
@@ -14,11 +16,13 @@ def get_projects(description=False):
     return  [(p.id, p.name) for p in Project.query.order_by('id')]
 
 
-def get_tables(project):
+def get_tables(project=None):
     #TODO check if project is associated with user
     #TODO only tables associated with project
-    return  [(t.id, t.name, t.description) for t in Table.query.order_by('id desc')]
-
+    if project == None:
+        return [(t.id, t.name, t.description, t.sql_table_name, t.project_id) for t in Dataset.query]
+    else:
+        return [(t.id, t.name, t.description, t.sql_table_name, project) for t in Dataset.query.filter(Dataset.project_id == project)]
 
 @_data.route('/upload', methods=['GET', 'POST'])
 @login_required
@@ -29,10 +33,12 @@ def upload():
     form.project.choices = get_projects()
     # print form.project.data
     if form.validate_on_submit():
+        print form.project.data
         file = request.files['csvfile']
         Dataset.import_from_csv(form.name.data,
                                 form.description.data,
-                                file)
+                                file,
+                                form.project.data)
     return render_template('upload.html', form=form)
 
 @_data.route('/projects/<int:project>')
@@ -46,12 +52,13 @@ def projects(project=None):
     if request.method == "GET":
         if project == None:
             #get the projects associated with this user
-            projects = get_projects()
+            projects = get_projects(True)
             return render_template("display_projects.html", projects=projects, form=form)
         else:
             #render the project requested
-            project = {}
-            return render_template("render_project.html", project=project)
+            tables = get_tables(project)
+            project_name = Project.query.filter(Project.id==project).first().name
+            return render_template("render_project.html", tables=tables, project_name=project_name)
     else:
         #create new project
         if form.validate_on_submit():
@@ -67,20 +74,24 @@ def projects(project=None):
                 flash('failed to create project.', 'failure')
                 pass
         else:
-            projects = get_projects()
+            projects = get_projects(True)
             return render_template("display_projects.html", projects=projects, form=form)
 
 
-@_data.route('/tables/<int:table>')
-@_data.route('/tables/')
+@_data.route('/datasets/<int:dataset>')
+@_data.route('/datasets/')
 @login_required
-def tables(table=None):
+def datasets(dataset=None):
     """Show entries of a specific table, or just list tables in the system if no parameter is provided"""
-    if table == None:
+    if dataset == None:
         #get the tables associated with this user
         get_tables()
         return render_template("display_tables.html", tables=tables)
     else:
+        #get info from requested table out of dataset table
+        dataset_info = Dataset.query.filter(Dataset.id == dataset).first()
+        db_engine = db.engine
+        csv_dataframe = pd.read_sql_table(dataset_info.sql_table_name, db_engine)
+        # print csv_dataframe
         # render the table requested
-        table = {}
-        return render_template("render_table.html", table=table)
+        return render_template("render_table.html", table=csv_dataframe.to_html())
