@@ -13,11 +13,12 @@ class UploadForm(FlaskForm):
 
     csvfile = FileField('Upload CSV file',
                         validators=[InputRequired()
-                                    #, Regexp('^[^/\\\\]\.csv$')
+                                    # , Regexp('^[^/\\\\]\.csv$')
                                     ])
     name = StringField('Name', validators=[Length(max=50)])
     description = TextAreaField('Description',
                                 validators=[Optional(), Length(max=255)])
+
 
 class ProjectForm(FlaskForm):
     """Represents form used for creating projecys"""
