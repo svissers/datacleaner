@@ -3,10 +3,16 @@ from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_admin import Admin
+import sys
 
 # Setup and config app
 app = Flask(__name__)
-app.config.from_object('config')
+
+# Setup correct database configurations
+if len(sys.argv) == 2:
+    app.config.from_object('config')
+else:
+    app.config.from_object('config_tests')
 
 # Setup Bootstrap
 Bootstrap(app)
