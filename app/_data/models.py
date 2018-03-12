@@ -25,6 +25,11 @@ class ProjectAccess(db.Model):
         self.user_id = user_id
         self.project_id = project_id
 
+    def add_to_database(self):
+        """Adds project access instance to database"""
+        db.session.add(self)
+        db.session.commit()
+
 
 class Project(db.Model):
     """Represents a Project"""
@@ -63,6 +68,11 @@ class Dataset(db.Model):
         self.sql_table_name = table_name
         self.description = description
         self.project_id = project
+
+    def add_to_database(self):
+        """Adds dataset instance to database"""
+        db.session.add(self)
+        db.session.commit()
 
 
 class View(db.Model):

@@ -2,7 +2,8 @@ from app import app
 from flask_testing import TestCase
 import unittest
 from app._user.models import User, db
-from app._data.models import Project
+from app._data.models import Project, ProjectAccess
+from app._data.helpers import create_project, get_projects
 
 
 # Test cases for _user ################################################
@@ -112,9 +113,39 @@ class DataTests(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_create_project_success(self):
+    def test_project(self):
         Project('test', 'test').add_to_database()
         self.assertTrue(Project.query.filter_by(name='test').first())
+
+    def test_project_access(self):
+        User('', '', '', 'test', 'test', 'test').add_to_database()
+        userid = User.get_by_name('test').id
+        project = Project('test', 'test')
+        project.add_to_database()
+        projectid = project.id
+        ProjectAccess(userid, projectid).add_to_database()
+        self.assertTrue(ProjectAccess.query.filter_by(project_id=projectid).first())
+        self.assertTrue(ProjectAccess.query.filter_by(user_id=userid).first())
+
+    def test_create_project(self):
+        User('', '', '', 'test', 'test', 'test').add_to_database()
+        userid = User.get_by_name('test').id
+        create_project('test', 'test', userid)
+        self.assertTrue(Project.query.filter_by(name='test').first())
+        self.assertTrue(Project.query.filter_by(description='test').first())
+        self.assertTrue(ProjectAccess.query.filter_by(user_id=userid).first())
+
+    def test_get_projects(self):
+        User('', '', '', 'test', 'test', 'test').add_to_database()
+        userid = User.get_by_name('test').id
+        create_project('test', 'test', userid)
+        create_project('test2', 'test2', userid)
+        projects = get_projects(userid, True)
+        self.assertTrue(len(projects) == 2)
+        for project in projects:
+            db_project = Project.query.filter_by(id=project[0]).first()
+            self.assertTrue(db_project.name == project[1])
+            self.assertTrue(db_project.description == project[2])
 
 
 if __name__ == '__main__':
