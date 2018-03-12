@@ -2,7 +2,6 @@ from app import database as db
 from flask_login import current_user
 import pandas as pd
 import datetime
-from app._user.models import User
 
 
 class ProjectAccess(db.Model):
