@@ -5,11 +5,8 @@ import datetime
 
 def create_project(project_name, description, user_id):
     new_project = Project(project_name, description)
-    db.session.add(new_project)
-    db.session.commit()
-    new_access = ProjectAccess(user_id, new_project.id)
-    db.session.add(new_access)
-    db.session.commit()
+    new_project.add_to_database()
+    ProjectAccess(user_id, new_project.id).add_to_database()
 
 
 def get_projects(user_id, description=False):
@@ -51,9 +48,7 @@ def upload_csv(name, description, file, project):
 
     csv_dataframe.to_sql(name=table_name, con=db_engine, if_exists="fail")
 
-    new_set = Dataset(name, table_name, description, project)
-    db.session.add(new_set)
-    db.session.commit()
+    Dataset(name, table_name, description, project).add_to_database()
 
 
 def upload_zip(name, description, file, project):
