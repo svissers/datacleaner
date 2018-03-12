@@ -12,33 +12,46 @@ Dashboard
 {% block content %}
 {% include 'includes/_navbar_top.html' %}
 
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h1 class="page-header">Table name</h1>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12">
+      <h1 class="page-header">Table name</h1>
 
-          <h2 class="sub-header">Section title</h2>
-          <div class="table-responsive">
-              {{table|safe}}
-            <!-- <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Dynamically generate table</th>
-                </tr>
-              </thead>
-              <tbody> -->
-                  <!-- {% for row in table %}
-                      <tr>
-                          {% for col in row %}
-                                <td>{{col}}</td>
-                          {% endfor %}
-                      </tr>
-                  {% endfor %} -->
-              <!-- </tbody>
-            </table> -->
-          </div>
-        </div>
+      <h2 class="sub-header">Section title</h2>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              {% for cname in cnames %}
+              <th>{{ cname }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in data.items %}
+            <tr>
+              {% for element in row %}
+              <td>{{ element }}</td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
     </div>
+  </div>
+  <div class="row">
+    <nav aria-label="Page navigation">
+      <ul class="pagination">
+        {% for i in range(1,data.pages+1) %}
+        {% if i == data.page %}
+        <li class="active"><a href="#">{{ i }}</a></li>
+        {% else %}
+        <li><a href="{{ url_for(request.endpoint) }}{{ dataset }}/{{ i }}">{{ i }}</a></li>
+        {% endif %}
+        {% endfor %}
+      </ul>
+    </nav>
+  </div>
+</div>
 {% endblock %}

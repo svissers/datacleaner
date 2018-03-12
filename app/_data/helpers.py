@@ -1,6 +1,7 @@
 from app._data.models import ProjectAccess, Project, Dataset, View, Action, db
 import pandas as pd
 import datetime
+from flask_sqlalchemy import Pagination
 
 
 def create_project(project_name, description, user_id):
@@ -34,6 +35,12 @@ def get_tables(user_id, project_id=None):
         (t.id, t.name, t.description, t.sql_table_name, t.project_id)
         for t in query_data
     ]
+
+
+def table_name_to_object(sql_table_name):
+    meta = db.MetaData(db.engine)
+    table = db.Table(sql_table_name, meta, autoload=True)
+    return table
 
 
 def upload_csv(name, description, file, project):

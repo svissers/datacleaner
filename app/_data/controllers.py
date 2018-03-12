@@ -5,7 +5,7 @@ from app._data.models import Dataset
 from .models import Project
 import pandas as pd
 from app import database as db
-from .helpers import get_projects, create_project, get_tables, upload_csv
+from .helpers import get_projects, create_project, get_tables, upload_csv, table_name_to_object as tnto
 
 _data = Blueprint('data_bp', __name__, url_prefix='/data')
 
@@ -72,10 +72,10 @@ def projects():
             return render_template("display_projects.html", projects=projects, form=form)
 
 
-@_data.route('/datasets/<int:dataset>')
+@_data.route('/datasets/<int:dataset>/<int:page>')
 @_data.route('/datasets/')
 @login_required
-def datasets(dataset=None):
+def datasets(dataset=None, page=1):
     """Show entries of a specific table, or just list tables in the system if no parameter is provided"""
     if dataset is None:
         # get the tables associated with this user
@@ -84,9 +84,19 @@ def datasets(dataset=None):
     else:
         # get info from requested table out of dataset table
         dataset_info = Dataset.query.filter(Dataset.id == dataset).first()
-        db_engine = db.engine
-        csv_dataframe = pd.read_sql_table(
-            dataset_info.sql_table_name, db_engine)
-        # print csv_dataframe
+        table = tnto(dataset_info.sql_table_name)
+
+        column_names = []
+        for column in table.columns:
+            start = str(column).find('.') + 1
+            column_names.append(str(column)[start:])
+
+        data_page = db.session.query(table).paginate(page, 25, error_out=False)
+
         # render the table requested
-        return render_template("render_table.html", table=csv_dataframe.to_html(classes="table table-striped"))
+        return render_template(
+            "render_table.html",
+            cnames=column_names,
+            dataset=dataset,
+            data=data_page
+        )
