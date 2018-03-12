@@ -1,8 +1,4 @@
 from app import database as db
-from flask_login import current_user
-import pandas as pd
-import datetime
-from app._user.models import User
 
 
 class ProjectAccess(db.Model):
@@ -67,42 +63,6 @@ class Dataset(db.Model):
         self.sql_table_name = table_name
         self.description = description
         self.project_id = project
-
-    @classmethod
-    def import_from_csv(cls, name, description, file, project):
-        db_engine = db.engine
-        csv_dataframe = pd.read_csv(file)
-
-        table_name = str(datetime.datetime.now())
-        table_name = table_name.replace(" ", "")
-        table_name = table_name.replace("-", "")
-        table_name = table_name.replace(":", "")
-        table_name = table_name.replace(".", "")
-        table_name = "t" + table_name
-
-        print(table_name)
-
-        csv_dataframe.to_sql(name=table_name, con=db_engine, if_exists="fail")
-
-        new_set = Dataset(name, table_name, description, project)
-        db.session.add(new_set)
-        db.session.commit()
-        # doesnt have to be added each time
-        # TODO make this clean
-        try:
-            user_link = ProjectAccess(current_user.id, project)
-            db.session.add(user_link)
-            db.session.commit()
-        except:
-            pass
-
-    @classmethod
-    def import_from_zip(cls, file):
-        pass
-
-    @classmethod
-    def import_from_dump(cls, file):
-        pass
 
 
 class View(db.Model):
