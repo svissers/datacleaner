@@ -28,7 +28,7 @@ Dashboard
               </thead>
               <tbody>
                   {% for table in tables %}
-                  <tr onclick="location.href='{{url_for('data_bp.datasets', dataset=table[0], page=1)}}'">
+                  <tr onclick="location.href='{{url_for('data_bp.datasets', dataset=table[0])}}'">
                       <td>{{table[4]}}</td>
                     <td>{{table[0]}}</td>
                     <td>{{table[1]}}</td>
