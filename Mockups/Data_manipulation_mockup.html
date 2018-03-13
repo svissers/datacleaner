@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Main</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="{{ url_for('main_bp.dashboard') }}">Datacleaner</a>
+      </div>
+      <div id="navbar" class="navbar-collapse collapse">
+        <ul class="nav navbar-nav navbar-left">
+          <li><a href="{{ url_for('data_bp.projects') }}">Projects</a></li>
+          <li><a href="{{ url_for('data_bp.upload') }}">Upload</a></li>
+          <!--li><a href="#">Browse</a></li-->
+        </ul>
+
+        <ul class="nav navbar-nav navbar-right">
+          {% if current_user.admin %}
+          <li><a href="{{ url_for('admin.index') }}">Manage</a></li>
+          {% endif %}
+          <li><a href="{{ url_for('user_bp.profile') }}">Profile</a></li>
+          <li><a href="{{ url_for('user_bp.logout') }}">Log Out</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <body>
+    <br>
+    <br>
+    <br>
+    <br>
+
+
+
+    <div class="card mb-5">
+                <div class="card-header">Data Entries</div>
+                <div class="card-block p-0">
+                    <table class="table table-bordered table-sm m-0">
+                        <thead class="">
+                            <tr>
+                                <th>#</th>
+                                <th>Surname</th>
+                                <th>Name</th>
+                                <th>Postal code</th>
+                                <th>City</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <label class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input">
+                                        <span class="custom-control-indicator"></span>
+                                    </label>
+                                </td>
+                                <td>Joske</td>
+                                <td>Vermeulen</td>
+                                <td>2940</td>
+                                <td>Stabroek</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input">
+                                        <span class="custom-control-indicator"></span>
+                                    </label>
+                                </td>
+                                <td>Pol</td>
+                                <td>De Ridder</td>
+                                <td>2600</td>
+                                <td>Berchem</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input">
+                                        <span class="custom-control-indicator"></span>
+                                    </label>
+                                </td>
+                                <td>Jozef</td>
+                                <td>De Witte</td>
+                                <td>2080</td>
+                                <td>Ekeren</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <button type="button" class="btn btn-primary btn-lg btn-block">Delete</button>
