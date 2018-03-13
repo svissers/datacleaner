@@ -16,8 +16,8 @@ class CustomAdminIndexView(AdminIndexView):
             return redirect(url_for('user_bp.login'))
         if not current_user.admin:
             return redirect(url_for('main_bp.dashboard'))
-        #return render_template("admin.html")
-        return super(CustomAdminIndexView, self).index()
+        return render_template("_admin/index.html")
+        #return super(CustomAdminIndexView, self).index()
 
 
 class UserAdminView(ModelView):

@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Main</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="{{ url_for('main_bp.dashboard') }}">Datacleaner</a>
+      </div>
+      <div id="navbar" class="navbar-collapse collapse">
+        <ul class="nav navbar-nav navbar-left">
+          <li><a href="{{ url_for('data_bp.projects') }}">Projects</a></li>
+          <li><a href="{{ url_for('data_bp.upload') }}">Upload</a></li>
+          <!--li><a href="#">Browse</a></li-->
+        </ul>
+
+        <ul class="nav navbar-nav navbar-right">
+          {% if current_user.admin %}
+          <li><a href="{{ url_for('admin.index') }}">Manage</a></li>
+          {% endif %}
+          <li><a href="{{ url_for('user_bp.profile') }}">Profile</a></li>
+          <li><a href="{{ url_for('user_bp.logout') }}">Log Out</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <body>
+    <br>
+    <br>
+    <br>
+    <br>
+
+
+
+
+
+
+<table class="table table-bordered table-definition mb-5">
+     <thead class="table-warning ">
+         <tr>
+             <th></th>
+             <th>Name</th>
+             <th>Registration Date</th>
+             <th>E-mail address</th>
+             <th>Status</th>
+         </tr>
+     </thead>
+     <tbody>
+         <tr>
+             <td>
+                 <label class="custom-control custom-checkbox">
+                     <input type="checkbox" class="custom-control-input">
+                     <span class="custom-control-indicator"></span>
+                 </label>
+             </td>
+             <td>Jos Vermeulen</td>
+             <td>September 14, 2013</td>
+             <td>jos@gmail.com</td>
+             <td>Active</td>
+         </tr>
+         <tr>
+             <td>
+                 <label class="custom-control custom-checkbox">
+                     <input type="checkbox" class="custom-control-input">
+                     <span class="custom-control-indicator"></span>
+                 </label>
+             </td>
+             <td>Julie</ De Bakkertd>
+             <td>Oktober 24, 2017</td>
+             <td>Julie@gmail.com</td>
+             <td>Non Active</td>
+         </tr>
+         <tr>
+             <td>
+                 <label class="custom-control custom-checkbox">
+                     <input type="checkbox" class="custom-control-input">
+                     <span class="custom-control-indicator"></span>
+                 </label>
+             </td>
+             <td>Tom Mulder</td>
+             <td>Februari 27, 2016</td>
+             <td>Tom@gmail.com</td>
+             <td>Active</td>
+         </tr>
+     </tbody>
+     <tfoot>
+         <tr>
+             <th></th>
+             <th colspan="4">
+                 <button class="btn btn-primary float-right">Set all active</button>
+                 <button class="btn btn-primary">Set Active</button>
+                 <button class="btn btn-primary">Set Non active</button>
+             </th>
+         </tr>
+     </tfoot>
+ </table>
