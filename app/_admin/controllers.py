@@ -3,7 +3,7 @@ from flask_admin.contrib.sqla import ModelView
 from flask_admin import AdminIndexView, expose
 from flask_admin.base import MenuLink
 from app._user.models import User
-from flask import Blueprint, redirect, url_for
+from flask import Blueprint, redirect, url_for, render_template
 from flask_login import current_user
 
 _admin = Blueprint('admin_bp', __name__)
@@ -16,6 +16,7 @@ class CustomAdminIndexView(AdminIndexView):
             return redirect(url_for('user_bp.login'))
         if not current_user.admin:
             return redirect(url_for('main_bp.dashboard'))
+        #return render_template("admin.html")
         return super(CustomAdminIndexView, self).index()
 
 
