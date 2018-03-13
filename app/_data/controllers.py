@@ -72,31 +72,43 @@ def projects():
             return render_template("display_projects.html", projects=projects, form=form)
 
 
-@_data.route('/datasets/<int:dataset>/<int:page>')
+#@_data.route('/datasets/<int:dataset>/<int:page>')
 @_data.route('/datasets/')
 @login_required
 def datasets(dataset=None, page=1):
     """Show entries of a specific table, or just list tables in the system if no parameter is provided"""
+    dataset = request.args.get('dataset', None)
+
     if dataset is None:
         # get the tables associated with this user
         tables = get_tables(current_user.id)
         return render_template("display_tables.html", tables=tables)
     else:
         # get info from requested table out of dataset table
+        dataset = int(dataset)
+        page = request.args.get('page', None)
         dataset_info = Dataset.query.filter(Dataset.id == dataset).first()
         table = tnto(dataset_info.sql_table_name)
-
         column_names = []
         for column in table.columns:
             start = str(column).find('.') + 1
             column_names.append(str(column)[start:])
 
-        data_page = db.session.query(table).paginate(page, 25, error_out=False)
+        if page is None:
+            #make statistics
 
-        # render the table requested
-        return render_template(
-            "render_table.html",
-            cnames=column_names,
-            dataset_info=dataset_info,
-            data=data_page
-        )
+            return render_template("render_table.html", dataset_info=dataset_info,cnames=column_names,columns=[])
+        else:
+            page = int(page)
+            results_per_page = int(request.args.get('resultsperpage', 25))
+            # todo, if the number of results changes, check page
+            data_page = db.session.query(table).paginate(page, results_per_page, error_out=False)
+
+            # render the table requested
+            return render_template(
+                "render_data.html",
+                cnames=column_names,
+                dataset_info=dataset_info,
+                data=data_page,
+                resultsperpage=results_per_page
+            )
