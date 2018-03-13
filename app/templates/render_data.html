@@ -50,14 +50,25 @@ Dashboard
                 <input hidden name=page value=1>
             </form>
         </div>
+        <div>
+            Go to page
+            <form action='{{url_for(request.endpoint)}}'>
+                <input name=page value={{data.page}} type=number>
+                <input hidden name=dataset value={{dataset_info.id}}>
+                <input hidden name=resultsperpage value={{resultsperpage}}>
+                <input hidden type=submit>
+            </form>
+        </div>
       <ul class="pagination">
-        {% for i in range(1,data.pages+1) %}
+          <li><a href="{{ url_for(request.endpoint, dataset=dataset_info.id, page=1, resultsperpage=resultsperpage) }}">1</a></li>
+        {% for i in range((data.page-2, 2)|max,(data.pages, data.page+3)|min) %}
         {% if i == data.page %}
         <li class="active"><a href="#">{{ i }}</a></li>
         {% else %}
         <li><a href="{{ url_for(request.endpoint, dataset=dataset_info.id, page=i, resultsperpage=resultsperpage) }}">{{ i }}</a></li>
         {% endif %}
         {% endfor %}
+        <li><a href="{{ url_for(request.endpoint, dataset=dataset_info.id, page=data.pages, resultsperpage=resultsperpage) }}">{{data.pages}}</a></li>
       </ul>
     </nav>
   </div>
