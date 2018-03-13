@@ -90,7 +90,6 @@ def edit_profile():
             flash('Current password is not correct.', 'danger')
             return render_template('edit_profile.html', info=info, form=form)
         try:
-            print(info['id'])
             User.update_by_id(
                 info['id'],
                 form.first_name.data,

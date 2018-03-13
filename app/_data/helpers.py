@@ -51,8 +51,6 @@ def upload_csv(name, description, file, project):
     table_name = table_name.replace(".", "")
     table_name = "t" + table_name
 
-    print(table_name)
-
     csv_dataframe.to_sql(name=table_name, con=db_engine, if_exists="fail")
 
     Dataset(name, table_name, description, project).add_to_database()
