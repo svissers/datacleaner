@@ -97,6 +97,6 @@ def datasets(dataset=None, page=1):
         return render_template(
             "render_table.html",
             cnames=column_names,
-            dataset=dataset,
+            dataset_info=dataset_info,
             data=data_page
         )

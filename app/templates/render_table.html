@@ -15,11 +15,8 @@ Dashboard
 <div class="container-fluid">
   <div class="row">
     <div class="col-md-12">
-      <h1 class="page-header">Table name</h1>
-
-      <h2 class="sub-header">Section title</h2>
-      <div class="table-responsive">
-        <table class="table table-striped">
+      <h1 class="page-header">Table: {{ dataset_info.name }}</h1>
+        <table class="table table-striped table-condensed">
           <thead>
             <tr>
               {% for cname in cnames %}
@@ -37,7 +34,6 @@ Dashboard
             {% endfor %}
           </tbody>
         </table>
-      </div>
     </div>
   </div>
   <div class="row">
@@ -47,7 +43,7 @@ Dashboard
         {% if i == data.page %}
         <li class="active"><a href="#">{{ i }}</a></li>
         {% else %}
-        <li><a href="{{ url_for(request.endpoint) }}{{ dataset }}/{{ i }}">{{ i }}</a></li>
+        <li><a href="{{ url_for(request.endpoint) }}{{ dataset_info.id }}/{{ i }}">{{ i }}</a></li>
         {% endif %}
         {% endfor %}
       </ul>
