@@ -19,7 +19,6 @@ def upload():
     form.project.choices = get_projects(current_user.id)
     # print form.project.data
     if form.validate_on_submit():
-        print(form.project.data)
         file = request.files['csvfile']
         upload_csv(form.name.data,
                    form.description.data,
@@ -28,7 +27,6 @@ def upload():
 
         flash('Your csv has been uploaded.', 'success')
         # return redirect(url_for("upload"))
-        print(url_for('data_bp.projects', project=form.project.data))
         return redirect(url_for('data_bp.projects', project=form.project.data))
     return render_template('upload.html', form=form)
 
@@ -67,7 +65,6 @@ def projects():
                 flash('failed to create project.', 'failure')
                 pass
         else:
-            print('test')
             projects = get_projects(current_user.id, True)
             return render_template("display_projects.html", projects=projects, form=form)
 
