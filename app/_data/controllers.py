@@ -47,7 +47,7 @@ def projects():
             projects = get_projects(current_user.id, True)
             return render_template("display_projects.html", projects=projects, form=form)
         else:
-            # render the project requested
+            # show the tables form the project requested
             tables = get_tables(current_user.id, project)
             project_name = Project.query.filter(
                 Project.id == project).first().name

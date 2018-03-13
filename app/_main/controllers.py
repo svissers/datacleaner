@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for
 from flask_login import login_required, current_user
+from app._data.helpers import get_tables, get_projects
 
 _main = Blueprint('main_bp', __name__)
 
@@ -14,4 +15,8 @@ def index():
 @_main.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('_main/dashboard.html')
+    projects = get_projects(current_user.id, True)
+    tables = get_tables(current_user.id)
+    projects = projects[:min(len(projects), 5)]
+    tables = tables[:min(len(tables), 5)]
+    return render_template('_main/dashboard.html', projects=projects, tables=tables)
