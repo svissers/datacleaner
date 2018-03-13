@@ -4,7 +4,7 @@
 source env/bin/activate
 
 # Run server
-python3 tests.py
+python tests.py
 
 # Exit virtual environment
 deactivate
