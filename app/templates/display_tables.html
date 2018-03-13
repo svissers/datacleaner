@@ -21,7 +21,8 @@ Dashboard
             <table class="table table-striped">
               <thead>
                 <tr>
-                  <th>#</th>
+                  <th>Project #</th>
+                  <th>Table #</th>
                   <th>Table name</th>
                   <th>Description</th>
                 </tr>
@@ -29,6 +30,7 @@ Dashboard
               <tbody>
                   {% for table in tables %}
                   <tr onclick="location.href='{{url_for('data_bp.datasets', dataset=table[0], page=1)}}'">
+                      <td>{{table[4]}}</td>
                     <td>{{table[0]}}</td>
                     <td>{{table[1]}}</td>
                     <td>{{table[2]}}</td>
