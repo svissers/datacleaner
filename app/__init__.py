@@ -28,11 +28,11 @@ admin = Admin()
 
 # Import user modules, needs to be after login_manager instantiation
 from app._user.controllers import _user as user_module
-from app._admin.controllers import _admin as admin_module, CustomAdminIndexView
+from app._admin.controllers import _admin as admin_module#, CustomAdminIndexView
 from app._main.controllers import _main as main_module
 from app._data.controllers import _data as data_module
 
-admin.init_app(app=app, index_view=CustomAdminIndexView())
+# admin.init_app(app=app)#, index_view=CustomAdminIndexView())
 
 # Register blueprints
 app.register_blueprint(user_module)

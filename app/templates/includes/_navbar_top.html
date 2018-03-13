@@ -18,7 +18,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         {% if current_user.admin %}
-        <li><a href="{{ url_for('admin.index') }}">Manage</a></li>
+        <li><a href="{{ url_for('admin_bp.index') }}">Manage</a></li>
         {% endif %}
         <li><a href="{{ url_for('user_bp.profile') }}">Profile</a></li>
         <li><a href="{{ url_for('user_bp.logout') }}">Log Out</a></li>
