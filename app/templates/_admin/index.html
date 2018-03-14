@@ -22,62 +22,37 @@ Dashboard
          <tr>
              <th></th>
              <th>Name</th>
-             <th>Registration Date</th>
+             <!-- <th>Registration Date</th> -->
              <th>E-mail address</th>
-             <th>Status</th>
-             <th>Admin </th>
+             <th>Disabled</th>
+             <th>Admin</th>
          </tr>
      </thead>
      <tbody>
+         {% for user in users %}
          <tr>
              <td>
                  <label class="custom-control custom-checkbox">
-                     <input type="checkbox" class="custom-control-input">
+                     <input type="checkbox" name="user_id[]" class="custom-control-input" value={{user.id}}>
                      <span class="custom-control-indicator"></span>
                  </label>
              </td>
-             <td>Jos Vermeulen</td>
-             <td>September 14, 2013</td>
-             <td>jos@gmail.com</td>
-             <td>Active</td>
-             <td> No</td>
+             <td>{{user.first_name}} {{user.last_name}}</td>
+             <!-- <td>September 14, 2013</td> -->
+             <td>{{user.email}}</td>
+             <td>{{user.disabled}}</td>
+             <td>{{user.admin}}</td>
          </tr>
-         <tr>
-             <td>
-                 <label class="custom-control custom-checkbox">
-                     <input type="checkbox" class="custom-control-input">
-                     <span class="custom-control-indicator"></span>
-                 </label>
-             </td>
-             <td>Julie</ De Bakkertd>
-             <td>Oktober 24, 2017</td>
-             <td>Julie@gmail.com</td>
-             <td>Non Active</td>
-             <td> No </td>
-         </tr>
-         <tr>
-             <td>
-                 <label class="custom-control custom-checkbox">
-                     <input type="checkbox" class="custom-control-input">
-                     <span class="custom-control-indicator"></span>
-                 </label>
-             </td>
-             <td>Tom Mulder</td>
-             <td>Februari 27, 2016</td>
-             <td>Tom@gmail.com</td>
-             <td>Active</td>
-             <td> Yes</td>
-         </tr>
+         {% endfor %}
      </tbody>
      <tfoot>
          <tr>
              <th></th>
              <th colspan="5">
-                 <input onclick="this.form.action='{{url_for('admin_bp.active', active=True, all=True)}}'; this.form.submit()" class="btn btn-primary float-right" value="Set all active">
-                 <a href="{{url_for('admin_bp.active', active=True)}}" class="btn btn-primary">Set Active</a>
-                 <a href="{{url_for('admin_bp.active', active=False)}}" class="btn btn-primary">Set Non active</a>
-                 <a href="{{url_for('admin_bp.admin')}}" class="btn btn-primary">Make Admin</a>
-                 <a href="{{url_for('admin_bp.admin')}}" class="btn btn-primary">Remove Admin</a>
+                 <input onclick="this.form.action='{{url_for('admin_bp.active', disabled=True)}}'; this.form.submit()" class="btn btn-primary float-right" value="Disable">
+                 <input onclick="this.form.action='{{url_for('admin_bp.active')}}'; this.form.submit()" class="btn btn-primary float-right" value="Enable">
+                 <input onclick="this.form.action='{{url_for('admin_bp.admin', admin=True)}}'; this.form.submit()" class="btn btn-primary float-right" value="Make admin">
+                 <input onclick="this.form.action='{{url_for('admin_bp.admin')}}'; this.form.submit()" class="btn btn-primary float-right" value="Remove admin">
              </th>
          </tr>
      </tfoot>

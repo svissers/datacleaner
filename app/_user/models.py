@@ -75,6 +75,20 @@ class User(db.Model, UserMixin):
         db.session.commit()
 
     @classmethod
+    def update_admin_by_id(cls, id, admin):
+        """Updates user info associated with given id"""
+        user = User.get_by_id(id)
+        user.admin = admin
+        db.session.commit()
+
+    @classmethod
+    def update_disabled_by_id(cls, id, disabled):
+        """Updates user info associated with given id"""
+        user = User.get_by_id(id)
+        user.disabled = disabled
+        db.session.commit()
+
+    @classmethod
     def validate_login_credentials(cls, uname_candidate, pw_candidate):
         """
         Validates candidate user credentials
@@ -99,3 +113,7 @@ class User(db.Model, UserMixin):
         elif username_exists and not User.query.filter_by(username='admin').first().admin:
             User.query.filter_by(username='admin').first().admin = True
             db.session.commit()
+
+    @classmethod
+    def get_all_users(cls):
+        return User.query.all()

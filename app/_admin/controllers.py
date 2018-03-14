@@ -14,7 +14,8 @@ def index():
         return redirect(url_for('user_bp.login'))
     if not current_user.admin:
         return redirect(url_for('main_bp.dashboard'))
-    return render_template("_admin/index.html")
+    users = User.get_all_users()
+    return render_template("_admin/index.html", users=users)
 
 @_admin.route("/active", methods=["POST"])
 def active():
@@ -22,13 +23,25 @@ def active():
         return redirect(url_for('user_bp.login'))
     if not current_user.admin:
         return redirect(url_for('main_bp.dashboard'))
-    active = bool(request.form.get("active", True))
-    all = bool(request.form.get("active", False))
-    return render_template("_admin/index.html")
+    #for some reasons, this bool is true even with argument == "False", so default is False and only provide arg if arg=True
+    disabled = bool(request.args.get("disabled", False))
+    users = request.form.getlist("user_id[]")
+    for user in users:
+        User.update_disabled_by_id(int(user), disabled)
 
-@_admin.route("/admin")
+    return redirect(url_for("admin_bp.index"))
+
+@_admin.route("/admin", methods=["POST"])
 def admin():
-    active = bool(request.args.get("active", True))
+    if not current_user.is_authenticated:
+        return redirect(url_for('user_bp.login'))
+    if not current_user.admin:
+        return redirect(url_for('main_bp.dashboard'))
+    admin = bool(request.args.get("admin", False))
+    users = request.form.getlist("user_id[]")
+    for user in users:
+        User.update_admin_by_id(int(user), admin)
+    return redirect(url_for("admin_bp.index"))
 
 
 # class CustomAdminIndexView(AdminIndexView):
