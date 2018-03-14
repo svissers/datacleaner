@@ -62,14 +62,26 @@ class User(db.Model, UserMixin):
         return User.query.filter_by(id=user_id).first()
 
     @classmethod
-    def update_by_id(cls, id, fname, lname, organization, email, uname, pw):
+    def update_by_id(
+        cls,
+        id,
+        fname,
+        lname,
+        organization,
+        email,
+        uname,
+        pw,
+        admin=None,
+        disabled=None,
+        accept_blank=False
+    ):
         """Updates user info associated with given id"""
         user = User.get_by_id(id)
-        if fname:
+        if fname or accept_blank:
             user.first_name = fname
-        if lname:
+        if lname or accept_blank:
             user.last_name = lname
-        if organization:
+        if organization or accept_blank:
             user.organization = organization
         if email:
             user.email = email
@@ -77,6 +89,10 @@ class User(db.Model, UserMixin):
             user.username = uname
         if pw:
             user.password = generate_password_hash(pw, method='sha256')
+        if admin is not None:
+            user.admin = admin
+        if disabled is not None:
+            user.disabled = disabled
         db.session.commit()
 
     @classmethod

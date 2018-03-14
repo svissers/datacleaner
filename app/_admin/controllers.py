@@ -18,8 +18,10 @@ from datatables import (
 )
 from app._admin.forms import EditForm
 
+# blueprint definition
 _admin = Blueprint('admin_bp', __name__, url_prefix='/admin')
 
+# routes #=====================================================================
 
 @_admin.route('/data')
 @login_required
@@ -54,12 +56,17 @@ def data():
 @login_required
 def manage_users():
     """If user is admin lists with user data, redirects to dashboard if not"""
+
+    # Check if the current user has admin privileges
     if not current_user.admin:
         return redirect(url_for('main_bp.dashboard'))
 
+    # defining initial form
     form = EditForm()
 
+    # check if form input is valid
     if form.validate_on_submit():
+        # check if update button was pressed
         if request.form["button"] == "update":
             User.update_by_id(
                 form.user_id.data,
@@ -68,8 +75,12 @@ def manage_users():
                 form.organization.data,
                 form.email.data,
                 form.username.data,
-                ""
+                "",
+                form.admin.data,
+                form.disabled.data,
+                True
             )
+        # check if delete button was pressed
         elif request.form["button"] == "delete":
             User.query.filter_by(id=form.user_id.data).first().\
                 delete_from_database()
