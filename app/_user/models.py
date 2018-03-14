@@ -46,6 +46,11 @@ class User(db.Model, UserMixin):
             raise Exception(
                 'A user has already been registered using this username.')
 
+    def delete_from_database(self):
+        """Removes user instance from database"""
+        db.session.delete(self)
+        db.session.commit()
+
     @classmethod
     def get_by_name(cls, username):
         """Returns user info associated with given username"""
@@ -96,6 +101,6 @@ class User(db.Model, UserMixin):
             new = User('', '', '', 'admin@datacleaner.com', 'admin', 'admin')
             new.admin = True
             new.add_to_database()
-        elif username_exists and not User.query.filter_by(username='admin').first().admin:
+        elif username_exists and not username_exists.admin:
             User.query.filter_by(username='admin').first().admin = True
             db.session.commit()
