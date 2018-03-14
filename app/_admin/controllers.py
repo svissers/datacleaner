@@ -1,78 +1,77 @@
-from app import admin, database
-from flask_admin.contrib.sqla import ModelView
-from flask_admin import AdminIndexView, expose
-from flask_admin.base import MenuLink
+from app import database
 from app._user.models import User
-from flask import Blueprint, redirect, url_for, render_template, request
-from flask_login import current_user
+from flask import (
+    Blueprint,
+    request,
+    jsonify,
+    redirect,
+    url_for,
+    render_template
+)
+from flask_login import (
+    login_required,
+    current_user
+)
+from datatables import (
+    ColumnDT,
+    DataTables
+)
+from app._admin.forms import EditForm
 
 _admin = Blueprint('admin_bp', __name__, url_prefix='/admin')
 
-@_admin.route("/")
-def index():
-    if not current_user.is_authenticated:
-        return redirect(url_for('user_bp.login'))
+
+@_admin.route('/data')
+@login_required
+def data():
+    """Return server side data"""
+    # defining columns
+    columns = [
+        ColumnDT(User.id),
+        ColumnDT(User.first_name),
+        ColumnDT(User.last_name),
+        ColumnDT(User.organization),
+        ColumnDT(User.email),
+        ColumnDT(User.username),
+        ColumnDT(User.admin),
+        ColumnDT(User.disabled)
+    ]
+
+    # defining initial query
+    query = database.session.query().select_from(User)
+
+    # GET parameters
+    params = request.args.to_dict()
+
+    # instantiating a DataTable for the query and table needed
+    rowTable = DataTables(params, query, columns)
+
+    # returns what is needed by DataTable
+    return jsonify(rowTable.output_result())
+
+
+@_admin.route('/manage_users', methods=['GET', 'POST'])
+@login_required
+def manage_users():
+    """If user is admin lists with user data, redirects to dashboard if not"""
     if not current_user.admin:
         return redirect(url_for('main_bp.dashboard'))
-    users = User.get_all_users()
-    return render_template("_admin/index.html", users=users)
 
-@_admin.route("/active", methods=["POST"])
-def active():
-    if not current_user.is_authenticated:
-        return redirect(url_for('user_bp.login'))
-    if not current_user.admin:
-        return redirect(url_for('main_bp.dashboard'))
-    #for some reasons, this bool is true even with argument == "False", so default is False and only provide arg if arg=True
-    disabled = bool(request.args.get("disabled", False))
-    users = request.form.getlist("user_id[]")
-    for user in users:
-        User.update_disabled_by_id(int(user), disabled)
+    form = EditForm()
 
-    return redirect(url_for("admin_bp.index"))
+    if form.validate_on_submit():
+        if request.form["button"] == "update":
+            User.update_by_id(
+                form.user_id.data,
+                form.first_name.data,
+                form.last_name.data,
+                form.organization.data,
+                form.email.data,
+                form.username.data,
+                ""
+            )
+        elif request.form["button"] == "delete":
+            User.query.filter_by(id=form.user_id.data).first().\
+                delete_from_database()
 
-@_admin.route("/admin", methods=["POST"])
-def admin():
-    if not current_user.is_authenticated:
-        return redirect(url_for('user_bp.login'))
-    if not current_user.admin:
-        return redirect(url_for('main_bp.dashboard'))
-    admin = bool(request.args.get("admin", False))
-    users = request.form.getlist("user_id[]")
-    for user in users:
-        User.update_admin_by_id(int(user), admin)
-    return redirect(url_for("admin_bp.index"))
-
-
-# class CustomAdminIndexView(AdminIndexView):
-#     @expose('/')
-#     def index(self):
-#         if not current_user.is_authenticated:
-#             return redirect(url_for('user_bp.login'))
-#         if not current_user.admin:
-#             return redirect(url_for('main_bp.dashboard'))
-#         return render_template("_admin/index.html")
-#         #return super(CustomAdminIndexView, self).index()
-#
-#
-# class UserAdminView(ModelView):
-#     # Don't display the password on the list of Users
-#     column_exclude_list = ('password')
-#     column_searchable_list = ['first_name', 'last_name', 'organization',
-#                               'email']
-#     column_editable_list = ['staff', 'admin', 'disabled']
-#     can_create = False
-#     can_edit = False
-#     can_export = True
-#
-#     def is_accessible(self):
-#         try:
-#             return current_user.admin
-#         except AttributeError:
-#             return False
-#
-#
-# admin.add_view(UserAdminView(User, database.session))
-#
-# return_link = MenuLink(name='Return to dashboard', url='/dashboard')
-# admin.add_link(return_link)
+    return render_template('_admin/manage_users.html', form=form)

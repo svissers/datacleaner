@@ -1,0 +1,87 @@
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}
+Manage Users
+{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="{{url_for('static', filename='css/dataTables.checkboxes.css')}}">
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="container">
+        <table id="user_table" class="display" cellspacing="0" width="100%">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Organization</th>
+                    <th>Email</th>
+                    <th>Username</th>
+                    <th>Admin Rights</th>
+                    <th>Disabled</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <form class="form-signin" method="POST" action="/admin/manage_users">
+            {{ form.hidden_tag() }}
+            {{ wtf.form_field(form.user_id) }}
+            {{ wtf.form_field(form.first_name) }}
+            {{ wtf.form_field(form.last_name) }}
+            {{ wtf.form_field(form.organization) }}
+            {{ wtf.form_field(form.email) }}
+            {{ wtf.form_field(form.username) }}
+            {{ wtf.form_field(form.admin) }}
+            {{ wtf.form_field(form.disabled) }}
+            <button type="submit" class="btn btn-danger" name="button" value="delete">Delete</button>
+            <button type="submit" class="btn btn-success" name="button" value="update">Update</button>
+        </form>
+    </div>
+</div>
+</div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script src="{{url_for('static', filename='js/dataTables.checkboxes.min.js')}}"></script>
+<script type="text/javascript" charset="utf-8">
+    $(document).ready(function (){
+   var table = $('#user_table').DataTable({
+      'processing': true,
+      'serverSide': true,
+      'ajax': "{{ url_for('admin_bp.data') }}",
+
+   });
+   $('#user_table tbody').on('click', 'tr', function () {
+        var data = table.row( this ).data();
+        document.getElementById("user_id").value = data[0]
+        document.getElementById("first_name").value = data[1]
+        document.getElementById("last_name").value = data[2]
+        document.getElementById("organization").value = data[3]
+        document.getElementById("email").value = data[4]
+        document.getElementById("username").value = data[5]
+        document.getElementById("admin").checked = data[6];
+        document.getElementById("disabled").checked = data[7];
+        $('#myModal').modal('show');
+    } );
+ });
+
+</script>
+{% endblock %}
