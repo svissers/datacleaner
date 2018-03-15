@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash,jsonify
 from flask_login import login_required, current_user
 from app._data.forms import UploadForm, ProjectForm
 from app._data.models import Dataset
@@ -6,8 +6,41 @@ from .models import Project
 import pandas as pd
 from app import database as db
 from .helpers import get_projects, create_project, get_tables, upload_csv, table_name_to_object as tnto
+from datatables import (
+    ColumnDT,
+    DataTables
+)
 
 _data = Blueprint('data_bp', __name__, url_prefix='/data')
+
+
+@_data.route('/retrieve_data/<string:sql_table_name>')
+@login_required
+def retrieve_data(sql_table_name):
+    """Return server side data"""
+    table = tnto(sql_table_name)
+
+    column_names = []
+    for column in table.columns:
+        start = str(column).find('.') + 1
+        column_names.append(str(column)[start:])
+
+    columns = []
+    for name in column_names:
+        statement = "columns.append(ColumnDT(table.c['{0}']))".format(name)
+        exec(statement)
+
+    # defining initial query
+    query = db.session.query().select_from(table)
+
+    # GET parameters
+    params = request.args.to_dict()
+
+    # instantiating a DataTable for the query and table needed
+    rowTable = DataTables(params, query, columns)
+
+    # returns what is needed by DataTable
+    return jsonify(rowTable.output_result())
 
 
 @_data.route('/upload', methods=['GET', 'POST'])
@@ -20,6 +53,7 @@ def upload():
     # print form.project.data
     if form.validate_on_submit():
         file = request.files['csvfile']
+        print(file)
         upload_csv(form.name.data,
                    form.description.data,
                    file,
