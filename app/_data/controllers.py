@@ -112,7 +112,7 @@ def dataset():
             # render the table requested
             return render_template(
                 "render_data.html",
-                cnames=column_names,
+                cnames=column_names[1:],
                 dataset_info=dataset_info
             )
         else:
@@ -122,3 +122,13 @@ def dataset():
                 cnames=column_names,
                 columns=[]
             )
+
+
+@_data.route('/datasets/delete/<id>', methods=["POST"])
+def delete(id):
+    selected_data = request.form.getlist("data_id[]")
+    dataset_info = Dataset.query.filter(Dataset.id == id).first()
+    table = tnto(dataset_info.sql_table_name)
+    for data in selected_data:
+        table.delete(table.c.index == data).execute()
+    return redirect(request.referrer)
