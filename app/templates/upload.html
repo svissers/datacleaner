@@ -22,8 +22,7 @@ Upload
           <div class="table-responsive">
               <form method="post" enctype="multipart/form-data">
                   {{ form.hidden_tag() }}
-                  {{ wtf.form_field(form.project) }}
-                  {{ wtf.form_field(form.csvfile) }}
+                  {{ wtf.form_field(form.file) }}
                   {{ wtf.form_field(form.name) }}
                   {{ wtf.form_field(form.description) }}
                   <input type="submit">

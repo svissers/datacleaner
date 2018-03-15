@@ -19,7 +19,7 @@ def get_projects(user_id, description=False):
     return [(p.id, p.name) for p in query_data]
 
 
-def get_tables(user_id, project_id=None):
+def get_datasets(user_id, project_id=None):
     query_data = db.session.query(Dataset).\
         join(Project, Project.id == Dataset.project_id).\
         join(ProjectAccess, Project.id == ProjectAccess.project_id).\

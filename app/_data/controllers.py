@@ -5,7 +5,7 @@ from app._data.models import Dataset
 from .models import Project
 import pandas as pd
 from app import database as db
-from .helpers import get_projects, create_project, get_tables, upload_csv, table_name_to_object as tnto
+from .helpers import get_projects, create_project, get_datasets, upload_csv, table_name_to_object as tnto
 from datatables import (
     ColumnDT,
     DataTables
@@ -14,10 +14,16 @@ from datatables import (
 _data = Blueprint('data_bp', __name__, url_prefix='/data')
 
 
-@_data.route('/retrieve_data/<string:sql_table_name>')
+@_data.route('/retrieve_data')
 @login_required
-def retrieve_data(sql_table_name):
+def retrieve_data():
     """Return server side data"""
+
+    sql_table_name = request.args.get('sql_table_name', None)
+
+    if sql_table_name is None:
+        return '{}'
+
     table = tnto(sql_table_name)
 
     column_names = []
@@ -43,81 +49,58 @@ def retrieve_data(sql_table_name):
     return jsonify(rowTable.output_result())
 
 
-@_data.route('/upload', methods=['GET', 'POST'])
+@_data.route('/<int:project_id>/upload', methods=['POST'])
 @login_required
-def upload():
-    form = UploadForm()
-    # for project in get_projects():
-    #     form.project.append_entry(project)
-    form.project.choices = get_projects(current_user.id)
-    # print form.project.data
-    if form.validate_on_submit():
-        file = request.files['csvfile']
-        print(file)
-        upload_csv(form.name.data,
-                   form.description.data,
-                   file,
-                   form.project.data)
-
-        flash('Your csv has been uploaded.', 'success')
-        # return redirect(url_for("upload"))
-        return redirect(url_for('data_bp.projects', project=form.project.data))
-    return render_template('upload.html', form=form)
-
-
-@_data.route('/projects/', methods=['GET', 'POST'])
-@login_required
-def projects():
-    """ - Show all projects if no project is provided, else show information about that specific project
-        - Create new projects and update user permissions
-    """
-    project = request.args.get('project', None)
-    form = ProjectForm()
-    if request.method == "GET":
-        if project is None:
-            # get the projects associated with this user
-            projects = get_projects(current_user.id, True)
-            return render_template("display_projects.html", projects=projects, form=form)
-        else:
-            # show the tables form the project requested
-            tables = get_tables(current_user.id, project)
-            project_name = Project.query.filter(
-                Project.id == project).first().name
-            return render_template("render_project.html", tables=tables, project_name=project_name)
-    else:
-        # create new project
-        if form.validate_on_submit():
-            try:
-                create_project(
+def upload(project_id):
+    form = UploadForm(request.form)
+    if form.is_submitted():
+        mimetype = str(request.files['file'].content_type)
+        try:
+            if mimetype == 'text/csv':
+                upload_csv(
                     form.name.data,
                     form.description.data,
-                    current_user.id
+                    request.files['file'],
+                    project_id
                 )
-                flash('Your project has been created.', 'success')
-                return redirect(url_for('data_bp.projects'))
-            except:
-                flash('failed to create project.', 'failure')
-                pass
-        else:
-            projects = get_projects(current_user.id, True)
-            return render_template("display_projects.html", projects=projects, form=form)
+            elif mimetype == 'application/zip':
+                pass  # TODO: implement zip upload
+            elif mimetype == 'application/octet-stream':
+                pass  # TODO: implement .sql/.dump upload
+        except Exception:
+            flash('An error occured while uploading your file.', 'danger')
+        flash('Your file has been uploaded!', 'success')
+    return redirect(url_for('main_bp.dashboard'))
 
 
-#@_data.route('/datasets/<int:dataset>/<int:page>')
-@_data.route('/datasets/')
+@_data.route('/new_project', methods=['POST'])
 @login_required
-def datasets(dataset=None, page=1):
+def new_project():
+    form = ProjectForm(request.form)
+    if form.validate_on_submit():
+        try:
+            create_project(
+                form.name.data,
+                form.description.data,
+                current_user.id
+            )
+            flash('New project created successfully!', 'success')
+        except Exception:
+            flash('Failed to create project. Please try again.', 'failure')
+    return redirect(url_for('main_bp.dashboard'))
+
+
+@_data.route('/dataset/')
+@login_required
+def dataset():
     """Show entries of a specific table, or just list tables in the system if no parameter is provided"""
     dataset = request.args.get('dataset', None)
-
+    view_raw = bool(request.args.get('raw', None))
     if dataset is None:
-        # get the tables associated with this user
-        tables = get_tables(current_user.id)
-        return render_template("display_tables.html", tables=tables)
+        return redirect(url_for('main_bp.dashboard'))
     else:
         # get info from requested table out of dataset table
         dataset = int(dataset)
-        page = request.args.get('page', None)
         dataset_info = Dataset.query.filter(Dataset.id == dataset).first()
         table = tnto(dataset_info.sql_table_name)
         column_names = []
@@ -125,21 +108,17 @@ def datasets(dataset=None, page=1):
             start = str(column).find('.') + 1
             column_names.append(str(column)[start:])
 
-        if page is None:
-            #make statistics
-
-            return render_template("render_table.html", dataset_info=dataset_info,cnames=column_names,columns=[])
-        else:
-            page = int(page)
-            results_per_page = int(request.args.get('resultsperpage', 25))
-            # todo, if the number of results changes, check page
-            data_page = db.session.query(table).paginate(page, results_per_page, error_out=False)
-
+        if view_raw:
             # render the table requested
             return render_template(
                 "render_data.html",
                 cnames=column_names,
+                dataset_info=dataset_info
+            )
+        else:
+            return render_template(
+                "render_table.html",
                 dataset_info=dataset_info,
-                data=data_page,
-                resultsperpage=results_per_page
+                cnames=column_names,
+                columns=[]
             )

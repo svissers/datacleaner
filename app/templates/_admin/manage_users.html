@@ -8,9 +8,11 @@ Manage Users
 {% block styles %}
 {{ super() }}
 <link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="{{url_for('static', filename='css/_navbar_top.css')}}">
 {% endblock %}
 
 {% block content %}
+{% include 'includes/_navbar_top.html' %}
 <div class="row">
     <div class="container">
         <table id="user_table" class="display" cellspacing="0" width="100%">

@@ -1,4 +1,5 @@
 {% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
 
 {% block title %}
 Dashboard
@@ -11,56 +12,86 @@ Dashboard
 
 {% block content %}
 {% include 'includes/_navbar_top.html' %}
-
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h1 class="page-header">Welcome, {{ current_user.username }}</h1>
-          <h2 class="sub-header">Last Projects</h2>
-          <div class="table-responsive">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Project name</th>
-                  <th>Description</th>
-                </tr>
-              </thead>
-              <tbody>
-                  {% for project in projects %}
-                      <tr onclick="location.href='{{url_for('data_bp.projects', project=project[0])}}'">
-                          <td>{{project[0]}}</td>
-                          <td>{{project[1]}}</td>
-                          <td>{{project[2]}}</td>
-                      </tr>
-                  {% endfor %}
-              </tbody>
-            </table>
-          </div>
-          <h2 class="sub-header">Last tables</h2>
-          <div class="table-responsive">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>Project #</th>
-                  <th>Table #</th>
-                  <th>Table name</th>
-                  <th>Description</th>
-                </tr>
-              </thead>
-              <tbody>
-                  {% for table in tables %}
-                  <tr onclick="location.href='{{url_for('data_bp.datasets', dataset=table[0], page=1)}}'">
-                    <td>{{table[4]}}</td>
-                    <td>{{table[0]}}</td>
-                    <td>{{table[1]}}</td>
-                    <td>{{table[2]}}</td>
-                  </tr>
-                  {% endfor %}
-              </tbody>
-            </table>
-          </div>
+{% include 'includes/_messages.html' %}
+<div class="container">
+    <h1>Projects</h1>
+    {% for project in projects %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-info">
+                <div class="panel-heading clickable">
+                    <h3 class="panel-title">{{ project[1] }}</h3>
+                    <span class="pull-right "><i class="glyphicon glyphicon-minus"></i></span>
+                </div>
+                <div class="panel-body">
+                    <div class="col-md-6">
+                      <h4>Description:</h4>
+                      {{ project[2] }}
+                      <hr/>
+                      <div class="list-group">
+                      {% for dataset in datasets %}
+                        {% if dataset[4] == project[0] %}
+                        <a href="{{ url_for('data_bp.dataset', dataset=dataset[0]) }}" class="list-group-item">
+                          <h4 class="list-group-item-heading">{{ dataset[1] }}</h4>
+                          <p class="list-group-item-text">{{ dataset[2] }}</p>
+                        </a>
+                        {% endif %}
+                      {% endfor %}
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <h4>Upload:</h4>
+                      <form method="POST" action="/data/{{ project[0] }}/upload" enctype="multipart/form-data">
+                        {{ upload_form.hidden_tag() }}
+                        {{ wtf.form_field(upload_form.file) }}
+                        {{ wtf.form_field(upload_form.name) }}
+                        {{ wtf.form_field(upload_form.description) }}    
+                        <button type="submit" class="btn btn-success pull-right" name="button" value="upload">Upload</button>
+                      </form>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
+    {% endfor %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-success">
+                <div class="panel-heading clickable">
+                    <h3 class="panel-title">Create New Project</h3>
+                    <span class="pull-right "><i class="glyphicon glyphicon-minus"></i></span>
+                </div>
+                <div class="panel-body">
+                  <form method="POST" action="/data/new_project">
+                    {{ project_form.hidden_tag() }}
+                    {{ wtf.form_field(project_form.name) }}
+                    {{ wtf.form_field(project_form.description) }}
+                    <button type="submit" class="btn btn-success pull-right" name="button" value="create">Create</button>
+                  </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script type="text/javascript" charset="utf-8">
+$(document).on('click', '.panel div.clickable', function (e) {
+    var $this = $(this);
+    if (!$this.hasClass('panel-collapsed')) {
+        $this.parent('.panel').find('.panel-body').slideUp();
+        $this.addClass('panel-collapsed');
+        $this.find('i').removeClass('glyphicon-minus').addClass('glyphicon-plus');
+    } else {
+        $this.parent('.panel').find('.panel-body').slideDown();
+        $this.removeClass('panel-collapsed');
+        $this.find('i').removeClass('glyphicon-plus').addClass('glyphicon-minus');
+    }
+});
+$(document).ready(function () {
+    $('.clickable').click();
+});
+</script>
 {% endblock %}
