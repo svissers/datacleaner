@@ -21,6 +21,7 @@ from app._admin.forms import EditForm
 # blueprint definition
 _admin = Blueprint('admin_bp', __name__, url_prefix='/admin')
 
+
 # routes #=====================================================================
 
 @_admin.route('/data')
