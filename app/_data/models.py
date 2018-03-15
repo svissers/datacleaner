@@ -74,6 +74,19 @@ class Dataset(db.Model):
         db.session.add(self)
         db.session.commit()
 
+    def remove_from_database(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def remove_row(self, id):
+        self.query.filter_by(id=id).delete()
+        db.session.commit()
+
+    @classmethod
+    def get_by_id(cls, dataset_id):
+        """Returns dataset info associated with given id"""
+        return Dataset.query.filter_by(id=dataset_id).first()
+
 
 class View(db.Model):
     """

@@ -109,3 +109,15 @@ def datasets(dataset=None, page=1):
                 data=data_page,
                 resultsperpage=results_per_page
             )
+
+
+@_data.route('/datasets/delete/<id>', methods=["POST"])
+def delete(id):
+    selected_data = request.form.getlist("data_id[]")
+    dataset_info = Dataset.query.filter(Dataset.id == id).first()
+    table = tnto(dataset_info.sql_table_name)
+    for data in selected_data:
+        table.delete(table.c.index == data).execute()
+    return redirect(request.referrer)
+
+
