@@ -21,6 +21,7 @@ def retrieve_data(sql_table_name):
     table = tnto(sql_table_name)
 
     column_names = []
+
     for column in table.columns:
         start = str(column).find('.') + 1
         column_names.append(str(column)[start:])
@@ -29,7 +30,6 @@ def retrieve_data(sql_table_name):
     for name in column_names:
         statement = "columns.append(ColumnDT(table.c['{0}']))".format(name)
         exec(statement)
-
     # defining initial query
     query = db.session.query().select_from(table)
 
@@ -38,7 +38,6 @@ def retrieve_data(sql_table_name):
 
     # instantiating a DataTable for the query and table needed
     rowTable = DataTables(params, query, columns)
-
     # returns what is needed by DataTable
     return jsonify(rowTable.output_result())
 
@@ -53,7 +52,6 @@ def upload():
     # print form.project.data
     if form.validate_on_submit():
         file = request.files['csvfile']
-        print(file)
         upload_csv(form.name.data,
                    form.description.data,
                    file,
@@ -138,14 +136,14 @@ def datasets(dataset=None, page=1):
             # render the table requested
             return render_template(
                 "render_data.html",
-                cnames=column_names,
+                cnames=column_names[1:],
                 dataset_info=dataset_info,
                 data=data_page,
                 resultsperpage=results_per_page
             )
 
 
-@_data.route('/datasets/delete/<id>', methods=["POST"])
+@_data.route('/datasets/delete/<id>', methods=['POST'])
 def delete(id):
     selected_data = request.form.getlist("data_id[]")
     dataset_info = Dataset.query.filter(Dataset.id == id).first()
