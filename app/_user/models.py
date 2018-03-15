@@ -46,6 +46,11 @@ class User(db.Model, UserMixin):
             raise Exception(
                 'A user has already been registered using this username.')
 
+    def delete_from_database(self):
+        """Removes user instance from database"""
+        db.session.delete(self)
+        db.session.commit()
+
     @classmethod
     def get_by_name(cls, username):
         """Returns user info associated with given username"""
@@ -57,14 +62,26 @@ class User(db.Model, UserMixin):
         return User.query.filter_by(id=user_id).first()
 
     @classmethod
-    def update_by_id(cls, id, fname, lname, organization, email, uname, pw):
+    def update_by_id(
+        cls,
+        id,
+        fname,
+        lname,
+        organization,
+        email,
+        uname,
+        pw,
+        admin=None,
+        disabled=None,
+        accept_blank=False
+    ):
         """Updates user info associated with given id"""
         user = User.get_by_id(id)
-        if fname:
+        if fname or accept_blank:
             user.first_name = fname
-        if lname:
+        if lname or accept_blank:
             user.last_name = lname
-        if organization:
+        if organization or accept_blank:
             user.organization = organization
         if email:
             user.email = email
@@ -72,6 +89,10 @@ class User(db.Model, UserMixin):
             user.username = uname
         if pw:
             user.password = generate_password_hash(pw, method='sha256')
+        if admin is not None:
+            user.admin = admin
+        if disabled is not None:
+            user.disabled = disabled
         db.session.commit()
 
     @classmethod
@@ -110,7 +131,7 @@ class User(db.Model, UserMixin):
             new = User('', '', '', 'admin@datacleaner.com', 'admin', 'admin')
             new.admin = True
             new.add_to_database()
-        elif username_exists and not User.query.filter_by(username='admin').first().admin:
+        elif username_exists and not username_exists.admin:
             User.query.filter_by(username='admin').first().admin = True
             db.session.commit()
 
