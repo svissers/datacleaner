@@ -15,10 +15,11 @@ Manage Users
 {% include 'includes/_navbar_top.html' %}
 <div class="row">
     <div class="container">
+      <form method=post>
         <table id="user_table" class="display" cellspacing="0" width="100%">
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th></th>
                     <th>First Name</th>
                     <th>Last Name</th>
                     <th>Organization</th>
@@ -30,10 +31,14 @@ Manage Users
             </thead>
             <tbody></tbody>
         </table>
+        <input onclick="this.form.action='{{url_for('admin_bp.update_admin')}}'; this.form.submit()" class="btn btn-primary float-right" value="Change Admin">
+        <input onclick="this.form.action='{{url_for('admin_bp.update_disabled')}}'; this.form.submit()" class="btn btn-primary float-right" value="Change Disabled">
+       </form>
     </div>
 </div>
 
 <!-- Modal -->
+  <!--
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -55,7 +60,7 @@ Manage Users
 </div>
 </div>
 </div>
-
+-->
 {% endblock %}
 
 {% block scripts %}
@@ -67,20 +72,30 @@ Manage Users
       'processing': true,
       'serverSide': true,
       'ajax': "{{ url_for('admin_bp.data') }}",
+       'columnDefs': [{
+         'targets': 0,
+         'searchable': false,
+         'orderable': false,
+         'className': 'dt-body-center',
+         'render': function (data, type, full, meta){
+             return '<input type="checkbox" name="user_id[]" value="' + $('<div/>').text(data).html() + '">';
+         }
+      }],
+      'order': [[1, 'asc']]
 
    });
-   $('#user_table tbody').on('click', 'tr', function () {
-        var data = table.row( this ).data();
-        document.getElementById("user_id").value = data[0]
-        document.getElementById("first_name").value = data[1]
-        document.getElementById("last_name").value = data[2]
-        document.getElementById("organization").value = data[3]
-        document.getElementById("email").value = data[4]
-        document.getElementById("username").value = data[5]
-        document.getElementById("admin").checked = data[6];
-        document.getElementById("disabled").checked = data[7];
-        $('#myModal').modal('show');
-    } );
+   {#$('#user_table tbody').on('click', 'tr', function () {#}
+   {#     var data = table.row( this ).data();#}
+   {#     document.getElementById("user_id").value = data[0]#}
+   {#     document.getElementById("first_name").value = data[1]#}
+   {#     document.getElementById("last_name").value = data[2]#}
+   {#     document.getElementById("organization").value = data[3]#}
+   {#     document.getElementById("email").value = data[4]#}
+   {#     document.getElementById("username").value = data[5]#}
+   {#     document.getElementById("admin").checked = data[6];#}
+   {#     document.getElementById("disabled").checked = data[7];#}
+   {#     $('#myModal').modal('show');#}
+   {# } );#}
  });
 
 </script>

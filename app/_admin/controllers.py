@@ -87,3 +87,21 @@ def manage_users():
                 delete_from_database()
 
     return render_template('_admin/manage_users.html', form=form)
+
+
+@_admin.route('/manage_users/update_admin', methods=['POST'])
+def update_admin():
+    selected_user = request.form.getlist('user_id[]')
+    for user in selected_user:
+        admin = User.get_by_id(int(user)).admin
+        User.update_admin_by_id(int(user), not bool(admin))
+    return redirect(request.referrer)
+
+
+@_admin.route('/manage_users/update_disabled', methods=['POST'])
+def update_disabled():
+    selected_user = request.form.getlist('user_id[]')
+    for user in selected_user:
+        disabled = User.get_by_id(int(user)).disabled
+        User.update_disabled_by_id(int(user), not bool(disabled))
+    return redirect(request.referrer)
