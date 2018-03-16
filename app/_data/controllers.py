@@ -111,13 +111,13 @@ def dataset():
         if view_raw:
             # render the table requested
             return render_template(
-                "render_data.html",
+                "_data/render_data.html",
                 cnames=column_names[1:],
                 dataset_info=dataset_info
             )
         else:
             return render_template(
-                "render_table.html",
+                "_data/render_table.html",
                 dataset_info=dataset_info,
                 cnames=column_names,
                 columns=[]
