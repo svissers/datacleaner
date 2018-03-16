@@ -31,36 +31,12 @@ Manage Users
             </thead>
             <tbody></tbody>
         </table>
-        <input onclick="this.form.action='{{url_for('admin_bp.update_admin')}}'; this.form.submit()" class="btn btn-primary float-right" value="Change Admin">
-        <input onclick="this.form.action='{{url_for('admin_bp.update_disabled')}}'; this.form.submit()" class="btn btn-primary float-right" value="Change Disabled">
+        <button type="submit" class="btn btn-danger" name="button" value="delete">Delete</button>
+        <button type="submit" class="btn btn-info" name="button" value="admin">Toggle admin</button>
+        <button type="submit" class="btn btn-info" name="button" value="disabled">Toggle disabled</button>
        </form>
     </div>
 </div>
-
-<!-- Modal -->
-  <!--
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-body">
-        <form class="form-signin" method="POST" action="/admin/manage_users">
-            {{ form.hidden_tag() }}
-            {{ wtf.form_field(form.user_id) }}
-            {{ wtf.form_field(form.first_name) }}
-            {{ wtf.form_field(form.last_name) }}
-            {{ wtf.form_field(form.organization) }}
-            {{ wtf.form_field(form.email) }}
-            {{ wtf.form_field(form.username) }}
-            {{ wtf.form_field(form.admin) }}
-            {{ wtf.form_field(form.disabled) }}
-            <button type="submit" class="btn btn-danger" name="button" value="delete">Delete</button>
-            <button type="submit" class="btn btn-success" name="button" value="update">Update</button>
-        </form>
-    </div>
-</div>
-</div>
-</div>
--->
 {% endblock %}
 
 {% block scripts %}
@@ -82,20 +58,7 @@ Manage Users
          }
       }],
       'order': [[1, 'asc']]
-
    });
-   {#$('#user_table tbody').on('click', 'tr', function () {#}
-   {#     var data = table.row( this ).data();#}
-   {#     document.getElementById("user_id").value = data[0]#}
-   {#     document.getElementById("first_name").value = data[1]#}
-   {#     document.getElementById("last_name").value = data[2]#}
-   {#     document.getElementById("organization").value = data[3]#}
-   {#     document.getElementById("email").value = data[4]#}
-   {#     document.getElementById("username").value = data[5]#}
-   {#     document.getElementById("admin").checked = data[6];#}
-   {#     document.getElementById("disabled").checked = data[7];#}
-   {#     $('#myModal').modal('show');#}
-   {# } );#}
  });
 
 </script>
