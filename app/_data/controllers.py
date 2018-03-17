@@ -53,8 +53,8 @@ def retrieve_data():
 @_data.route('/<int:project_id>/upload', methods=['POST'])
 @login_required
 def upload(project_id):
-    form = UploadForm(request.form)
-    if form.is_submitted():
+    form = UploadForm()
+    if form.validate_on_submit():
         mimetype = str(request.files['file'].content_type)
         try:
             if mimetype == 'text/csv':
