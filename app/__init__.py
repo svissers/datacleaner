@@ -2,7 +2,6 @@ from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
-from flask_admin import Admin
 import sys
 
 # Setup and config app
@@ -22,9 +21,6 @@ database = SQLAlchemy(app)
 
 # Setup LoginManager
 login_manager = LoginManager(app)
-
-# Setup Admin
-admin = Admin()
 
 # Import user modules, needs to be after login_manager instantiation
 from app._user.controllers import _user as user_module

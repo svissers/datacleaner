@@ -1,7 +1,7 @@
-from app import login_manager as lm
+from app import login_manager as lm, database as db
 from .models import User
 from .forms import SignUpForm, LoginForm, EditForm
-from flask import Blueprint, render_template, flash, redirect, url_for
+from flask import Blueprint, render_template, flash, redirect, url_for, jsonify, request
 from flask_login import login_user, logout_user, login_required, current_user
 
 
@@ -12,6 +12,12 @@ lm.login_view = 'user_bp.login'
 @lm.user_loader
 def load_user(user_id):
     return User.query.get(user_id)
+
+
+@_user.route('/autocomplete', methods=['GET'])
+def autocomplete():
+    users = User.query.with_entities(User.username).all()
+    return jsonify(users)
 
 
 @_user.route('/signup', methods=['GET', 'POST'])

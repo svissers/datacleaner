@@ -8,6 +8,7 @@ Dashboard
 {% block styles %}
 {{super()}}
 <link rel="stylesheet" href="{{url_for('static', filename='dashboard.css')}}">
+<link rel="stylesheet" href="{{url_for('static', filename='css/typeahead.css')}}">
 {% endblock %}
 
 {% block content %}
@@ -24,6 +25,7 @@ Dashboard
                     <span class="pull-right "><i class="glyphicon glyphicon-minus"></i></span>
                 </div>
                 <div class="panel-body">
+                  <div class="row">
                     <div class="col-md-6">
                       <h4>Description:</h4>
                       {{ project[2] }}
@@ -49,6 +51,21 @@ Dashboard
                         <button type="submit" class="btn btn-success pull-right" name="button" value="upload">Upload</button>
                       </form>
                     </div>
+                  </div>
+                  <hr/>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <form class="form" method="POST" action="{{ url_for('data_bp.share_project', project_id=project[0]) }}">
+                        <button type="submit" class="btn btn-info project-action" name="button" value="share">Share</button>
+                        {{ share_form.hidden_tag() }}
+                        {{ share_form.username(class_="form-control typeahead",  autocomplete="off") }}
+                      </form>
+                    </div>
+                    <div class="col-md-6">
+                      <button type="submit" class="btn btn-danger pull-right project-action" name="button" value="upload">Delete</button>
+                      <button type="submit" class="btn btn-warning pull-right project-action" name="button" value="upload">Edit</button>
+                    </div>
+                  </div>
                 </div>
             </div>
         </div>
@@ -77,7 +94,11 @@ Dashboard
 
 {% block scripts %}
 {{ super() }}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
 <script type="text/javascript" charset="utf-8">
+
+
+  // panel expansion
 $(document).on('click', '.panel div.clickable', function (e) {
     var $this = $(this);
     if (!$this.hasClass('panel-collapsed')) {
@@ -94,4 +115,30 @@ $(document).ready(function () {
     $('.clickable').click();
 });
 </script>
+
+<script type="text/javascript">
+$(document).ready(function () {
+    localStorage.clear();
+    // Constructs the suggestion engine
+    var users = new Bloodhound({
+        datumTokenizer: Bloodhound.tokenizers.whitespace,
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        // The url points to a json file that contains an array of country names
+        prefetch: "{{ url_for('user_bp.autocomplete') }}"
+    });
+
+    console.log('HELLO')
+    
+    // Initializing the typeahead with remote dataset without highlighting
+    $('.typeahead').typeahead(null, {
+        name: 'users',
+        source: users,
+        limit: 5, /* Specify max number of suggestions to be displayed */
+        hint: true,
+        highlight: true, /* Enable substring highlighting */
+        minLength: 1 /* Specify minimum characters required for showing */
+    });
+});
+</script>
+
 {% endblock %}

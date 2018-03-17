@@ -23,3 +23,13 @@ class ProjectForm(FlaskForm):
         'Project description',
         validators=[InputRequired(), Length(max=255)]
     )
+
+
+class ShareForm(FlaskForm):
+    """Represents form used for sharing projects"""
+    username = StringField(
+        '',
+        id='username',
+        validators=[InputRequired()]
+    )
+

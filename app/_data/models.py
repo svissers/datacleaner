@@ -20,10 +20,12 @@ class ProjectAccess(db.Model):
         db.ForeignKey("project.id"),
         primary_key=True
     )
+    owner = db.Column(db.Boolean)
 
-    def __init__(self, user_id, project_id):
+    def __init__(self, user_id, project_id, owner):
         self.user_id = user_id
         self.project_id = project_id
+        self.owner = owner
 
     def add_to_database(self):
         """Adds project access instance to database"""

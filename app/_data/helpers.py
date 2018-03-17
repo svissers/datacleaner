@@ -7,7 +7,11 @@ from flask_sqlalchemy import Pagination
 def create_project(project_name, description, user_id):
     new_project = Project(project_name, description)
     new_project.add_to_database()
-    ProjectAccess(user_id, new_project.id).add_to_database()
+    ProjectAccess(user_id, new_project.id, owner=True).add_to_database()
+
+
+def share_project_with(project_id, user_id):
+    ProjectAccess(user_id, project_id, owner=False).add_to_database()
 
 
 def get_projects(user_id, description=False):
