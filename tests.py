@@ -94,6 +94,13 @@ class UserTests(TestCase):
             userid = User.get_by_name('test').id
             User.update_by_id(userid, '', '', '', 'test2', '', '')
 
+    def test_edit_admin_username(self):
+        User('', '', '', 'admin', 'admin', 'admin').add_to_database()
+        userid = User.get_by_name('admin').id
+        self.assertIsNone(User.update_by_id(userid, '', '', '', '', 'admin', ''))
+        with self.assertRaises(Exception):
+            User.update_by_id(userid, '', '', '', '', 'test', '')
+
     def test_init_admin(self):
         self.assertFalse(User.get_by_name('admin'))
         User.init_admin()
@@ -123,7 +130,7 @@ class DataTests(TestCase):
         project = Project('test', 'test')
         project.add_to_database()
         projectid = project.id
-        ProjectAccess(userid, projectid).add_to_database()
+        ProjectAccess(userid, projectid, userid).add_to_database()
         self.assertTrue(ProjectAccess.query.filter_by(project_id=projectid).first())
         self.assertTrue(ProjectAccess.query.filter_by(user_id=userid).first())
 

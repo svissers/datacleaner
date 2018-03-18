@@ -124,7 +124,6 @@ class User(db.Model, UserMixin):
     @classmethod
     def init_admin(cls):
         username_exists = User.query.filter_by(username='admin').first()
-        print(username_exists)
         if not username_exists:
             new = User('', '', '', 'admin@datacleaner.com', 'admin', 'admin')
             new.admin = True
