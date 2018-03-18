@@ -63,18 +63,17 @@ class User(db.Model, UserMixin):
         return User.query.filter_by(id=user_id).first()
 
     @classmethod
-    def update_by_id(cls, id, fname, lname, organization, email,
-                     uname, pw, admin=None, disabled=None, accept_blank=False):
+    def update_by_id(cls, id, fname, lname, organization, email, uname, pw):
         email_exists = User.query.filter(and_(User.email == email, User.id != id)).first()
         username_exists = User.query.filter(and_(User.username == uname, User.id != id)).first()
         if not email_exists and not username_exists:
             """Updates user info associated with given id"""
             user = User.get_by_id(id)
-            if fname or accept_blank:
+            if fname:
                 user.first_name = fname
-            if lname or accept_blank:
+            if lname:
                 user.last_name = lname
-            if organization or accept_blank:
+            if organization:
                 user.organization = organization
             if email:
                 user.email = email
@@ -85,10 +84,6 @@ class User(db.Model, UserMixin):
                 user.username = uname
             if pw:
                 user.password = generate_password_hash(pw, method='sha256')
-            if admin is not None:
-                user.admin = admin
-            if disabled is not None:
-                user.disabled = disabled
             db.session.commit()
         elif email_exists:
             raise Exception(

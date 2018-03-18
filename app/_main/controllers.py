@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for
 from flask_login import login_required, current_user
 from app._data.helpers import get_datasets, get_projects
-from app._data.forms import UploadForm, ProjectForm
+from app._data.forms import UploadForm, ProjectForm, ShareForm
 
 _main = Blueprint('main_bp', __name__)
 
@@ -21,11 +21,13 @@ def dashboard():
 
     upload_form = UploadForm()
     project_form = ProjectForm()
+    share_form = ShareForm()
 
     return render_template(
         '_main/dashboard.html',
         projects=projects,
         datasets=datasets,
         upload_form=upload_form,
-        project_form=project_form
+        project_form=project_form,
+        share_form=share_form
     )

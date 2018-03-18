@@ -16,7 +16,6 @@ from datatables import (
     ColumnDT,
     DataTables
 )
-from app._admin.forms import EditForm
 
 # blueprint definition
 _admin = Blueprint('admin_bp', __name__, url_prefix='/admin')
@@ -62,31 +61,15 @@ def manage_users():
     if not current_user.admin:
         return redirect(url_for('main_bp.dashboard'))
 
-    # defining initial form
-    form = EditForm()
-
-    # check if form input is valid
-    if form.validate_on_submit():
-        # check if update button was pressed
-        if request.form["button"] == "update":
-            User.update_by_id(
-                form.user_id.data,
-                form.first_name.data,
-                form.last_name.data,
-                form.organization.data,
-                form.email.data,
-                form.username.data,
-                "",
-                form.admin.data,
-                form.disabled.data,
-                True
-            )
-        # check if delete button was pressed
+    if request.method == 'POST':
+        if request.form["button"] == "admin":
+            return redirect(url_for('admin_bp.update_admin'), code=307)
+        elif request.form["button"] == "disabled":
+            return redirect(url_for('admin_bp.update_disabled'), code=307)
         elif request.form["button"] == "delete":
-            User.query.filter_by(id=form.user_id.data).first().\
-                delete_from_database()
+            return redirect(url_for('admin_bp.delete'), code=307)
 
-    return render_template('_admin/manage_users.html', form=form)
+    return render_template('_admin/manage_users.html')
 
 
 @_admin.route('/manage_users/update_admin', methods=['POST'])
@@ -104,4 +87,12 @@ def update_disabled():
     for user in selected_user:
         disabled = User.get_by_id(int(user)).disabled
         User.update_disabled_by_id(int(user), not bool(disabled))
+    return redirect(request.referrer)
+
+
+@_admin.route('/manage_users/delete', methods=['POST'])
+def delete():
+    selected_user = request.form.getlist('user_id[]')
+    for user in selected_user:
+        User.get_by_id(user).delete_from_database()
     return redirect(request.referrer)

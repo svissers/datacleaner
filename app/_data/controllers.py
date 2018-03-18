@@ -1,11 +1,12 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash,jsonify
 from flask_login import login_required, current_user
-from app._data.forms import UploadForm, ProjectForm
+from app._data.forms import UploadForm, ProjectForm, ShareForm
 from app._data.models import Dataset
 from .models import Project
+from app._user.models import User
 import pandas as pd
 from app import database as db
-from .helpers import get_projects, create_project, get_datasets, upload_csv, table_name_to_object as tnto
+from .helpers import get_projects, create_project, get_datasets, upload_csv, table_name_to_object as tnto, share_project_with
 from datatables import (
     ColumnDT,
     DataTables
@@ -52,8 +53,8 @@ def retrieve_data():
 @_data.route('/<int:project_id>/upload', methods=['POST'])
 @login_required
 def upload(project_id):
-    form = UploadForm(request.form)
-    if form.is_submitted():
+    form = UploadForm()
+    if form.validate_on_submit():
         mimetype = str(request.files['file'].content_type)
         try:
             if mimetype == 'text/csv':
@@ -87,6 +88,37 @@ def new_project():
             flash('New project created successfully!', 'success')
         except Exception:
             flash('Failed to create project. Please try again.', 'failure')
+    return redirect(url_for('main_bp.dashboard'))
+
+
+@_data.route('/share_project', methods=['POST'])
+@login_required
+def share_project():
+    form = ShareForm()
+    if form.validate_on_submit():
+        submitted_user = User.get_by_name(form.username.data)
+        if submitted_user is not None:
+            try:
+                share_project_with(
+                    request.args.get('project_id'),
+                    submitted_user.id
+                )
+                flash(
+                    'The project was succesfully shared with {}.'.
+                    format(form.username.data),
+                    'success'
+                )
+            except Exception:
+                flash(
+                    '{} alreay has access to this project.'.
+                    format(form.username.data),
+                    'warning'
+                )
+        else:
+            flash(
+                'No user with username: {}.'.format(form.username.data),
+                'danger'
+            )
     return redirect(url_for('main_bp.dashboard'))
 
 
