@@ -13,16 +13,10 @@ def share_project_with(project_id, user_id):
     ProjectAccess(user_id, project_id, owner=False).add_to_database()
 
 
-def get_projects(user_id, description=False, is_owner=None):
+def get_projects(user_id, description=False):
     query_data = db.session.query(Project).\
         join(ProjectAccess, Project.id == ProjectAccess.project_id).\
         filter(ProjectAccess.user_id == user_id)
-    if is_owner is not None:
-        if is_owner:
-            query_data = query_data.filter(ProjectAccess.owner == 'true')
-        else:
-            query_data = query_data.filter(ProjectAccess.owner == 'false')
-
     if description:
         return [(p.id, p.name, p.description) for p in query_data]
     return [(p.id, p.name) for p in query_data]

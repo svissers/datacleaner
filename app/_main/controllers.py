@@ -16,8 +16,7 @@ def index():
 @_main.route('/dashboard')
 @login_required
 def dashboard():
-    own_projects = get_projects(current_user.id, True, True)
-    shared_projects = get_projects(current_user.id, True, False)
+    projects = get_projects(current_user.id, True)
     datasets = get_datasets(current_user.id)
 
     upload_form = UploadForm()
@@ -26,8 +25,7 @@ def dashboard():
 
     return render_template(
         '_main/dashboard.html',
-        own_projects=own_projects,
-        shared_projects=shared_projects,
+        projects=projects,
         datasets=datasets,
         upload_form=upload_form,
         project_form=project_form,
