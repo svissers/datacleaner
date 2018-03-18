@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm, RecaptchaField
-from wtforms import StringField, PasswordField, BooleanField
+from wtforms import StringField, PasswordField, BooleanField, HiddenField
 from wtforms.validators import InputRequired, Email, Length, EqualTo, Optional
 
 
@@ -55,6 +55,7 @@ class LoginForm(FlaskForm):
 
 class EditForm(FlaskForm):
     """Represents form used for edit user info"""
+    user_id = HiddenField('', id='user_id')
     first_name = StringField(
         'First Name',
         validators=[Optional(), Length(max=25)]
@@ -75,13 +76,13 @@ class EditForm(FlaskForm):
         'Username',
         validators=[Optional(), Length(min=4, max=20)]
     )
-    password = PasswordField(
-        'New Password',
+    new_password = PasswordField(
+        'New password',
         validators=[Optional(), Length(min=4, max=80)]
     )
     confirm_password = PasswordField(
         'Confirm new password',
-        validators=[EqualTo('password')]
+        validators=[EqualTo('new_password')]
     )
     current_password = PasswordField(
         'Current password',
