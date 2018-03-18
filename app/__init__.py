@@ -22,9 +22,9 @@ database = SQLAlchemy(app)
 # Setup LoginManager
 login_manager = LoginManager(app)
 
-# Import user modules, needs to be after login_manager instantiation
+# Import user modules, needs to be after login_manager and database instantiation
 from app._user.controllers import _user as user_module
-from app._admin.controllers import _admin as admin_module#, CustomAdminIndexView
+from app._admin.controllers import _admin as admin_module
 from app._main.controllers import _main as main_module
 from app._data.controllers import _data as data_module
 

@@ -6,11 +6,14 @@ from .models import Project
 from app._user.models import User
 import pandas as pd
 from app import database as db
-from .helpers import get_projects, create_project, get_datasets, upload_csv, table_name_to_object as tnto, share_project_with
+from .helpers import get_projects, create_project, get_datasets, upload_csv, table_name_to_object as tnto, share_project_with, upload_join
 from datatables import (
     ColumnDT,
     DataTables
 )
+
+import zipfile as zf
+import os
 
 _data = Blueprint('data_bp', __name__, url_prefix='/data')
 
@@ -49,6 +52,43 @@ def retrieve_data():
     # returns what is needed by DataTable
     return jsonify(rowTable.output_result())
 
+@_data.route('/join/', methods=['POST'])
+@login_required
+def join():
+    name = request.args.get('name')
+    description = request.args.get('description')
+    project_id = request.args.get('project_id')
+    for submission in request.form:
+        if submission.endswith('-join-type') and request.form[submission] != 'NONE':
+            left_column_key = submission.rstrip('-join-type') + '-left-column'
+            right_column_key = submission.rstrip('-join-type') + '-right-column'
+            left_column = request.form[left_column_key]
+            right_column = request.form[right_column_key]
+            files = submission.rstrip('-join-type').split('~')
+            upload_join(
+                name,
+                submission.rstrip('-type') + '\n' + description,
+                files[0],
+                files[1],
+                left_column,
+                right_column,
+                request.form[submission],
+                project_id
+            )
+        elif submission.endswith('-checkbox'):
+            filename = submission.rstrip('-checkbox')
+            upload_csv(
+                name + "-" + filename,
+                description,
+                './file_queue/' + filename,
+                project_id
+            )
+
+    filelist = os.listdir('./file_queue/')
+    for f in filelist:
+        os.remove(os.path.join('./file_queue/', f))
+
+    return redirect(url_for('main_bp.dashboard'))
 
 @_data.route('/<int:project_id>/upload', methods=['POST'])
 @login_required
@@ -65,7 +105,36 @@ def upload(project_id):
                     project_id
                 )
             elif mimetype == 'application/zip':
-                pass  # TODO: implement zip upload
+                with zf.ZipFile(request.files['file'], 'r') as csv_zip:
+                    files = []
+                    for file in csv_zip.namelist():
+                        if file.find('/') == -1:
+                            files.append(file)
+                    # list all possible join combinations
+                    table_combinations = []
+                    for first in range(0, len(files)-1):
+                        for second in range(first+1, len(files)):
+                            table_combinations.\
+                                append((files[first], files[second]))
+
+                    # map filename to column name
+                    file_to_column = {}
+                    for file in files:
+                        csv_zip.extract(file, path='./file_queue')
+                        data = open('./file_queue/{}'.format(file), 'r')
+                        cscolumns = data.readline()
+                        columns = [x.strip() for x in cscolumns.split(',')]
+                        file_to_column[file] = columns
+                        data.close()
+
+                    return render_template(
+                        '_data/join_view.html',
+                        join_combinations=table_combinations,
+                        file_to_column=file_to_column,
+                        project_id=project_id,
+                        data_name=form.name.data,
+                        data_description=form.description.data
+                    )
             elif mimetype == 'application/octet-stream':
                 pass  # TODO: implement .sql/.dump upload
         except Exception:

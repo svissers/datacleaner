@@ -1,7 +1,6 @@
 from app._data.models import ProjectAccess, Project, Dataset, View, Action, db
 import pandas as pd
 import datetime
-from flask_sqlalchemy import Pagination
 
 
 def create_project(project_name, description, user_id):
@@ -60,8 +59,61 @@ def upload_csv(name, description, file, project):
     Dataset(name, table_name, description, project).add_to_database()
 
 
-def upload_zip(name, description, file, project):
-    pass
+def upload_join(name, description, file_left, file_right,
+                column_left, column_right, join_type, project):
+    # ./file_queue
+    db_engine = db.engine
+    dataframe_left = pd.read_csv('./file_queue/' + file_left)
+    dataframe_right = pd.read_csv('./file_queue/' + file_right)
+    result_dataframe = pd.DataFrame()
+    if join_type == "CROSS JOIN":
+        dataframe_left['temp'] = 0
+        dataframe_right['temp'] = 0
+        result_dataframe = pd.merge(dataframe_left, dataframe_right, on='temp')
+        result_dataframe.drop(labels=['temp'], axis=1)
+    elif join_type == "INNER JOIN":
+        result_dataframe = pd.merge(
+            dataframe_left,
+            dataframe_right,
+            left_on=column_left,
+            right_on=column_right,
+            how='inner'
+        )
+    elif join_type == "LEFT OUTER JOIN":
+        result_dataframe = pd.merge(
+            dataframe_left,
+            dataframe_right,
+            left_on=column_left,
+            right_on=column_right,
+            how='left'
+        )
+    elif join_type == "RIGHT OUTER JOIN":
+        result_dataframe = pd.merge(
+            dataframe_left,
+            dataframe_right,
+            left_on=column_left,
+            right_on=column_right,
+            how='right'
+        )
+    elif join_type == "FULL OUTER JOIN":
+        result_dataframe = pd.merge(
+            dataframe_left,
+            dataframe_right,
+            left_on=column_left,
+            right_on=column_right,
+            how='outer'
+        )
+
+    table_name = str(datetime.datetime.now())
+    table_name = table_name.replace(" ", "")
+    table_name = table_name.replace("-", "")
+    table_name = table_name.replace(":", "")
+    table_name = table_name.replace(".", "")
+    table_name = "t" + table_name
+
+    result_dataframe.to_sql(name=table_name, con=db_engine, if_exists="fail")
+
+    Dataset(name, table_name, description, project).add_to_database()
 
 
 def upload_dump(name, description, file, project):
