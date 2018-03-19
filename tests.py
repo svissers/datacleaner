@@ -3,7 +3,7 @@ from flask_testing import TestCase
 import unittest
 from app._user.models import User, db
 from app._data.models import Project, ProjectAccess
-from app._data.helpers import create_project, get_projects
+from app._data.helpers import create_project, get_projects, share_project_with
 
 
 # Test cases for _user ################################################
@@ -153,6 +153,19 @@ class DataTests(TestCase):
             db_project = Project.query.filter_by(id=project[0]).first()
             self.assertTrue(db_project.name == project[1])
             self.assertTrue(db_project.description == project[2])
+
+    def test_share(self):
+        User('', '', '', 'test', 'test', 'test').add_to_database()
+        User('', '', '', 'test2', 'test2', 'test2').add_to_database()
+        userid = User.get_by_name('test').id
+        userid2 = User.get_by_name('test2').id
+        create_project('test', 'test', userid)
+        project_id = Project.query.filter_by(name='test').first().id
+        projects = get_projects(userid2, True)
+        self.assertTrue(len(projects) == 0)
+        share_project_with(project_id, userid2)
+        projects = get_projects(userid2, True)
+        self.assertTrue(len(projects) == 1)
 
 
 if __name__ == '__main__':
