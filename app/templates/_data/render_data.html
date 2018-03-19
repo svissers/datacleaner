@@ -1,62 +1,54 @@
 {% extends "bootstrap/base.html" %}
-
 {% block title %}
-Dashboard
+	Data
 {% endblock %}
-
 {% block styles %}
-{{super()}}
-<link rel="stylesheet" href="{{url_for('static', filename='dashboard.css')}}">
-<link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css">
+	{{super()}}
+	<link rel="stylesheet" href="{{url_for('static', filename='dashboard.css')}}">
+	<link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css">
 {% endblock %}
-
 {% block content %}
-{% include 'includes/_navbar_top.html' %}
-
-<div class="row">
-  <div class="container">
-    <h1 class="page-header">Table: {{ dataset_info.name }}</h1>
-  <form method=post>
-      <table id="user_table" class="display" cellspacing="0" width="100%">
-        <thead>
-          <tr>
-          <th></th>
-            {% for cname in cnames %}
-            <th>{{ cname }}</th>
-            {% endfor %}
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    <input onclick="this.form.action='{{url_for('data_bp.delete', id=dataset_info.id)}}'; this.form.submit()" class="btn btn-primary float-right" value="Delete">
-  </form>
-  </div>
-</div>
-
+	{% include 'includes/_navbar_top.html' %}
+	<div class="row">
+		<div class="container">
+			<h1 class="page-header">Table: {{ dataset_info.name }}</h1>
+			<form method=post>
+				<table id="user_table" class="display" cellspacing="0" width="100%">
+					<thead>
+					<tr>
+						<th></th>
+						{% for cname in cnames %}
+							<th>{{ cname }}</th>
+						{% endfor %}
+					</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+				<input onclick="this.form.action='{{url_for('data_bp.delete', id=dataset_info.id)}}'; this.form.submit()" class="btn btn-primary float-right" value="Delete">
+			</form>
+		</div>
+	</div>
 {% endblock %}
-
 {% block scripts %}
-{{ super() }}
-<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" charset="utf-8">
-
-
-   $(document).ready(function (){
-   var table = $('#user_table').DataTable({
-      'processing': true,
-      'serverSide': true,
-      'ajax': "{{ url_for('data_bp.retrieve_data', sql_table_name=dataset_info.sql_table_name) }}",
-      'columnDefs': [{
-         'targets': 0,
-         'searchable': false,
-         'orderable': false,
-         'className': 'dt-body-center',
-         'render': function (data, type, full, meta){
-             return '<input type="checkbox" name="data_id[]" value="' + $('<div/>').text(data).html() + '">';
-         }
-      }],
-      'order': [[1, 'asc']]
-   });
-});
-</script>
+	{{ super() }}
+	<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+	<script type="text/javascript" charset="utf-8">
+		$(document).ready(function (){
+		    var table = $('#user_table').DataTable({
+			    'processing': true,
+			    'serverSide': true,
+			    'ajax': "{{ url_for('data_bp.retrieve_data', sql_table_name=dataset_info.sql_table_name) }}",
+			    'columnDefs': [{
+			        'targets': 0,
+				    'searchable': false,
+				    'orderable': false,
+				    'className': 'dt-body-center',
+				    'render': function (data, type, full, meta){
+			            return '<input type="checkbox" name="data_id[]" value="' + $('<div/>').text(data).html() + '">';
+			        }
+			    }],
+			    'order': [[1, 'asc']]
+		    });
+		});
+		</script>
 {% endblock %}
