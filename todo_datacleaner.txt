@@ -1,3 +1,17 @@
+REPORT:
+notes:
+bespreking presentatie
+bespreking todo's
+
+planning:
+stijn: sql dump
+andrei: zip upload + joins
+igor: data preprocessing + analystics
+thomas: report, front end
+
+
+
+TODO:
 zip uploaden checken
 sql dump helemaal
 projecten/datasets editen
