@@ -1,0 +1,24 @@
+zip uploaden checken
+sql dump helemaal
+projecten/datasets editen
+projecten/datasets deleten -> automatisering
+enkel owner kan deleten, anders wordt het gewoon uit de view gesmeten
+ownership transferren
+
+constraints
+attribute manipulation
+
+LOG
+
+OPKUIS zelf
+aanduiden attribute type
+operations on attribute
+
+
+deleten rows met predicates
+
+imputeren empty data
+
+VIEW
+analyse per attribuut (grafiek, stats, ...)
+download to CSV
