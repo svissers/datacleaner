@@ -1,5 +1,11 @@
 from app import database
 from app.User.models import User
+from app.User import (
+    get_user_with_id,
+    update_admin_status,
+    update_disabled_status,
+    delete_user_with_id
+)
 from flask import (
     Blueprint,
     request,
@@ -32,7 +38,6 @@ def data():
         ColumnDT(User.id),
         ColumnDT(User.first_name),
         ColumnDT(User.last_name),
-        ColumnDT(User.organization),
         ColumnDT(User.email),
         ColumnDT(User.username),
         ColumnDT(User.admin),
@@ -69,15 +74,15 @@ def manage_users():
         elif request.form["button"] == "delete":
             return redirect(url_for('admin_bp.delete'), code=307)
 
-    return render_template('_admin/manage_users.html')
+    return render_template('Admin/manage_users.html')
 
 
 @_admin.route('/manage_users/update_admin', methods=['POST'])
 def update_admin():
     selected_user = request.form.getlist('user_id[]')
     for user in selected_user:
-        admin = User.get_by_id(int(user)).admin
-        User.update_admin_by_id(int(user), not bool(admin))
+        admin = get_user_with_id(int(user)).admin
+        update_admin_status(int(user), not bool(admin))
     return redirect(request.referrer)
 
 
@@ -85,8 +90,8 @@ def update_admin():
 def update_disabled():
     selected_user = request.form.getlist('user_id[]')
     for user in selected_user:
-        disabled = User.get_by_id(int(user)).disabled
-        User.update_disabled_by_id(int(user), not bool(disabled))
+        disabled = get_user_with_id(int(user)).disabled
+        update_disabled_status(int(user), not bool(disabled))
     return redirect(request.referrer)
 
 
@@ -94,5 +99,5 @@ def update_disabled():
 def delete():
     selected_user = request.form.getlist('user_id[]')
     for user in selected_user:
-        User.get_by_id(user).delete_from_database()
+        delete_user_with_id(user)
     return redirect(request.referrer)
