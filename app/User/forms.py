@@ -13,10 +13,6 @@ class SignUpForm(FlaskForm):
         'Last name',
         validators=[Length(max=25)]
     )
-    organization = StringField(
-        'Organization',
-        validators=[Length(max=25)]
-    )
     email = StringField(
         'Email',
         validators=[InputRequired(), Email('Invalid email'), Length(max=50)]
@@ -62,10 +58,6 @@ class EditForm(FlaskForm):
     )
     last_name = StringField(
         'Last name',
-        validators=[Optional(), Length(max=25)]
-    )
-    organization = StringField(
-        'Organization',
         validators=[Optional(), Length(max=25)]
     )
     email = StringField(
