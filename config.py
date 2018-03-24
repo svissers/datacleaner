@@ -14,6 +14,7 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 # (make sure to not include the + in that case)
 SQLALCHEMY_DATABASE_URI = 'postgresql://flask:flask@localhost:5432/flask_db'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
+SQLALCHEMY_ECHO = True
 
 # Enable protection agains *Cross-site Request Forgery (CSRF)*
 CSRF_ENABLED = True
