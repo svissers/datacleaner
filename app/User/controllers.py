@@ -59,7 +59,7 @@ def signup():
             return redirect(url_for('user_bp.login'))
         except RuntimeError as error:
             flash(str(error), 'danger')
-    return render_template('_user/signup.html', form=form)
+    return render_template('User/signup.html', form=form)
 
 
 @_user.route('/login', methods=['GET', 'POST'])
@@ -68,15 +68,17 @@ def login():
     # Upon submission of the form it gets validated,
     # if it's valid and de login info is valid we redirect to the dashboard
     if form.validate_on_submit():
-        result = User.validate_login_credentials(form.username.data,
-                                                 form.password.data)
+        result = validate_login_credentials(
+            form.username.data,
+            form.password.data
+        )
         if result[0] is True:
             user = get_user_with_username(form.username.data)
             login_user(user)
             return redirect(url_for('main_bp.dashboard'))
         else:
             flash(result[1], 'danger')
-    return render_template('_user/login.html', form=form)
+    return render_template('User/login.html', form=form)
 
 
 @_user.route('/logout')
@@ -107,5 +109,5 @@ def profile():
             flash('Your account information has been updated.', 'success')
         except RuntimeError as error:
             flash(str(error), 'danger')
-    return render_template('_user/profile.html', form=form)
+    return render_template('User/profile.html', form=form)
 
