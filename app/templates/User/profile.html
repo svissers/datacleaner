@@ -33,10 +33,6 @@
 						<td>{{ current_user.email }}</td>
 					</tr>
 					<tbody>
-				<tr>
-					<td>Organization</td>
-					<td>{{ current_user.organization }}</td>
-				</tr>
 
 				</table>
 
@@ -51,7 +47,7 @@
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
 				<div class="modal-body">
-					<form method="post" action="/user/profile">
+					<form method="post" action="{{ url_for('user_bp.profile') }}">
 						{{ form.hidden_tag() }}
 						{{ wtf.form_field(form.user_id) }}
 						{{ wtf.form_field(form.first_name) }}
