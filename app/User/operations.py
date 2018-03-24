@@ -121,6 +121,9 @@ def update_user_with_id(
         if email:
             user.email = email
         if username:
+            if user.username == 'admin' and username != 'admin':
+                raise RuntimeError(
+                    "Username of admin can't be changed")
             user.username = username
         if password:
             user.password = generate_password_hash(password, method='sha256')
