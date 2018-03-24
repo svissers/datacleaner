@@ -56,7 +56,7 @@ def delete_user_with_id(user_id):
     if user is None:
         raise RuntimeError('No user associated with this id.')
     else:
-        db.session.remove(user)
+        db.session.delete(user)
         db.session.commit()
 
 
@@ -70,7 +70,7 @@ def delete_user_with_username(username):
     if user is None:
         raise RuntimeError('No user associated with this username.')
     else:
-        db.session.remove(user)
+        db.session.delete(user)
         db.session.commit()
 
 
@@ -167,7 +167,7 @@ def validate_login_credentials(candidate_username, candidate_password):
     :param candidate_password: password candidate for validation
     :return (bool, string): bool indicating validity, string additional info
     """
-    user_info = User.get_by_name(candidate_username)
+    user_info = get_user_with_username(candidate_username)
     if user_info and check_password_hash(
             user_info.password,
             candidate_password
