@@ -1,7 +1,6 @@
 from app import database as db
 from flask_login import UserMixin
-from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy import and_
+from werkzeug.security import generate_password_hash
 
 
 class User(db.Model, UserMixin):
@@ -16,125 +15,19 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     first_name = db.Column(db.String(25))
     last_name = db.Column(db.String(25))
-    organization = db.Column(db.String(25))
-    email = db.Column(db.String(50), unique=True)
-    username = db.Column(db.String(20), unique=True)
-    password = db.Column(db.String(80))
-    staff = db.Column(db.Boolean(), default=0)
+    email = db.Column(db.String(50), unique=True, nullable=False)
+    username = db.Column(db.String(20), unique=True, nullable=False)
+    password = db.Column(db.String(80), nullable=False)
     admin = db.Column(db.Boolean(), default=0)
     disabled = db.Column(db.Boolean(), default=0)
 
     # User is parent of action, thus this relationship helper class
     actions = db.relationship('Action', backref='user', lazy='dynamic')
 
-    def __init__(self, fname, lname, organization, email, uname, password):
+    def __init__(self, fname, lname, email, uname, password):
         """Initializes a user instance"""
         self.first_name = fname
         self.last_name = lname
-        self.organization = organization
         self.email = email
         self.username = uname
         self.password = generate_password_hash(password, method='sha256')
-
-    def add_to_database(self):
-        """Adds user instance to database"""
-        email_exists = self.query.filter_by(email=self.email).first()
-        username_exists = self.query.filter_by(username=self.username).first()
-        if not email_exists and not username_exists:
-            db.session.add(self)
-            db.session.commit()
-        elif email_exists:
-            raise Exception(
-                'A user has already been registered using this email.')
-        elif username_exists:
-            raise Exception(
-                'A user has already been registered using this username.')
-
-    def delete_from_database(self):
-        """Removes user instance from database"""
-        db.session.delete(self)
-        db.session.commit()
-
-    @classmethod
-    def get_by_name(cls, username):
-        """Returns user info associated with given username"""
-        return User.query.filter_by(username=username).first()
-
-    @classmethod
-    def get_by_id(cls, user_id):
-        """Returns user info associated with given id"""
-        return User.query.filter_by(id=user_id).first()
-
-    @classmethod
-    def update_by_id(cls, id, fname, lname, organization, email, uname, pw):
-        email_exists = User.query.filter(and_(User.email == email, User.id != id)).first()
-        username_exists = User.query.filter(and_(User.username == uname, User.id != id)).first()
-        if not email_exists and not username_exists:
-            """Updates user info associated with given id"""
-            user = User.get_by_id(id)
-            if fname:
-                user.first_name = fname
-            if lname:
-                user.last_name = lname
-            if organization:
-                user.organization = organization
-            if email:
-                user.email = email
-            if uname:
-                if user.username == 'admin' and uname != 'admin':
-                    raise Exception(
-                        "Username of admin can't be changed")
-                user.username = uname
-            if pw:
-                user.password = generate_password_hash(pw, method='sha256')
-            db.session.commit()
-        elif email_exists:
-            raise Exception(
-                'A user has already been registered using this email.')
-        elif username_exists:
-            raise Exception(
-                'A user has already been registered using this username.')
-
-    @classmethod
-    def update_admin_by_id(cls, id, admin):
-        """Updates user info associated with given id"""
-        user = User.get_by_id(id)
-        user.admin = admin
-        db.session.commit()
-
-    @classmethod
-    def update_disabled_by_id(cls, id, disabled):
-        """Updates user info associated with given id"""
-        user = User.get_by_id(id)
-        user.disabled = disabled
-        db.session.commit()
-
-    @classmethod
-    def validate_login_credentials(cls, uname_candidate, pw_candidate):
-        """
-        Validates candidate user credentials
-        Returns:
-        --> True if candidate credentials are valid
-        --> False otherwise
-        """
-        user_info = User.get_by_name(uname_candidate)
-        if user_info and check_password_hash(user_info.password, pw_candidate):
-            if user_info.disabled:
-                return False, 'User disabled, contact system administrator.'
-            return True, 'Valid Credentials'
-        return False, 'Incorrect username or password, please try again.'
-
-    @classmethod
-    def init_admin(cls):
-        username_exists = User.query.filter_by(username='admin').first()
-        if not username_exists:
-            new = User('', '', '', 'admin@datacleaner.com', 'admin', 'admin')
-            new.admin = True
-            new.add_to_database()
-        elif username_exists and not username_exists.admin:
-            User.query.filter_by(username='admin').first().admin = True
-            db.session.commit()
-
-    @classmethod
-    def get_all_users(cls):
-        return User.query.all()
