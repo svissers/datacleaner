@@ -23,10 +23,10 @@ database = SQLAlchemy(app)
 login_manager = LoginManager(app)
 
 # Import user modules, needs to be after login_manager and database instantiation
-from app._user.controllers import _user as user_module
-from app._admin.controllers import _admin as admin_module
-from app._main.controllers import _main as main_module
-from app._data.controllers import _data as data_module
+from app.User.controllers import _user as user_module
+from app.Admin.controllers import _admin as admin_module
+from app.Main.controllers import _main as main_module
+from app.Data.controllers import _data as data_module
 
 # admin.init_app(app=app)#, index_view=CustomAdminIndexView())
 
@@ -40,5 +40,5 @@ app.register_blueprint(data_module)
 database.create_all()
 
 # Init admin user
-from app._user.models import User
+from app.User.models import User
 User.init_admin()

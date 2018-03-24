@@ -1,36 +1,16 @@
 from app import database as db
 
 
-class ProjectAccess(db.Model):
-    """
-    Represents Project access control table
-    """
+# Association table for many-to-many relationship User-Project
+class Access(db.Model):
+    """ Docstring """
+    __tablename__ = 'access'
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    project_id = db.Column(db.Integer, db.ForeignKey('project.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user_data.id'))
+    owner = db.Column(db.Boolean, nullable=False)
 
-    __tablename__ = 'project_access'
-
-    user = db.relationship('User', backref='user_data')
-    user_id = db.Column(
-        db.Integer,
-        db.ForeignKey("user_data.id"),
-        primary_key=True
-    )
-    project = db.relationship('Project', backref='project')
-    project_id = db.Column(
-        db.Integer,
-        db.ForeignKey("project.id"),
-        primary_key=True
-    )
-    owner = db.Column(db.Boolean)
-
-    def __init__(self, user_id, project_id, owner):
-        self.user_id = user_id
-        self.project_id = project_id
-        self.owner = owner
-
-    def add_to_database(self):
-        """Adds project access instance to database"""
-        db.session.add(self)
-        db.session.commit()
+    user = db.relationship('User', backref='projects')
 
 
 class Project(db.Model):
@@ -39,6 +19,12 @@ class Project(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     name = db.Column(db.String(25))
     description = db.Column(db.Text())
+
+    # Dataset is parent of view, thus this relationship helper class
+    projects = db.relationship('Dataset', backref='project', lazy='dynamic')
+
+    # Project has a many-to-many relationship with User
+    users = db.relationship("Access", backref='project')
 
     def __init__(self, name, descr):
         self.name = name
@@ -62,8 +48,11 @@ class Dataset(db.Model):
     sql_table_name = db.Column(db.String(50), unique=True)
     description = db.Column(db.String(255))
 
-    project = db.relationship('Project', backref='project1')
-    project_id = db.Column(db.Integer, db.ForeignKey("project.id"))
+    # Dataset is parent of view, thus this relationship helper class
+    views = db.relationship('View', backref='dataset', lazy='dynamic')
+
+    # Dataset is child of project, thus this foreign key
+    project_id = db.Column(db.Integer, db.ForeignKey('project.id'))
 
     def __init__(self, name, table_name, description, project):
         self.name = name
@@ -102,8 +91,11 @@ class View(db.Model):
     sql_table_name = db.Column(db.String(50), unique=True)
     description = db.Column(db.String(255))
 
-    original = db.relationship('Dataset', backref='dataset')
-    original_id = db.Column(db.Integer, db.ForeignKey("dataset.id"))
+    # View is parent of action, thus this relationship helper class
+    actions = db.relationship('Action', backref='view', lazy='dynamic')
+
+    # View is child of dataset, thus this foreign key
+    original_id = db.Column(db.Integer, db.ForeignKey('dataset.id'))
 
     def __init__(self, name, table_name, description):
         self.name = name
@@ -120,8 +112,8 @@ class Action(db.Model):
     time = db.Column(db.DateTime)
     description = db.Column(db.String(255))
 
-    view = db.relationship('View', backref='view')
-    view_id = db.Column(db.Integer, db.ForeignKey("view.id"))
+    # Action is child of view, thus this foreign key
+    view_id = db.Column(db.Integer, db.ForeignKey('view.id'))
 
-    user = db.relationship('User', backref='user_data1')
-    user_id = db.Column(db.Integer, db.ForeignKey("user_data.id"))
+    # Action is child of user, thus this foreign key
+    user_id = db.Column(db.Integer, db.ForeignKey('user_data.id'))

@@ -1,4 +1,4 @@
-from app._data.models import ProjectAccess, Project, Dataset, View, Action, db
+from app.Data.models import Project, Dataset, View, Action, db
 import pandas as pd
 import datetime
 
@@ -6,35 +6,69 @@ import datetime
 def create_project(project_name, description, user_id):
     new_project = Project(project_name, description)
     new_project.add_to_database()
-    ProjectAccess(user_id, new_project.id, owner=True).add_to_database()
+    # ProjectAccess(user_id, new_project.id, owner=True).add_to_database()
+
+
+def update_project_by_id(new_name, new_description, project_id):
+    project = db.session.query(Project).\
+        filter(Project.id == project_id).\
+        first()
+    project.name = new_name
+    project.description = new_description
+    db.session.commit()
+
+
+def delete_project_by_id(project_id, user_id):
+    print(1)
+    # access = db.session.query(ProjectAccess).\
+    #     filter(ProjectAccess.project_id == project_id).\
+    #     filter(ProjectAccess.user_id == user_id).first()
+
+    # if access.owner:
+    #     print(2)
+    #     project = db.session.query(Project). \
+    #         filter(Project.id == project_id). \
+    #         first()
+    #     db.session.delete(project)
+    #     db.session.commit()
+
+    print(3)
+    # db.session.delete(access)
+    print(4)
+    db.session.commit()
+    print(5)
 
 
 def share_project_with(project_id, user_id):
-    ProjectAccess(user_id, project_id, owner=False).add_to_database()
+    pass
+    # ProjectAccess(user_id, project_id, owner=False).add_to_database()
 
 
 def get_projects(user_id, description=False):
-    query_data = db.session.query(Project).\
-        join(ProjectAccess, Project.id == ProjectAccess.project_id).\
-        filter(ProjectAccess.user_id == user_id)
-    if description:
-        return [(p.id, p.name, p.description) for p in query_data]
-    return [(p.id, p.name) for p in query_data]
+    pass
+    # query_data = db.session.query(Project).\
+    #     join(ProjectAccess, Project.id == ProjectAccess.project_id).\
+    #     filter(ProjectAccess.user_id == user_id)
+    # if description:
+    #     return [(p.id, p.name, p.description) for p in query_data]
+    # return [(p.id, p.name) for p in query_data]
 
 
 def get_datasets(user_id, project_id=None):
-    query_data = db.session.query(Dataset).\
-        join(Project, Project.id == Dataset.project_id).\
-        join(ProjectAccess, Project.id == ProjectAccess.project_id).\
-        filter(ProjectAccess.user_id == user_id)
+    pass
+    # query_data = db.session.query(Dataset).\
+    #     join(Project, Project.id == Dataset.project_id).\
+    #     join(ProjectAccess, Project.id == ProjectAccess.project_id).\
+    #     filter(ProjectAccess.user_id == user_id)
 
     if project_id is not None:
-        query_data = query_data.filter(Project.id == project_id)
-
-    return [
-        (t.id, t.name, t.description, t.sql_table_name, t.project_id)
-        for t in query_data
-    ]
+        # query_data = query_data.filter(Project.id == project_id)
+        pass
+    pass
+    # return [
+    #     (t.id, t.name, t.description, t.sql_table_name, t.project_id)
+    #     for t in query_data
+    # ]
 
 
 def table_name_to_object(sql_table_name):

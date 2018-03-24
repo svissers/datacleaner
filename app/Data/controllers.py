@@ -1,12 +1,22 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash,jsonify
 from flask_login import login_required, current_user
-from app._data.forms import UploadForm, ProjectForm, ShareForm
-from app._data.models import Dataset
+from app.Data.forms import UploadForm, ProjectForm, ShareForm
+from app.Data.models import Dataset
 from .models import Project
-from app._user.models import User
+from app.User.models import User
 import pandas as pd
 from app import database as db
-from .helpers import get_projects, create_project, get_datasets, upload_csv, table_name_to_object as tnto, share_project_with, upload_join
+from .helpers import (
+    get_projects,
+    create_project,
+    get_datasets,
+    upload_csv,
+    table_name_to_object as tnto,
+    share_project_with,
+    upload_join,
+    update_project_by_id,
+    delete_project_by_id
+)
 from datatables import (
     ColumnDT,
     DataTables
@@ -17,6 +27,91 @@ import os
 
 _data = Blueprint('data_bp', __name__, url_prefix='/data')
 
+# Projects #===================================================================
+
+
+@_data.route('/new_project', methods=['POST'])
+@login_required
+def new_project():
+    form = ProjectForm(request.form)
+    if form.validate_on_submit():
+        try:
+            create_project(
+                form.name.data,
+                form.description.data,
+                current_user.id
+            )
+            flash('New project created successfully!', 'success')
+        except Exception:
+            flash('Failed to create project. Please try again.', 'failure')
+    return redirect(url_for('main_bp.dashboard'))
+
+
+@_data.route('/update_project', methods=['POST'])
+@login_required
+def update_project():
+    form = ProjectForm()
+    if form.validate_on_submit():
+        try:
+            update_project_by_id(
+                form.name.data,
+                form.description.data,
+                request.form['project_id']
+            )
+            flash('Project updated successfully!', 'success')
+        except Exception:
+            flash('Failed to update project. Please try again.', 'failure')
+    return redirect(url_for('main_bp.dashboard'))
+
+
+@_data.route('/delete_project', methods=['POST'])
+@login_required
+def delete_project():
+    # try:
+    delete_project_by_id(
+        request.args.get('project_id'),
+        current_user.id
+    )
+    flash('Project deleted successfully!', 'success')
+    # except Exception:
+
+    flash('Failed to delete project. Please try again.', 'failure')
+    return redirect(url_for('main_bp.dashboard'))
+
+
+@_data.route('/share_project', methods=['POST'])
+@login_required
+def share_project():
+    form = ShareForm()
+    if form.validate_on_submit():
+        submitted_user = User.get_by_name(form.username.data)
+        if submitted_user is not None:
+            try:
+                share_project_with(
+                    request.args.get('project_id'),
+                    submitted_user.id
+                )
+                flash(
+                    'The project was succesfully shared with {}.'.
+                    format(form.username.data),
+                    'success'
+                )
+            except Exception:
+                flash(
+                    '{} alreay has access to this project.'.
+                    format(form.username.data),
+                    'warning'
+                )
+        else:
+            flash(
+                'No user with username: {}.'.format(form.username.data),
+                'danger'
+            )
+    return redirect(url_for('main_bp.dashboard'))
+
+
+
+# Data, separate into other file later
 
 @_data.route('/retrieve_data')
 @login_required
@@ -140,54 +235,6 @@ def upload(project_id):
         except Exception:
             flash('An error occured while uploading your file.', 'danger')
         flash('Your file has been uploaded!', 'success')
-    return redirect(url_for('main_bp.dashboard'))
-
-
-@_data.route('/new_project', methods=['POST'])
-@login_required
-def new_project():
-    form = ProjectForm(request.form)
-    if form.validate_on_submit():
-        try:
-            create_project(
-                form.name.data,
-                form.description.data,
-                current_user.id
-            )
-            flash('New project created successfully!', 'success')
-        except Exception:
-            flash('Failed to create project. Please try again.', 'failure')
-    return redirect(url_for('main_bp.dashboard'))
-
-
-@_data.route('/share_project', methods=['POST'])
-@login_required
-def share_project():
-    form = ShareForm()
-    if form.validate_on_submit():
-        submitted_user = User.get_by_name(form.username.data)
-        if submitted_user is not None:
-            try:
-                share_project_with(
-                    request.args.get('project_id'),
-                    submitted_user.id
-                )
-                flash(
-                    'The project was succesfully shared with {}.'.
-                    format(form.username.data),
-                    'success'
-                )
-            except Exception:
-                flash(
-                    '{} alreay has access to this project.'.
-                    format(form.username.data),
-                    'warning'
-                )
-        else:
-            flash(
-                'No user with username: {}.'.format(form.username.data),
-                'danger'
-            )
     return redirect(url_for('main_bp.dashboard'))
 
 

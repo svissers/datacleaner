@@ -1,5 +1,5 @@
 from app import database
-from app._user.models import User
+from app.User.models import User
 from flask import (
     Blueprint,
     request,

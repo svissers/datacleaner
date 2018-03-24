@@ -24,6 +24,9 @@ class User(db.Model, UserMixin):
     admin = db.Column(db.Boolean(), default=0)
     disabled = db.Column(db.Boolean(), default=0)
 
+    # User is parent of action, thus this relationship helper class
+    actions = db.relationship('Action', backref='user', lazy='dynamic')
+
     def __init__(self, fname, lname, organization, email, uname, password):
         """Initializes a user instance"""
         self.first_name = fname

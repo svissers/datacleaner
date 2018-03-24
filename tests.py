@@ -1,12 +1,12 @@
 from app import app
 from flask_testing import TestCase
 import unittest
-from app._user.models import User, db
-from app._data.models import Project, ProjectAccess
-from app._data.helpers import create_project, get_projects, share_project_with
+from app.User.models import User, db
+from app.Data.models import Project, ProjectAccess
+from app.Data.helpers import create_project, get_projects, share_project_with
 
 
-# Test cases for _user ################################################
+# Test cases for User ################################################
 
 class UserTests(TestCase):
     def create_app(self):
@@ -107,7 +107,7 @@ class UserTests(TestCase):
         self.assertTrue(User.get_by_name('admin'))
 
 
-# Test cases for _data ################################################
+# Test cases for Data ################################################
 
 class DataTests(TestCase):
     def create_app(self):

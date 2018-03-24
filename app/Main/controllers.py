@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for
 from flask_login import login_required, current_user
-from app._data.helpers import get_datasets, get_projects
-from app._data.forms import UploadForm, ProjectForm, ShareForm
+from app.Data.helpers import get_datasets, get_projects
+from app.Data.forms import UploadForm, ProjectForm, ShareForm
 
 _main = Blueprint('main_bp', __name__)
 
