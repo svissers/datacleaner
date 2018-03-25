@@ -100,7 +100,7 @@ def upload_join(name, description, file_left, file_right,
         dataframe_left['temp'] = 0
         dataframe_right['temp'] = 0
         result_dataframe = pd.merge(dataframe_left, dataframe_right, on='temp')
-        result_dataframe.drop(labels=['temp'], axis=1)
+        result_dataframe = result_dataframe.drop(labels=['temp'], axis=1)
     elif join_type == "INNER JOIN":
         result_dataframe = pd.merge(
             dataframe_left,
