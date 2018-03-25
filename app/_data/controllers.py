@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash,jsonify
+from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
 from flask_login import login_required, current_user
 from app._data.forms import UploadForm, ProjectForm, ShareForm
 from app._data.models import Dataset
@@ -6,7 +6,8 @@ from .models import Project
 from app._user.models import User
 import pandas as pd
 from app import database as db
-from .helpers import get_projects, create_project, get_datasets, upload_csv, table_name_to_object as tnto, share_project_with, upload_join
+from .helpers import get_projects, create_project, get_datasets, upload_csv, table_name_to_object as tnto, \
+    share_project_with, upload_join, change_column_type
 from datatables import (
     ColumnDT,
     DataTables
@@ -47,10 +48,11 @@ def retrieve_data():
     params = request.args.to_dict()
 
     # instantiating a DataTable for the query and table needed
-    rowTable = DataTables(params, query, columns)
+    row_table = DataTables(params, query, columns)
 
     # returns what is needed by DataTable
-    return jsonify(rowTable.output_result())
+    return jsonify(row_table.output_result())
+
 
 @_data.route('/join/', methods=['POST'])
 @login_required
@@ -90,6 +92,7 @@ def join():
 
     return redirect(url_for('main_bp.dashboard'))
 
+
 @_data.route('/<int:project_id>/upload', methods=['POST'])
 @login_required
 def upload(project_id):
@@ -112,9 +115,9 @@ def upload(project_id):
                             files.append(file)
                     # list all possible join combinations
                     table_combinations = []
-                    for first in range(0, len(files)-1):
-                        for second in range(first+1, len(files)):
-                            table_combinations.\
+                    for first in range(0, len(files) - 1):
+                        for second in range(first + 1, len(files)):
+                            table_combinations. \
                                 append((files[first], files[second]))
 
                     # map filename to column name
@@ -174,13 +177,13 @@ def share_project():
                 )
                 flash(
                     'The project was succesfully shared with {}.'.
-                    format(form.username.data),
+                        format(form.username.data),
                     'success'
                 )
             except Exception:
                 flash(
                     '{} alreay has access to this project.'.
-                    format(form.username.data),
+                        format(form.username.data),
                     'warning'
                 )
         else:
@@ -191,12 +194,13 @@ def share_project():
     return redirect(url_for('main_bp.dashboard'))
 
 
-@_data.route('/dataset/')
+@_data.route('/dataset/', methods=['GET', 'POST'])
 @login_required
 def dataset():
     """Show entries of a specific table, or just list tables in the system if no parameter is provided"""
     dataset = request.args.get('dataset', None)
     view_raw = bool(request.args.get('raw', None))
+    change_type = bool(request.args.get('change_type', None))
     if dataset is None:
         return redirect(url_for('main_bp.dashboard'))
     else:
@@ -204,23 +208,28 @@ def dataset():
         dataset = int(dataset)
         dataset_info = Dataset.query.filter(Dataset.id == dataset).first()
         table = tnto(dataset_info.sql_table_name)
-        column_names = []
+        if change_type:
+            if request.form['column'] != '' and request.form['type'] != '':
+                change_column_type(table.name, request.form['column'], request.form['type'])
+        table = tnto(dataset_info.sql_table_name)
+        column_data = []
         for column in table.columns:
+            # change_column_type(table.name, column.name, 'integer')
             start = str(column).find('.') + 1
-            column_names.append(str(column)[start:])
+            column_data.append([str(column)[start:], column.type, 'b'])
 
         if view_raw:
             # render the table requested
             return render_template(
                 "_data/render_data.html",
-                cnames=column_names[1:],
+                cnames=column_data[1:],
                 dataset_info=dataset_info
             )
         else:
             return render_template(
                 "_data/render_table.html",
                 dataset_info=dataset_info,
-                cnames=column_names,
+                cnames=column_data,
                 columns=[]
             )
 
