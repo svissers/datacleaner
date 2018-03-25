@@ -1,5 +1,6 @@
 from app import database as db
 from .models import User
+from app.Project.models import Project, Access
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
@@ -46,6 +47,18 @@ def get_user_with_username(username):
     return User.query.filter_by(username=username).first()
 
 
+def project_cleanup(project_id):
+    accesses = Access.query.filter(Access.project_id == project_id)
+    if accesses is None:
+        return
+    for access in accesses:
+        if access.owner:
+            return
+    project = Project.query(Project.id == project_id)
+    db.session.delete(project)
+    db.session.commit()
+
+
 def delete_user_with_id(user_id):
     """
     Deletes User instance associated with given id
@@ -56,8 +69,13 @@ def delete_user_with_id(user_id):
     if user is None:
         raise RuntimeError('No user associated with this id.')
     else:
+        project_ids = []
+        for access in user.projects:
+            project_ids.append(access.project_id)
         db.session.delete(user)
         db.session.commit()
+        for pid in project_ids:
+            project_cleanup(pid)
 
 
 def delete_user_with_username(username):
@@ -70,8 +88,13 @@ def delete_user_with_username(username):
     if user is None:
         raise RuntimeError('No user associated with this username.')
     else:
+        project_ids = []
+        for access in user.projects:
+            project_ids.append(access.project_id)
         db.session.delete(user)
         db.session.commit()
+        for pid in project_ids:
+            project_cleanup(pid)
 
 
 def update_user_with_id(
