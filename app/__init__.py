@@ -25,20 +25,20 @@ login_manager = LoginManager(app)
 # Import user modules, needs to be after login_manager and database instantiation
 from app.User.controllers import _user as user_module
 from app.Admin.controllers import _admin as admin_module
+from app.Data.Import.controllers import _upload as upload_module
+from app.Project.controllers import _project as project_module
 from app.Main.controllers import _main as main_module
-from app.Data.controllers import _data as data_module
-
-# admin.init_app(app=app)#, index_view=CustomAdminIndexView())
 
 # Register blueprints
 app.register_blueprint(user_module)
 app.register_blueprint(admin_module)
+app.register_blueprint(upload_module)
+app.register_blueprint(project_module)
 app.register_blueprint(main_module)
-app.register_blueprint(data_module)
 
 # Build database
 database.create_all()
 
 # Init admin user
-from app.User.models import User
-User.init_admin()
+from app.User import init_admin
+init_admin()
