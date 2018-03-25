@@ -9,25 +9,27 @@
 {% endblock %}
 {% block content %}
 	{% include 'includes/_navbar_top.html' %}
-	<div class="row">
-		<div class="container">
-			<h1 class="page-header">Table: {{ dataset_info.name }}</h1>
-			<form method=post>
-				<table id="user_table" class="display" cellspacing="0" width="100%">
-					<thead>
-					<tr>
-						<th></th>
-						{% for cname in cnames %}
-							<th>{{ cname }}</th>
-						{% endfor %}
-					</tr>
-					</thead>
-					<tbody></tbody>
-				</table>
-				<input onclick="this.form.action='{{url_for('data_bp.delete', id=dataset_info.id)}}'; this.form.submit()" class="btn btn-primary float-right" value="Delete">
-			</form>
-		</div>
-	</div>
+    <div class="col-md-12">
+        {#			<h1 class="page-header">Table: {{ dataset_info.name }}</h1>#}
+        <form method=post>
+            <table id="user_table" class="display" cellspacing="0"
+                   width="100%">
+                <thead>
+                <tr>
+                    <th></th>
+                    {% for cname in cnames %}
+                        <th>{{ cname[0] }}</th>
+                    {% endfor %}
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            {#				<input onclick="this.form.action='{{url_for('data_bp.delete', id=dataset_info.id)}}'; this.form.submit()" class="btn btn-primary float-right" value="Delete">#}
+        </form>
+    </div>
+    <div class="col-md-12">
+    TEST
+    </div>
 {% endblock %}
 {% block scripts %}
 	{{ super() }}
@@ -35,9 +37,10 @@
 	<script type="text/javascript" charset="utf-8">
 		$(document).ready(function (){
 		    var table = $('#user_table').DataTable({
+                'sDom': '<"H"lpr>t<i"F">',
 			    'processing': true,
 			    'serverSide': true,
-			    'ajax': "{{ url_for('data_bp.retrieve_data', sql_table_name=dataset_info.sql_table_name) }}",
+			    'ajax': "{{ url_for('view_bp.retrieve', sql_table_name=dataset_info.working_copy) }}",
 			    'columnDefs': [{
 			        'targets': 0,
 				    'searchable': false,

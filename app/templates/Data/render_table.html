@@ -23,9 +23,9 @@
 					<tbody>
 					{% for cname in cnames %}
 						<tr>
-							<td>{{ cname }}</td>
-							<td></td>
-							<td></td>
+							<td>{{ cname[0] }}</td>
+							<td>{{ cname[1] }}</td>
+							<td>{{ cname[2] }}</td>
 						</tr>
 					{% endfor %}
 					</tbody>
@@ -34,8 +34,68 @@
 		</div>
 		<div class="row">
 			<nav aria-label="Page navigation">
-				<a class="btn btn-lg btn-primary btn-block form-signin" href="{{ url_for(request.endpoint, dataset=dataset_info.id, raw=True) }}">View Raw data</a>
+				<a class="btn btn-lg btn-info pull-left project-action" href="{{ url_for(request.endpoint, dataset=dataset_info.id, raw=True) }}">View Raw data</a>
+				<input id="btn" class="btn btn-lg btn-success pull-left project-action" type="button" value="Edit Column Type" />
 			</nav>
 		</div>
 	</div>
+
+    	<!-- Modal -->
+	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-body">
+				<form method="post" action="{{ url_for(request.endpoint, dataset=dataset_info.id, change_type=True) }}">
+					<table id="join_table" class="table table-striped table-bordered" width="100%">
+                    <thead>
+                    <tr>
+                        <th>Column</th>
+	                    <th>Type</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <select class="form-control" name="column">
+	                                {% for cname in cnames[1:] %}
+                                        <option>{{ cname[0] }}</option>
+	                                {% endfor %}
+                                </select>
+                            </td>
+                            <td>
+                                <select class="form-control" name="type">
+	                                <option></option>
+	                                <option>INTEGER</option>
+	                                <option>BIGINT</option>
+	                                <option>VARCHAR(10)</option>
+	                                <option>VARCHAR(25)</option>
+	                                <option>VARCHAR(255)</option>
+	                                <option>TEXT</option>
+	                                <option>BOOLEAN</option>
+	                                <option>DATE</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+
+                </table>
+                <button type="submit" class="btn btn-success">Submit</button>
+				</form>
+				</div>
+
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block scripts %}
+	{{ super() }}
+	<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+	<script type="text/javascript" charset="utf-8">
+		$(document).ready(function (){
+		    $('#btn').click(function () {
+		        $('#myModal').modal('show');
+		    });
+		});
+		</script>
 {% endblock %}
