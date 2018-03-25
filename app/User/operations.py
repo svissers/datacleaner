@@ -48,6 +48,12 @@ def get_user_with_username(username):
 
 
 def project_cleanup(project_id):
+    """
+    Cleanup function for projects
+    Needed because cleanup needs to happen based on ownership which can't be
+    done directly via SQL
+    :param project_id: candidate project for cleanup
+    """
     accesses = Access.query.filter(Access.project_id == project_id)
     if accesses is None:
         return

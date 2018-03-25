@@ -6,11 +6,13 @@ class Access(db.Model):
     """ Association table for many-to-many relationship User-Project """
     __tablename__ = 'access'
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    project_id = db.Column(db.Integer, db.ForeignKey(
-                                            'project.id',
-                                            ondelete='CASCADE'
-                                        )
-                           )
+    project_id = db.Column(
+        db.Integer,
+        db.ForeignKey(
+            'project.id',
+            ondelete='CASCADE'
+        )
+    )
     user_id = db.Column(db.Integer, db.ForeignKey('user_data.id'))
     owner = db.Column(db.Boolean, nullable=False)
 
@@ -30,6 +32,8 @@ class Project(db.Model):
     # datasets = db.relationship('Dataset', backref='project', lazy='dynamic')
 
     # Project has a many-to-many relationship with User
+    # passive_deletes = True to make cascade on delete work correctly
+    # otherwise we get SET NULL-like behaviour
     users = db.relationship("Access", backref='project', passive_deletes=True)
 
     def __init__(self, name, descr):

@@ -4,7 +4,7 @@ from wtforms.validators import InputRequired, Length
 
 
 class ProjectForm(FlaskForm):
-    """Represents form used for creating projecys"""
+    """Represents form used for creating projects"""
     name = StringField(
         'Project name',
         validators=[InputRequired()]
