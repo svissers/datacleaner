@@ -2,7 +2,12 @@ from flask import Blueprint, redirect, url_for, request, flash
 from flask_login import login_required, current_user
 from .forms import ProjectForm, ShareForm
 from app.User import get_user_with_username
-from .operations import create_project, share_project
+from .operations import (
+    create_project,
+    share_project,
+    update_project_with_id,
+    delete_project_with_id
+)
 
 
 _project = Blueprint('project_bp', __name__, url_prefix='/project')
@@ -25,35 +30,26 @@ def create():
 @_project.route('/update', methods=['POST'])
 @login_required
 def update():
-    return 'UPDATE'
-    # form = ProjectForm()
-    # if form.validate_on_submit():
-    #     try:
-    #         update_project_by_id(
-    #             form.name.data,
-    #             form.description.data,
-    #             request.form['project_id']
-    #         )
-    #         flash('Project updated successfully!', 'success')
-    #     except Exception:
-    #         flash('Failed to update project. Please try again.', 'failure')
-    # return redirect(url_for('main_bp.dashboard'))
+    form = ProjectForm()
+    if form.validate_on_submit():
+        update_project_with_id(
+            request.form['project_id'],
+            form.name.data,
+            form.description.data
+        )
+        flash('Project updated successfully!', 'success')
+    return redirect(url_for('main_bp.dashboard'))
 
 
 @_project.route('/delete', methods=['POST'])
 @login_required
 def delete():
-    return 'DELETE'
-    # # try:
-    # delete_project_by_id(
-    #     request.args.get('project_id'),
-    #     current_user.id
-    # )
-    # flash('Project deleted successfully!', 'success')
-    # # except Exception:
-    #
-    # flash('Failed to delete project. Please try again.', 'failure')
-    # return redirect(url_for('main_bp.dashboard'))
+    delete_project_with_id(
+        request.args.get('project_id'),
+        current_user.id
+    )
+    flash('Project deleted successfully!', 'success')
+    return redirect(url_for('main_bp.dashboard'))
 
 
 @_project.route('/share', methods=['POST'])

@@ -36,6 +36,51 @@ def get_all_projects_for_user(user_id):
     return [access.project for access in user.projects]
 
 
+def cleanup(project_id):
+    accesses = Access.query.filter(Access.project_id == project_id)
+    if accesses is None:
+        return
+    for access in accesses:
+        if access.owner:
+            return
+    project = get_project_with_id(project_id)
+    database.session.delete(project)
+    database.session.commit()
+
+
+def delete_project_with_id(project_id, user_id):
+    """
+    Deletes the project associated with
+    :param project_id: id used for lookup
+    :param user_id: id of the user perfrming the delete operation
+    """
+    project = get_project_with_id(project_id)
+    if project is None:
+        raise RuntimeError('No project associated with this id.')
+    else:
+        access = Access.query.filter(Access.project_id == project_id). \
+            filter(Access.user_id == user_id).first()
+        database.session.delete(access)
+        database.session.commit()
+        cleanup(project_id)
+
+
+def update_project_with_id(project_id, new_name, new_description):
+    """
+    Updates project associated with given id
+    :param project_id: id used for lookup
+    :param new_name: value to update the project's name with
+    :param new_description: value to update the project's description with
+    """
+    project = get_project_with_id(project_id)
+    if project is None:
+        raise RuntimeError('No project associated with this id.')
+    else:
+        project.name = new_name
+        project.description = new_description
+        database.session.commit()
+
+
 def share_project(project_id, with_user_id, with_ownership):
     """
     Shares project associated with given project_id with user with given

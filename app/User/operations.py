@@ -54,7 +54,7 @@ def project_cleanup(project_id):
     for access in accesses:
         if access.owner:
             return
-    project = Project.query(Project.id == project_id)
+    project = Project.query.filter(Project.id == project_id).first()
     db.session.delete(project)
     db.session.commit()
 
