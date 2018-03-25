@@ -13,10 +13,12 @@ def upload_csv(name, description, file, project):
     table_name = table_name.replace("-", "")
     table_name = table_name.replace(":", "")
     table_name = table_name.replace(".", "")
-    table_name = "t" + table_name
+    original = "og" + table_name
+    working_copy = "wc" + table_name
 
-    csv_dataframe.to_sql(name=table_name, con=db_engine, if_exists="fail")
+    csv_dataframe.to_sql(name=original, con=db_engine, if_exists="fail")
+    csv_dataframe.to_sql(name=working_copy, con=db_engine, if_exists="fail")
 
-    new_dataset = Dataset(name, table_name, description, project)
+    new_dataset = Dataset(name, original, working_copy, description, project)
     database.session.add(new_dataset)
     database.session.commit()
