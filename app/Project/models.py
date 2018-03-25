@@ -1,5 +1,6 @@
 from app import database as db
 from sqlalchemy.orm import backref
+# DON'T REMOVE: Import statement is used from relationship definition
 
 
 class Access(db.Model):
@@ -29,7 +30,10 @@ class Project(db.Model):
     description = db.Column(db.Text())
 
     # Dataset is parent of view, thus this relationship helper class
-    # datasets = db.relationship('Dataset', backref='project', lazy='dynamic')
+    datasets = db.relationship('Dataset',
+                               backref=backref('project'),
+                               lazy='dynamic', passive_deletes=True
+                               )
 
     # Project has a many-to-many relationship with User
     # passive_deletes = True to make cascade on delete work correctly
