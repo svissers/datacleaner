@@ -21,21 +21,21 @@
                 <div class="col-md-12">
                     <div class="panel panel-info">
                         <div class="panel-heading clickable">
-                            <h3 class="panel-title" id="name-{{ project[0] }}">{{ project[1] }}</h3>
+                            <h3 class="panel-title" id="name-{{ project.id }}">{{ project.name }}</h3>
                             <span class="pull-right "><i class="glyphicon glyphicon-minus"></i></span>
                         </div>
                         <div class="panel-body">
                             <div class="row">
                                 <div class="col-md-6">
                                     <h4>Description:</h4>
-                                    <div id="description-{{ project[0] }}">{{ project[2] }}</div>
+                                    <div id="description-{{ project.id }}">{{ project.description }}</div>
                                     <hr/>
                                     <div class="list-group">
                                         {% for dataset in datasets %}
-                                            {% if dataset[4] == project[0] %}
-                                                <a href="{{ url_for('data_bp.dataset', dataset=dataset[0]) }}" class="list-group-item">
-                                                    <h4 class="list-group-item-heading">{{ dataset[1] }}</h4>
-                                                    <p class="list-group-item-text">{{ dataset[2] }}</p>
+                                            {% if dataset.project_id == project.id %}
+                                                <a href="{{ url_for('view_bp.view', dataset=dataset.id) }}" class="list-group-item">
+                                                    <h4 class="list-group-item-heading">{{ dataset.name }}</h4>
+                                                    <p class="list-group-item-text">{{ dataset.description }}</p>
                                                 </a>
                                             {% endif %}
                                         {% endfor %}
@@ -43,7 +43,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <h4>Upload:</h4>
-                                    <form method="POST" action="/data/{{ project[0] }}/upload" enctype="multipart/form-data">
+                                    <form method="POST" action="{{ url_for('upload_bp.upload', project_id=project.id) }}" enctype="multipart/form-data">
                                         {{ upload_form.hidden_tag() }}
                                         {{ wtf.form_field(upload_form.file) }}
                                         {{ wtf.form_field(upload_form.name) }}
@@ -55,17 +55,35 @@
                             <hr/>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <form class="form" method="POST" action="{{ url_for('data_bp.share_project', project_id=project[0]) }}">
-                                        <button type="submit" class="btn btn-info project-action" name="button" value="share">Share</button>
+                                    <form class="form-horizontal" method="POST" action="{{ url_for('project_bp.share', project_id=project.id) }}">
+                                        <div class="btn-group">
+                                            <button type="submit"
+                                                    class="btn btn-info dropdown-toggle project-action"
+                                                    data-toggle="dropdown"
+                                                    aria-haspopup="true"
+                                                    aria-expanded="false">
+                                                Share <span
+                                                    class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <button type="submit" class="btn btn-block btn-link" name="button" value="with_ownership">With ownership</button>
+                                                </li>
+                                                <li>
+                                                    <button type="submit" class="btn btn-block btn-link" name="button" value="without_ownership">Without ownership</button>
+                                                </li>
+
+                                            </ul>
+                                        </div>
                                         {{ share_form.hidden_tag() }}
                                         {{ share_form.username(class_="form-control typeahead",  autocomplete="off") }}
                                     </form>
                                 </div>
                                 <div class="col-md-6">
-                                    <form method="post" action="{{ url_for('data_bp.delete_project', project_id=project[0] ) }}">
-                                        <button type="submit" class="btn btn-danger pull-right project-action" name="{{ project[0] }}" value="delete">Delete</button>
+                                    <form method="post" action="{{ url_for('project_bp.delete', project_id=project.id ) }}">
+                                        <button type="submit" class="btn btn-danger pull-right project-action" name="{{ project.id }}" value="delete">Delete</button>
                                     </form>
-                                        <button type="submit" class="btn btn-warning pull-right project-action" name="{{ project[0] }}" value="edit">Edit</button>
+                                        <button type="submit" class="btn btn-warning pull-right project-action" name="{{ project.id }}" value="edit">Edit</button>
                                 </div>
                             </div>
                         </div>
@@ -81,7 +99,7 @@
                         <span class="pull-right "><i class="glyphicon glyphicon-minus"></i></span>
                     </div>
                     <div class="panel-body">
-                        <form method="POST" action="/data/new_project">
+                        <form method="POST" action="{{ url_for('project_bp.create') }}">
                             {{ project_form.hidden_tag() }}
                             {{ wtf.form_field(project_form.name) }}
                             {{ wtf.form_field(project_form.description) }}
@@ -97,7 +115,7 @@
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
 				<div class="modal-body">
-					<form method="post" action="{{ url_for('data_bp.update_project') }}">
+					<form method="post" action="{{ url_for('project_bp.update') }}">
                             {{ project_form.hidden_tag() }}
                             <input type="hidden" id="project_id" name="project_id">
                             {{ wtf.form_field(project_form.name) }}
