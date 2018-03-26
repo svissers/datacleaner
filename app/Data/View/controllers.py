@@ -7,7 +7,7 @@ from datatables import (
     DataTables,
     ColumnDT
 )
-from app.Data.Transform.operations import change_column_type
+from app.Data.Transform.operations import change_attribute_type
 
 
 _view = Blueprint('view_bp', __name__, url_prefix='/data/view')
@@ -71,7 +71,7 @@ def view():
         table = table_name_to_object(dataset_info.working_copy)
         if change_type:
             if request.form['column'] != '' and request.form['type'] != '':
-                change_column_type(table.name, request.form['column'], request.form['type'])
+                change_attribute_type(table.name, request.form['column'], request.form['type'])
         column_data = []
         for column in table.columns:
             # change_column_type(table.name, column.name, 'integer')
