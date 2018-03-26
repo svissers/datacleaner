@@ -69,3 +69,43 @@ def one_hot_encode(table_name, attributes):
         dataframe.to_sql(name=table_name, con=db.engine, if_exists="fail")
     except:
         print('ONE-HOT ENCODING FAILED')
+
+
+def fill_null_with(table_name, attribute, value):
+    try:
+        db.engine.execute(
+            'UPDATE {0}'
+            'SET {1} = {2}'
+            'WHERE {1} IS NULL'
+            .format(table_name, attribute, value)
+        )
+    except:
+        print('FILL VALUE FAILED')
+
+
+def fill_null_with_average(table_name, attr):
+    try:
+        dataframe = pd.read_sql_table(table_name, db.engine, columns=[attr])
+        average = dataframe[attr].mean()
+        db.engine.execute(
+            'UPDATE {0}'
+            'SET {1} = {2}'
+            'WHERE {1} IS NULL'
+            .format(table_name, attr, average)
+        )
+    except:
+        print('FILL AVERAGE FAILED')
+
+
+def fill_null_with_median(table_name, attr):
+    try:
+        dataframe = pd.read_sql_table(table_name, db.engine, columns=[attr])
+        median = dataframe[attr].median()
+        db.engine.execute(
+            'UPDATE {0}'
+            'SET {1} = {2}'
+            'WHERE {1} IS NULL'
+            .format(table_name, attr, median)
+        )
+    except:
+        print('FILL MEAN FAILED')
