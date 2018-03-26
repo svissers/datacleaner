@@ -14,10 +14,6 @@ class EditForm(FlaskForm):
         'Last name',
         validators=[Optional(), Length(max=25)]
     )
-    organization = StringField(
-        'Organization',
-        validators=[Optional(), Length(max=25)]
-    )
     email = StringField(
         'Email',
         validators=[InputRequired(), Email('Invalid email'), Length(max=50)]
