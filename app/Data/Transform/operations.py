@@ -1,7 +1,20 @@
 from app import database as db
 
 
-def change_column_type(table_name, table_col, new_type):
+def restore_original(table_name):
+    try:
+        original = 't' + table_name[2:]
+        db.engine.execute(
+            'DROP TABLE {0}'.format(table_name)
+        )
+        db.engine.execute(
+            'SELECT * INTO {0} from {1}'.format(table_name, original)
+        )
+    except:
+        print("FAILED TO RESTORE ORIGINAL")
+
+
+def change_attribute_type(table_name, table_col, new_type):
     try:
         if new_type == 'INTEGER':
             db.engine.execute(
@@ -29,3 +42,13 @@ def change_column_type(table_name, table_col, new_type):
                 "ALTER TABLE {0} ALTER COLUMN {1} TYPE DATE USING to_date({1}, 'YYYY-MM-DD')".format(table_name, table_col))
     except Exception:
         print("ERROR")
+
+
+def drop_attribute(table_name, attr):
+    try:
+        db.engine.execute(
+            'ALTER TABLE {0} DROP COLUMN IF EXISTS {1}'.
+            format(table_name, attr)
+        )
+    except:
+        print("FAILED TO DROP ATTRIBUTE {0} FROM {1}".format(attr, table_name))
