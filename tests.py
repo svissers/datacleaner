@@ -168,5 +168,19 @@ class DataTests(TestCase):
         self.assertTrue(len(projects) == 1)
 
 
+class FrontEnd(unittest.TestCase):
+
+    def setUp(self):
+        self.app = app.test_client()
+        self.app.testing = True
+
+    def tearDown(self):
+        pass
+
+    def test_home(self):
+        result = self.app.get('/user/signup')
+        self.assertEqual(result.status_code, 200)
+
+
 if __name__ == '__main__':
     unittest.main()
