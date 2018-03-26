@@ -1,4 +1,5 @@
 from app import database as db
+import pandas as pd
 
 
 def restore_original(table_name):
@@ -52,3 +53,18 @@ def drop_attribute(table_name, attr):
         )
     except:
         print("FAILED TO DROP ATTRIBUTE {0} FROM {1}".format(attr, table_name))
+
+
+def one_hot_encode(table_name, attributes):
+    try:
+        dataframe = pd.read_sql_table(table_name, db.engine)
+        for attr in attributes:
+            one_hot = pd.get_dummies(dataframe[attr])
+            dataframe = dataframe.drop(attr, axis=1)
+            dataframe = dataframe.join(one_hot)
+        db.engine.execute(
+            'DROP TABLE {0}'.format(table_name)
+        )
+        dataframe.to_sql(name=table_name, con=db.engine, if_exists="fail")
+    except:
+        print('ONE-HOT ENCODING FAILED')
