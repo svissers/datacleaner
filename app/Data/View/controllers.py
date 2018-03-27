@@ -1,4 +1,13 @@
-from flask import Blueprint, request, jsonify, redirect, url_for, render_template
+from flask import (
+    Blueprint,
+    request,
+    jsonify,
+    redirect,
+    url_for,
+    render_template,
+    flash,
+    Response
+)
 from flask_login import login_required
 from app import database as db
 from app.Data.models import Dataset
@@ -7,10 +16,29 @@ from datatables import (
     DataTables,
     ColumnDT
 )
+from .operations import export_csv
 from app.Data.Transform.operations import change_attribute_type
 
 
 _view = Blueprint('view_bp', __name__, url_prefix='/data/view')
+
+
+@_view.route('download_csv')
+@login_required
+def download_csv():
+    table_name = request.args.get('table_name')
+    delim_char = request.args.get('delim_char', ',')
+    quote_char = request.args.get('quote_char', '"')
+    null_char = request.args.get('null_char', '')
+    if table_name is None:
+        flash('ERROR: No table named "{0}" found.'.format(table_name), 'danger')
+        return redirect(request.referrer)
+    else:
+        return Response(
+            export_csv(table_name, delim_char, quote_char, null_char),
+            mimetype="text/csv",
+            headers={"Content-disposition": "attachment; filename=myplot.csv"}
+        )
 
 
 @_view.route('/retrieve', methods=['GET'])
