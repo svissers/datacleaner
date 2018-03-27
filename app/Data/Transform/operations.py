@@ -1,5 +1,6 @@
 from app import database as db
 import pandas as pd
+import re
 
 
 def restore_original(table_name):
@@ -31,18 +32,28 @@ def change_attribute_type(table_name, table_col, new_type):
     """
     current_type = db.engine.execute(
         'SELECT data_type from information_schema.columns '
-        'where table_name = \'{0}\' and column_name = \'{1}\';'.format(table_name, table_col)).fetchall()[0][0]
+        'where table_name = \'{0}\' and column_name = \'{1}\';'
+        .format(table_name, table_col)
+    ).fetchall()[0][0]
     print(current_type)
     if new_type == 'INTEGER':
         db.engine.execute(
-            'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE INTEGER USING "{1}"::integer'.format(table_name, table_col))
+            'ALTER TABLE {0} '
+            'ALTER COLUMN "{1}" '
+            'TYPE INTEGER USING "{1}"::integer'
+            .format(table_name, table_col))
     if new_type == 'BIGINT':
         db.engine.execute(
-            'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE BIGINT USING "{1}"::bigint'.format(table_name, table_col))
+            'ALTER TABLE {0} '
+            'ALTER COLUMN "{1}" '
+            'TYPE BIGINT USING "{1}"::bigint'
+            .format(table_name, table_col))
     if new_type == 'DOUBLE PRECISION':
         db.engine.execute(
-            'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE DOUBLE PRECISION USING "{1}"::double precision'.
-            format(table_name, table_col))
+            'ALTER TABLE {0} '
+            'ALTER COLUMN "{1}" '
+            'TYPE DOUBLE PRECISION USING "{1}"::double precision'
+            .format(table_name, table_col))
     if new_type in ['VARCHAR(10)', 'VARCHAR(25)', 'VARCHAR(255)']:
         length = 255
         if new_type == 'VARCHAR(10)':
@@ -53,42 +64,68 @@ def change_attribute_type(table_name, table_col, new_type):
             length = 255
         if current_type == 'date':
             db.engine.execute(
-                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE VARCHAR({2}) USING to_char("{1}", \'DD/MM/YYYY\')'.
-                format(table_name, table_col, length))
+                'ALTER TABLE {0} '
+                'ALTER COLUMN "{1}" '
+                'TYPE VARCHAR({2}) USING to_char("{1}", \'DD/MM/YYYY\')'
+                .format(table_name, table_col, length))
         elif current_type == 'timestamp without time zone':
             db.engine.execute(
-                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE VARCHAR({2}) USING to_char("{1}", \'DD/MM/YYYY HH24:MI:SS\')'.
-                format(table_name, table_col, length))
+                'ALTER TABLE {0} '
+                'ALTER COLUMN "{1}" '
+                'TYPE VARCHAR({2}) '
+                'USING to_char("{1}", \'DD/MM/YYYY HH24:MI:SS\')'
+                .format(table_name, table_col, length))
         else:
             db.engine.execute(
-                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE VARCHAR({2})'.format(table_name, table_col, length))
+                'ALTER TABLE {0} '
+                'ALTER COLUMN "{1}" '
+                'TYPE VARCHAR({2})'
+                .format(table_name, table_col, length))
     if new_type == 'TEXT':
         if current_type == 'date':
             db.engine.execute(
-                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE TEXT USING to_char("{1}", \'DD/MM/YYYY\')'.
-                format(table_name, table_col))
+                'ALTER TABLE {0} '
+                'ALTER COLUMN "{1}" '
+                'TYPE TEXT USING to_char("{1}", \'DD/MM/YYYY\')'
+                .format(table_name, table_col))
         elif current_type == 'timestamp without time zone':
             db.engine.execute(
-                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE TEXT USING to_char("{1}", \'DD/MM/YYYY HH24:MI:SS\')'.
-                format(table_name, table_col))
+                'ALTER TABLE {0} '
+                'ALTER COLUMN "{1}" '
+                'TYPE TEXT USING to_char("{1}", \'DD/MM/YYYY HH24:MI:SS\')'
+                .format(table_name, table_col))
         else:
             db.engine.execute(
-                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE TEXT'.format(table_name, table_col))
+                'ALTER TABLE {0} '
+                'ALTER COLUMN "{1}" '
+                'TYPE TEXT'
+                .format(table_name, table_col))
     if new_type == 'BOOLEAN':
         db.engine.execute(
-            'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE BOOLEAN USING "{1}"::boolean'.format(table_name, table_col))
+            'ALTER TABLE {0} '
+            'ALTER COLUMN "{1}" '
+            'TYPE BOOLEAN USING "{1}"::boolean'
+            .format(table_name, table_col))
     if new_type == 'DATE':
         if current_type == 'timestamp without time zone':
             db.engine.execute(
-                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE DATE'.format(table_name, table_col))
+                'ALTER TABLE {0} '
+                'ALTER COLUMN "{1}" '
+                'TYPE DATE'
+                .format(table_name, table_col))
         else:
             db.engine.execute(
-                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE DATE USING to_date("{1}", \'DD/MM/YYYY\')'.
-                format(table_name, table_col))
+                'ALTER TABLE {0} '
+                'ALTER COLUMN "{1}" '
+                'TYPE DATE USING to_date("{1}", \'DD/MM/YYYY\')'
+                .format(table_name, table_col))
     if new_type == 'TIMESTAMP':
         db.engine.execute(
-            'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE TIMESTAMP USING to_timestamp("{1}", \'DD/MM/YYYY HH24:MI:SS\')'.
-            format(table_name, table_col))
+            'ALTER TABLE {0} '
+            'ALTER COLUMN "{1}" '
+            'TYPE TIMESTAMP '
+            'USING to_timestamp("{1}", \'DD/MM/YYYY HH24:MI:SS\')'
+            .format(table_name, table_col))
 
 
 def drop_attribute(table_name, attr):
@@ -106,13 +143,17 @@ def drop_attribute(table_name, attr):
         print("FAILED TO DROP ATTRIBUTE {0} FROM {1}".format(attr, table_name))
 
 
-def one_hot_encode(table_name, attributes):
+def one_hot_encode(table_name, attr):
+    """
+    One hot encodes given attribute
+    :param table_name: table on which to perform the operation
+    :param attr: attribute to one hot encode
+    :return:
+    """
     try:
         dataframe = pd.read_sql_table(table_name, db.engine)
-        for attr in attributes:
-            one_hot = pd.get_dummies(dataframe[attr])
-            dataframe = dataframe.drop(attr, axis=1)
-            dataframe = dataframe.join(one_hot)
+        one_hot = pd.get_dummies(dataframe[attr])
+        dataframe = dataframe.join(one_hot)
         db.engine.execute(
             'DROP TABLE "{0}"'.format(table_name)
         )
@@ -121,19 +162,30 @@ def one_hot_encode(table_name, attributes):
         print('ONE-HOT ENCODING FAILED')
 
 
-def fill_null_with(table_name, attribute, value):
+def fill_null_with(table_name, attr, value):
+    """
+    Fills all NULL values with provided value in table_name.attr
+    :param table_name: table to perform the operation on
+    :param attr: attribute containing NULL values
+    :param value: value to insert
+    """
     try:
         db.engine.execute(
             'UPDATE "{0}"'
             'SET "{1}" = {2}'
             'WHERE "{1}" IS NULL'
-            .format(table_name, attribute, value)
+            .format(table_name, attr, value)
         )
     except:
         print('FILL VALUE FAILED')
 
 
 def fill_null_with_average(table_name, attr):
+    """
+    Fills all NULL values with average value in table_name.attr
+    :param table_name: table to perform the operation on
+    :param attr: attribute containing NULL values
+    """
     try:
         dataframe = pd.read_sql_table(table_name, db.engine, columns=[attr])
         average = dataframe[attr].mean()
@@ -148,6 +200,11 @@ def fill_null_with_average(table_name, attr):
 
 
 def fill_null_with_median(table_name, attr):
+    """
+    Fills all NULL values with median value in table_name.attr
+    :param table_name: table to perform the operation on
+    :param attr: attribute containing NULL values
+    """
     try:
         dataframe = pd.read_sql_table(table_name, db.engine, columns=[attr])
         median = dataframe[attr].median()
@@ -162,6 +219,13 @@ def fill_null_with_median(table_name, attr):
 
 
 def non_text_find_replace(table_name, attr, find, replace):
+    """
+    Find and replace function for non-text values where case doesn't matter
+    :param table_name: table to perform the operation on
+    :param attr: attribute to search
+    :param find: value to replace
+    :param replace: replacement value
+    """
     try:
         db.engine.execute(
             'UPDATE "{0}"'
@@ -174,6 +238,14 @@ def non_text_find_replace(table_name, attr, find, replace):
 
 
 def text_find_replace(table_name, attr, find, replace, ignore_case=False):
+    """
+    Find and replace function for text values where case matters
+    :param table_name: table to perform the operation on
+    :param attr: attribute to search
+    :param find: value to replace
+    :param replace: replacement value
+    :param ignore_case: bool indicating case sensitivity
+    """
     try:
         if ignore_case:
             db.engine.execute(
@@ -193,14 +265,36 @@ def text_find_replace(table_name, attr, find, replace, ignore_case=False):
         print('TEXT FIND-REPLACE FAILED')
 
 
-def text_regex_find_replace(table_name, attr, find, replace):
+def text_regex_find_replace(table_name, attr, regex, replace):
+    """
+    Find and replace function for text values using a regex for lookup
+    :param table_name: table to perform the operation on
+    :param attr: attribute to search
+    :param regex: regex used for lookup
+    :param replace: replacement value
+    """
     try:
-        pass
+        is_valid = True
+        try:
+            re.compile(regex)
+        except re.error:
+            is_valid = False
+        if is_valid:
+            db.engine.execute(
+                'UPDATE "{0}"'
+                'SET "{1}" = REGEXP_REPLACE("{1}", \'{2}\', {3})'
+                .format(table_name, attr, regex, replace)
+            )
     except:
         print('TEXT REGEX FIND-REPLACE FAILED')
 
 
 def normalize_attribute(table_name, attr):
+    """
+    Normalizes table_name.attr using z-score method
+    :param table_name: table to perform the operation on
+    :param attr: attribute to normalize
+    """
     try:
         df = pd.read_sql_table(table_name, db.engine)
         df[attr] = (df[attr] - df[attr].mean()) / df[attr].std(ddof=0)
@@ -213,6 +307,14 @@ def normalize_attribute(table_name, attr):
 
 
 def remove_outliers(table_name, attr, value, smaller_than=False):
+    """
+    Removes outliers based on provided value
+    :param table_name: table to perform the operation on
+    :param attr: attribute to search for outliers
+    :param value: extrema value
+    :param smaller_than:  if true values smaller than are filtered,
+                          values greater than otherwise
+    """
     try:
         if smaller_than:
             db.engine.execute(
