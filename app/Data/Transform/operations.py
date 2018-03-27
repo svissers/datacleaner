@@ -32,6 +32,7 @@ def change_attribute_type(table_name, table_col, new_type):
     current_type = db.engine.execute(
         'SELECT data_type from information_schema.columns '
         'where table_name = \'{0}\' and column_name = \'{1}\';'.format(table_name, table_col)).fetchall()[0][0]
+    print(current_type)
     if new_type == 'INTEGER':
         db.engine.execute(
             'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE INTEGER USING "{1}"::integer'.format(table_name, table_col))
@@ -54,6 +55,10 @@ def change_attribute_type(table_name, table_col, new_type):
             db.engine.execute(
                 'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE VARCHAR({2}) USING to_char("{1}", \'DD/MM/YYYY\')'.
                 format(table_name, table_col, length))
+        elif current_type == 'timestamp without time zone':
+            db.engine.execute(
+                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE VARCHAR({2}) USING to_char("{1}", \'DD/MM/YYYY HH24:MI:SS\')'.
+                format(table_name, table_col, length))
         else:
             db.engine.execute(
                 'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE VARCHAR({2})'.format(table_name, table_col, length))
@@ -62,6 +67,10 @@ def change_attribute_type(table_name, table_col, new_type):
             db.engine.execute(
                 'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE TEXT USING to_char("{1}", \'DD/MM/YYYY\')'.
                 format(table_name, table_col))
+        elif current_type == 'timestamp without time zone':
+            db.engine.execute(
+                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE TEXT USING to_char("{1}", \'DD/MM/YYYY HH24:MI:SS\')'.
+                format(table_name, table_col))
         else:
             db.engine.execute(
                 'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE TEXT'.format(table_name, table_col))
@@ -69,10 +78,17 @@ def change_attribute_type(table_name, table_col, new_type):
         db.engine.execute(
             'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE BOOLEAN USING "{1}"::boolean'.format(table_name, table_col))
     if new_type == 'DATE':
+        if current_type == 'timestamp without time zone':
+            db.engine.execute(
+                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE DATE'.format(table_name, table_col))
+        else:
+            db.engine.execute(
+                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE DATE USING to_date("{1}", \'DD/MM/YYYY\')'.
+                format(table_name, table_col))
+    if new_type == 'TIMESTAMP':
         db.engine.execute(
-            'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE DATE USING to_date("{1}", \'DD/MM/YYYY\')'.
+            'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE TIMESTAMP USING to_timestamp("{1}", \'DD/MM/YYYY HH24:MI:SS\')'.
             format(table_name, table_col))
-
 
 
 def drop_attribute(table_name, attr):
