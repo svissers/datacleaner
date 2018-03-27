@@ -30,24 +30,39 @@ def change_attribute_type(table_name, table_col, new_type):
     :param new_type: new type
     """
     try:
+        current_type = db.engine.execute(
+            'SELECT data_type from information_schema.columns '
+            'where table_name = \'{0}\' and column_name = \'{1}\';'.format(table_name, table_col)
+        ).fetchall()[0][0]
         if new_type == 'INTEGER':
             db.engine.execute(
                 'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE INTEGER USING "{1}"::integer'.format(table_name, table_col))
         if new_type == 'BIGINT':
             db.engine.execute(
                 'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE BIGINT USING "{1}"::bigint'.format(table_name, table_col))
-        if new_type == 'VARCHAR(10)':
-            db.engine.execute(
-                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE VARCHAR(10)'.format(table_name, table_col))
-        if new_type == 'VARCHAR(25)':
-            db.engine.execute(
-                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE VARCHAR(25)'.format(table_name, table_col))
-        if new_type == 'VARCHAR(255)':
-            db.engine.execute(
-                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE VARCHAR(255)'.format(table_name, table_col))
+        if new_type in ['VARCHAR(10)', 'VARCHAR(25)', 'VARCHAR(255)']:
+            length = None
+            if new_type == 'VARCHAR(10)':
+                length = 10
+            elif new_type == 'VARCHAR(25)':
+                length = 25
+            elif new_type == 'VARCHAR(255)':
+                length = 255
+            if current_type == 'date':
+                db.engine.execute(
+                    'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE VARCHAR({2}) USING to_char("{1}", \'DD/MM/YYYY\')'.
+                    format(table_name, table_col, length))
+            else:
+                db.engine.execute(
+                    'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE VARCHAR({2})'.format(table_name, table_col, length))
         if new_type == 'TEXT':
-            db.engine.execute(
-                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE TEXT'.format(table_name, table_col))
+            if current_type == 'date':
+                db.engine.execute(
+                    'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE TEXT USING to_char("{1}", \'DD/MM/YYYY\')'.
+                    format(table_name, table_col))
+            else:
+                db.engine.execute(
+                    'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE TEXT'.format(table_name, table_col))
         if new_type == 'BOOLEAN':
             db.engine.execute(
                 'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE BOOLEAN USING "{1}"::boolean'.format(table_name, table_col))
