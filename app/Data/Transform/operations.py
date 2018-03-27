@@ -55,7 +55,7 @@ def change_attribute_type(table_name, table_col, new_type):
             db.engine.execute(
                 'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE VARCHAR({2}) USING to_char("{1}", \'DD/MM/YYYY\')'.
                 format(table_name, table_col, length))
-        elif current_type == 'timestamp without time zone':
+        elif current_type == 'timestamp with time zone':
             db.engine.execute(
                 'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE VARCHAR({2}) USING to_char("{1}", \'DD/MM/YYYY HH24:MI:SS\')'.
                 format(table_name, table_col, length))
@@ -67,7 +67,7 @@ def change_attribute_type(table_name, table_col, new_type):
             db.engine.execute(
                 'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE TEXT USING to_char("{1}", \'DD/MM/YYYY\')'.
                 format(table_name, table_col))
-        elif current_type == 'timestamp without time zone':
+        elif current_type == 'timestamp with time zone':
             db.engine.execute(
                 'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE TEXT USING to_char("{1}", \'DD/MM/YYYY HH24:MI:SS\')'.
                 format(table_name, table_col))
@@ -78,7 +78,7 @@ def change_attribute_type(table_name, table_col, new_type):
         db.engine.execute(
             'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE BOOLEAN USING "{1}"::boolean'.format(table_name, table_col))
     if new_type == 'DATE':
-        if current_type == 'timestamp without time zone':
+        if current_type == 'timestamp with time zone':
             db.engine.execute(
                 'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE DATE'.format(table_name, table_col))
         else:
@@ -87,8 +87,8 @@ def change_attribute_type(table_name, table_col, new_type):
                 format(table_name, table_col))
     if new_type == 'TIMESTAMP':
         db.engine.execute(
-            'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE TIMESTAMP USING to_timestamp("{1}", \'DD/MM/YYYY HH24:MI:SS\')'.
-            format(table_name, table_col))
+            'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE TIMESTAMP WITH TIME ZONE USING to_timestamp('
+            '"{1}", \'DD/MM/YYYY HH24:MI:SS\')'.format(table_name, table_col))
 
 
 def drop_attribute(table_name, attr):
