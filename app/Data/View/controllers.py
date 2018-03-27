@@ -143,7 +143,7 @@ def history():
         all_actions = Action.query.filter(Action.dataset_id == dataset).order_by(Action.time.desc()).all()
         actions = []
         for action in all_actions:
-            actions.append([action.time, action.description, get_user_with_id(action.user_id).username])
+            actions.append([action.time.replace(microsecond=0), action.description, get_user_with_id(action.user_id).username])
 
         return render_template("Data/history.html", actions=actions, dataset_info=dataset_info)
     return redirect(url_for('main_bp.dashboard'))
