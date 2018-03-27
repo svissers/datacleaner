@@ -1,4 +1,5 @@
 from app import database as db
+from datetime import datetime
 
 
 class Dataset(db.Model):
@@ -34,7 +35,7 @@ class Action(db.Model):
     __tablename__ = 'action'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    time = db.Column(db.DateTime)
+    time = db.Column(db.DateTime, default=datetime.utcnow)
     description = db.Column(db.String(255))
 
     # Action is child of view, thus this foreign key
@@ -42,3 +43,8 @@ class Action(db.Model):
 
     # Action is child of user, thus this foreign key
     user_id = db.Column(db.Integer, db.ForeignKey('user_data.id'))
+
+    def __init__(self, description, dataset_id, user_id):
+        self.description = description
+        self.dataset_id = dataset_id
+        self.user_id = user_id

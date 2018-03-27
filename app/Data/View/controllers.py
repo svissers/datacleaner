@@ -8,7 +8,7 @@ from flask import (
     flash,
     Response
 )
-from flask_login import login_required
+from flask_login import login_required, current_user
 from app import database as db
 from app.Data.models import Dataset
 from app.Data.helpers import table_name_to_object
@@ -18,6 +18,7 @@ from datatables import (
 )
 from .operations import export_csv
 from app.Data.Transform.operations import change_attribute_type
+from app.Data.operations import create_action
 
 
 _view = Blueprint('view_bp', __name__, url_prefix='/data/view')
@@ -98,12 +99,14 @@ def view():
         dataset_info = Dataset.query.filter(Dataset.id == dataset).first()
         table = table_name_to_object(dataset_info.working_copy)
         if change_type:
-            if request.form['column'] != '' and request.form['type'] != '':
+            col = request.form['column']
+            new_type = request.form['type']
+            if col != '' and new_type != '':
                 try:
-                    change_attribute_type(table.name, request.form['column'], request.form['type'])
+                    change_attribute_type(table.name, col, new_type)
+                    create_action('type {0} changed to {1}'.format(col, new_type), dataset, current_user.id)
                 except:
-                    flash('{0} could not be converted to {1}'.
-                          format(request.form['column'], request.form['type']), 'danger')
+                    flash('{0} could not be converted to {1}'.format(col, new_type), 'danger')
         column_data = []
         table = table_name_to_object(dataset_info.working_copy)
         for column in table.columns:
