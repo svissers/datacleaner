@@ -166,3 +166,15 @@ def text_regex_find_replace(table_name, attr, find, replace):
         pass
     except:
         print('TEXT REGEX FIND-REPLACE FAILED')
+
+
+def normalize_attribute(table_name, attr):
+    try:
+        df = pd.read_sql_table(table_name, db.engine)
+        df[attr] = (df[attr] - df[attr].mean()) / df[attr].std(ddof=0)
+        db.engine.execute(
+            'DROP TABLE "{0}"'.format(table_name)
+        )
+        df.to_sql(name=table_name, con=db.engine, if_exists="fail")
+    except:
+        print('NORMALIZATION FAILED')
