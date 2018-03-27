@@ -16,10 +16,21 @@ class Dataset(db.Model):
     description = db.Column(db.String(255))
 
     # View is parent of action, thus this relationship helper class
-    actions = db.relationship('Action', backref='dataset', lazy='dynamic')
+    actions = db.relationship(
+        'Action',
+        backref='dataset',
+        lazy='dynamic',
+        passive_deletes=True
+    )
 
     # Dataset is child of project, thus this foreign key
-    project_id = db.Column(db.Integer, db.ForeignKey('project.id', ondelete='CASCADE'))
+    project_id = db.Column(
+        db.Integer,
+        db.ForeignKey(
+            'project.id',
+            ondelete='CASCADE'
+        )
+    )
 
     def __init__(self, name, original, working, description, project):
         self.name = name
@@ -39,10 +50,21 @@ class Action(db.Model):
     description = db.Column(db.String(255))
 
     # Action is child of view, thus this foreign key
-    dataset_id = db.Column(db.Integer, db.ForeignKey('dataset.id'))
+    dataset_id = db.Column(
+        db.Integer,
+        db.ForeignKey(
+            'dataset.id',
+            ondelete='CASCADE'
+        )
+    )
 
     # Action is child of user, thus this foreign key
-    user_id = db.Column(db.Integer, db.ForeignKey('user_data.id'))
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey(
+            'user_data.id',
+            ondelete='SET NULL')
+    )
 
     def __init__(self, description, dataset_id, user_id):
         self.description = description
