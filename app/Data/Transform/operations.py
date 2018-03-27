@@ -178,3 +178,21 @@ def normalize_attribute(table_name, attr):
         df.to_sql(name=table_name, con=db.engine, if_exists="fail")
     except:
         print('NORMALIZATION FAILED')
+
+
+def remove_outliers(table_name, attr, value, smaller_than=False):
+    try:
+        if smaller_than:
+            db.engine.execute(
+                'DELETE FROM "{0}"'
+                'WHERE "{1}" < {2}'
+                .format(table_name, attr, value)
+            )
+        else:  # greater than
+            db.engine.execute(
+                'DELETE FROM "{0}"'
+                'WHERE "{1}" > {2}'
+                .format(table_name, attr, value)
+            )
+    except:
+        print('REMOVE OUTLIERS FAILED')
