@@ -3,19 +3,32 @@ import pandas as pd
 
 
 def restore_original(table_name):
+    """
+    Resets given table to its original state
+    :param table_name: name of the the table to be reset
+    """
     try:
-        original = 't' + table_name[2:]
+        # Original tables are prepended with og
+        # Thus we replace wc with og and have the name of the table
+        # with the original data
+        original = 'og' + table_name[2:]
         db.engine.execute(
-            'DROP TABLE {0}'.format(table_name)
+            'DROP TABLE "{0}"'.format(table_name)
         )
         db.engine.execute(
-            'SELECT * INTO {0} from {1}'.format(table_name, original)
+            'SELECT * INTO "{0}" from "{1}"'.format(table_name, original)
         )
     except:
         print("FAILED TO RESTORE ORIGINAL")
 
 
 def change_attribute_type(table_name, table_col, new_type):
+    """
+    Changes the type of given attribute in given table to new_type
+    :param table_name: table containing the attribute
+    :param table_col: attribute to change type of
+    :param new_type: new type
+    """
     try:
         if new_type == 'INTEGER':
             db.engine.execute(
@@ -47,9 +60,14 @@ def change_attribute_type(table_name, table_col, new_type):
 
 
 def drop_attribute(table_name, attr):
+    """
+    Drops given attribute from given table
+    :param table_name: table to perform the operation on
+    :param attr: attribute to drop
+    """
     try:
         db.engine.execute(
-            'ALTER TABLE {0} DROP COLUMN IF EXISTS {1}'.
+            'ALTER TABLE "{0}" DROP COLUMN IF EXISTS "{1}"'.
             format(table_name, attr)
         )
     except:
@@ -64,7 +82,7 @@ def one_hot_encode(table_name, attributes):
             dataframe = dataframe.drop(attr, axis=1)
             dataframe = dataframe.join(one_hot)
         db.engine.execute(
-            'DROP TABLE {0}'.format(table_name)
+            'DROP TABLE "{0}"'.format(table_name)
         )
         dataframe.to_sql(name=table_name, con=db.engine, if_exists="fail")
     except:
@@ -74,9 +92,9 @@ def one_hot_encode(table_name, attributes):
 def fill_null_with(table_name, attribute, value):
     try:
         db.engine.execute(
-            'UPDATE {0}'
-            'SET {1} = {2}'
-            'WHERE {1} IS NULL'
+            'UPDATE "{0}"'
+            'SET "{1}" = {2}'
+            'WHERE "{1}" IS NULL'
             .format(table_name, attribute, value)
         )
     except:
@@ -88,9 +106,9 @@ def fill_null_with_average(table_name, attr):
         dataframe = pd.read_sql_table(table_name, db.engine, columns=[attr])
         average = dataframe[attr].mean()
         db.engine.execute(
-            'UPDATE {0}'
-            'SET {1} = {2}'
-            'WHERE {1} IS NULL'
+            'UPDATE "{0}"'
+            'SET "{1}" = {2}'
+            'WHERE "{1}" IS NULL'
             .format(table_name, attr, average)
         )
     except:
@@ -102,10 +120,49 @@ def fill_null_with_median(table_name, attr):
         dataframe = pd.read_sql_table(table_name, db.engine, columns=[attr])
         median = dataframe[attr].median()
         db.engine.execute(
-            'UPDATE {0}'
-            'SET {1} = {2}'
-            'WHERE {1} IS NULL'
+            'UPDATE "{0}"'
+            'SET "{1}" = {2}'
+            'WHERE "{1}" IS NULL'
             .format(table_name, attr, median)
         )
     except:
         print('FILL MEAN FAILED')
+
+
+def non_text_find_replace(table_name, attr, find, replace):
+    try:
+        db.engine.execute(
+            'UPDATE "{0}"'
+            'SET "{1}" = {2}'
+            'WHERE "{1}" = {3}'
+            .format(table_name, attr, replace, find)
+        )
+    except:
+        print('NON-TEXT FIND-REPLACE FAILED')
+
+
+def text_find_replace(table_name, attr, find, replace, ignore_case=False):
+    try:
+        if ignore_case:
+            db.engine.execute(
+                'UPDATE "{0}"'
+                'SET "{1}" = \'{2}\''
+                'WHERE LOWER("{1}") = LOWER(\'{3}\')'
+                .format(table_name, attr, replace, find)
+            )
+        else:
+            db.engine.execute(
+                'UPDATE "{0}"'
+                'SET "{1}" = \'{2}\''
+                'WHERE "{1}" = \'{3}\''
+                .format(table_name, attr, replace, find)
+            )
+    except:
+        print('TEXT FIND-REPLACE FAILED')
+
+
+def text_regex_find_replace(table_name, attr, find, replace):
+    try:
+        pass
+    except:
+        print('TEXT REGEX FIND-REPLACE FAILED')
