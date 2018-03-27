@@ -38,6 +38,10 @@ def change_attribute_type(table_name, table_col, new_type):
     if new_type == 'BIGINT':
         db.engine.execute(
             'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE BIGINT USING "{1}"::bigint'.format(table_name, table_col))
+    if new_type == 'DOUBLE PRECISION':
+        db.engine.execute(
+            'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE DOUBLE PRECISION USING "{1}"::double precision'.
+            format(table_name, table_col))
     if new_type in ['VARCHAR(10)', 'VARCHAR(25)', 'VARCHAR(255)']:
         length = 255
         if new_type == 'VARCHAR(10)':
