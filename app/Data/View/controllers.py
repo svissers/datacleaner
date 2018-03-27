@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, redirect, url_for, render_template
+from flask import Blueprint, request, jsonify, redirect, url_for, render_template, flash
 from flask_login import login_required
 from app import database as db
 from app.Data.models import Dataset
@@ -71,7 +71,11 @@ def view():
         table = table_name_to_object(dataset_info.working_copy)
         if change_type:
             if request.form['column'] != '' and request.form['type'] != '':
-                change_attribute_type(table.name, request.form['column'], request.form['type'])
+                try:
+                    change_attribute_type(table.name, request.form['column'], request.form['type'])
+                except:
+                    flash('{0} could not be converted to {1}'.
+                          format(request.form['column'], request.form['type']), 'danger')
         column_data = []
         table = table_name_to_object(dataset_info.working_copy)
         for column in table.columns:
