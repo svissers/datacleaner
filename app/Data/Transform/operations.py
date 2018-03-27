@@ -29,34 +29,66 @@ def change_attribute_type(table_name, table_col, new_type):
     :param table_col: attribute to change type of
     :param new_type: new type
     """
-    try:
-        if new_type == 'INTEGER':
-            db.engine.execute(
-                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE INTEGER USING "{1}"::integer'.format(table_name, table_col))
-        if new_type == 'BIGINT':
-            db.engine.execute(
-                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE BIGINT USING "{1}"::bigint'.format(table_name, table_col))
+    current_type = db.engine.execute(
+        'SELECT data_type from information_schema.columns '
+        'where table_name = \'{0}\' and column_name = \'{1}\';'.format(table_name, table_col)).fetchall()[0][0]
+    print(current_type)
+    if new_type == 'INTEGER':
+        db.engine.execute(
+            'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE INTEGER USING "{1}"::integer'.format(table_name, table_col))
+    if new_type == 'BIGINT':
+        db.engine.execute(
+            'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE BIGINT USING "{1}"::bigint'.format(table_name, table_col))
+    if new_type == 'DOUBLE PRECISION':
+        db.engine.execute(
+            'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE DOUBLE PRECISION USING "{1}"::double precision'.
+            format(table_name, table_col))
+    if new_type in ['VARCHAR(10)', 'VARCHAR(25)', 'VARCHAR(255)']:
+        length = 255
         if new_type == 'VARCHAR(10)':
+            length = 10
+        elif new_type == 'VARCHAR(25)':
+            length = 25
+        elif new_type == 'VARCHAR(255)':
+            length = 255
+        if current_type == 'date':
             db.engine.execute(
-                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE VARCHAR(10)'.format(table_name, table_col))
-        if new_type == 'VARCHAR(25)':
+                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE VARCHAR({2}) USING to_char("{1}", \'DD/MM/YYYY\')'.
+                format(table_name, table_col, length))
+        elif current_type == 'timestamp without time zone':
             db.engine.execute(
-                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE VARCHAR(25)'.format(table_name, table_col))
-        if new_type == 'VARCHAR(255)':
+                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE VARCHAR({2}) USING to_char("{1}", \'DD/MM/YYYY HH24:MI:SS\')'.
+                format(table_name, table_col, length))
+        else:
             db.engine.execute(
-                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE VARCHAR(255)'.format(table_name, table_col))
-        if new_type == 'TEXT':
+                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE VARCHAR({2})'.format(table_name, table_col, length))
+    if new_type == 'TEXT':
+        if current_type == 'date':
+            db.engine.execute(
+                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE TEXT USING to_char("{1}", \'DD/MM/YYYY\')'.
+                format(table_name, table_col))
+        elif current_type == 'timestamp without time zone':
+            db.engine.execute(
+                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE TEXT USING to_char("{1}", \'DD/MM/YYYY HH24:MI:SS\')'.
+                format(table_name, table_col))
+        else:
             db.engine.execute(
                 'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE TEXT'.format(table_name, table_col))
-        if new_type == 'BOOLEAN':
+    if new_type == 'BOOLEAN':
+        db.engine.execute(
+            'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE BOOLEAN USING "{1}"::boolean'.format(table_name, table_col))
+    if new_type == 'DATE':
+        if current_type == 'timestamp without time zone':
             db.engine.execute(
-                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE BOOLEAN USING "{1}"::boolean'.format(table_name, table_col))
-        if new_type == 'DATE':
+                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE DATE'.format(table_name, table_col))
+        else:
             db.engine.execute(
-                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE DATE USING to_date("{1}", \'YYYY-MM-DD\')'.
+                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE DATE USING to_date("{1}", \'DD/MM/YYYY\')'.
                 format(table_name, table_col))
-    except Exception as error:
-        print(str(error))
+    if new_type == 'TIMESTAMP':
+        db.engine.execute(
+            'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE TIMESTAMP USING to_timestamp("{1}", \'DD/MM/YYYY HH24:MI:SS\')'.
+            format(table_name, table_col))
 
 
 def drop_attribute(table_name, attr):
