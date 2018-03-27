@@ -35,8 +35,9 @@
 		</div>
 		<div class="row">
 			<nav aria-label="Page navigation">
-				<a class="btn btn-lg btn-info pull-left project-action" href="{{ url_for(request.endpoint, dataset=dataset_info.id, raw=True) }}">View Raw data</a>
-				<input id="btn" class="btn btn-lg btn-success pull-left project-action" type="button" value="Edit Column Type" />
+				<a class="btn btn-lg btn-success pull-left project-action" href="{{ url_for(request.endpoint, dataset=dataset_info.id, raw=True) }}">View Raw data</a>
+				<a class="btn btn-lg btn-info pull-left project-action" href="{{ url_for('view_bp.history', dataset=dataset_info.id) }}">View History</a>
+				<input id="btn" class="btn btn-lg btn-warning pull-left project-action" type="button" value="Edit Column Type" />
 			</nav>
 		</div>
 	</div>
