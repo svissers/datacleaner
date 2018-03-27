@@ -40,7 +40,7 @@ def change_attribute_type(table_name, table_col, new_type):
                 'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE BOOLEAN USING "{1}"::boolean'.format(table_name, table_col))
         if new_type == 'DATE':
             db.engine.execute(
-                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE DATE USING to_date("{1}", \'YYYY-MM-DD\')'.
+                'ALTER TABLE {0} ALTER COLUMN "{1}" TYPE DATE USING to_date("{1}", \'DD/MM/YYYY\')'.
                 format(table_name, table_col))
     except Exception as error:
         print(str(error))
