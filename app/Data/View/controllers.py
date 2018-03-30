@@ -17,7 +17,8 @@ from datatables import (
     ColumnDT
 )
 from .operations import export_csv
-from app.Data.Transform.operations import change_attribute_type
+from .forms import DeleteForm
+from app.Data.Transform.operations import change_attribute_type, delete_rows
 from app.Data.operations import create_action
 from app.User.operations import get_user_with_id
 
@@ -49,8 +50,6 @@ def retrieve():
     """Return server side data"""
 
     sql_table_name = request.args.get('sql_table_name', None)
-
-    print(sql_table_name)
 
     if sql_table_name is None:
         print(sql_table_name + "FAIL")
@@ -92,6 +91,7 @@ def view():
     dataset = request.args.get('dataset', None)
     view_raw = bool(request.args.get('raw', None))
     change_type = bool(request.args.get('change_type', None))
+    delete = bool(request.args.get('delete', None))
     if dataset is None:
         return redirect(url_for('main_bp.dashboard'))
     else:
@@ -108,6 +108,15 @@ def view():
                     create_action('type {0} changed to {1}'.format(col, new_type), dataset, current_user.id)
                 except:
                     flash('{0} could not be converted to {1}'.format(col, new_type), 'danger')
+
+        delete_form = DeleteForm()
+        if delete:
+            if delete_form.validate_on_submit():
+                data = delete_form.condition.data
+                col = request.form['column']
+                oper = request.form['operator']
+                delete_rows(table.name, col, oper, data)
+
         column_data = []
         table = table_name_to_object(dataset_info.working_copy)
         for column in table.columns:
@@ -120,7 +129,8 @@ def view():
             return render_template(
                 "Data/render_data.html",
                 cnames=column_data[1:],
-                dataset_info=dataset_info
+                dataset_info=dataset_info,
+                delete_form=delete_form
             )
         else:
             return render_template(
@@ -147,4 +157,3 @@ def history():
 
         return render_template("Data/history.html", actions=actions, dataset_info=dataset_info)
     return redirect(url_for('main_bp.dashboard'))
-
