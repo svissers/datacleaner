@@ -35,7 +35,6 @@ def change_attribute_type(table_name, table_col, new_type):
         'where table_name = \'{0}\' and column_name = \'{1}\';'
         .format(table_name, table_col)
     ).fetchall()[0][0]
-    print(current_type)
     if new_type == 'INTEGER':
         db.engine.execute(
             'ALTER TABLE {0} '
@@ -120,12 +119,19 @@ def change_attribute_type(table_name, table_col, new_type):
                 'TYPE DATE USING to_date("{1}", \'DD/MM/YYYY\')'
                 .format(table_name, table_col))
     if new_type == 'TIMESTAMP':
-        db.engine.execute(
-            'ALTER TABLE {0} '
-            'ALTER COLUMN "{1}" '
-            'TYPE TIMESTAMP '
-            'USING to_timestamp("{1}", \'DD/MM/YYYY HH24:MI:SS\')'
-            .format(table_name, table_col))
+        if current_type == 'date':
+            db.engine.execute(
+                'ALTER TABLE {0} '
+                'ALTER COLUMN "{1}" '
+                'TYPE TIMESTAMP WITH TIME ZONE'
+                .format(table_name, table_col))
+        else:
+            db.engine.execute(
+                'ALTER TABLE {0} '
+                'ALTER COLUMN "{1}" '
+                'TYPE TIMESTAMP WITH TIME ZONE '
+                'USING to_timestamp("{1}", \'DD/MM/YYYY HH24:MI:SS\')'
+                .format(table_name, table_col))
 
 
 def drop_attribute(table_name, attr):

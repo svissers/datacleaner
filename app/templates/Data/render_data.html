@@ -24,7 +24,8 @@
                 </thead>
                 <tbody></tbody>
             </table>
-            {#				<input onclick="this.form.action='{{url_for('data_bp.delete', id=dataset_info.id)}}'; this.form.submit()" class="btn btn-primary float-right" value="Delete">#}
+	        <a class="btn btn-lg btn-info pull-left project-action" href="{{ url_for('view_bp.history', dataset=dataset_info.id) }}">View History</a>
+{#            				<input onclick="this.form.action='{{url_for('data_bp.delete', id=dataset_info.id)}}'; this.form.submit()" class="btn btn-primary float-right" value="Delete">#}
         </form>
     </div>
     <div class="col-md-12">
