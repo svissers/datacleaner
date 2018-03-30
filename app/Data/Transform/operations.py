@@ -336,3 +336,23 @@ def remove_outliers(table_name, attr, value, smaller_than=False):
             )
     except:
         print('REMOVE OUTLIERS FAILED')
+
+
+def discretize_equal_width(table_name, attr, interval_amount):
+    """
+    Discretizes table_name.attr into a number of equal-width
+    intervals equal to interval amount
+    :param table_name: table to perform operation on
+    :param attr: attribute to discretize
+    :param interval_amount: number of intervals to divide into
+    """
+    try:
+        df = pd.read_sql_table(table_name, db.engine)
+        df[attr + '_' + interval_amount + '_intervals'] \
+            = pd.cut(df[attr], interval_amount)
+        db.engine.execute(
+            'DROP TABLE "{0}"'.format(table_name)
+        )
+        df.to_sql(name=table_name, con=db.engine, if_exists="fail")
+    except:
+        print('EQUAL WIDTH DISCRETIZATION FAILED')
