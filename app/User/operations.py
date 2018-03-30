@@ -61,6 +61,9 @@ def project_cleanup(project_id):
         if access.owner:
             return
     project = Project.query.filter(Project.id == project_id).first()
+    for dataset in project.datasets:
+        db.engine.execute('DROP TABLE "{0}"'.format(dataset.original_data))
+        db.engine.execute('DROP TABLE "{0}"'.format(dataset.working_copy))
     db.session.delete(project)
     db.session.commit()
 

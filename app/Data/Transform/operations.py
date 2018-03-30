@@ -349,3 +349,28 @@ def delete_rows(table_name, column, operator, condition):
         remove_outliers(table_name, column, condition, True)
     elif operator == '>':
         remove_outliers(table_name, column, condition, False)
+
+
+def discretize_width(table_name, attr, intervals):
+    """
+    Discretizes table_name.attr into a number of equal-width
+    intervals equal to interval amount
+    :param table_name: table to perform operation on
+    :param attr: attribute to discretize
+    :param intervals:
+        - int: number of equal width intervals
+        - [int]: non-uniform interval edges
+    """
+    try:
+        df = pd.read_sql_table(table_name, db.engine)
+        if isinstance(intervals, list):
+            column_name = attr + '_custom_intervals'
+        else:
+            column_name = attr + '_' + intervals + '_eq_intervals'
+        df[column_name] = pd.cut(df[attr], intervals)
+        db.engine.execute(
+            'DROP TABLE "{0}"'.format(table_name)
+        )
+        df.to_sql(name=table_name, con=db.engine, if_exists="fail")
+    except:
+        print('WIDTH DISCRETIZATION FAILED')
