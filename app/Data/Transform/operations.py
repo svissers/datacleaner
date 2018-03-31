@@ -338,7 +338,7 @@ def remove_outliers(table_name, attr, value, smaller_than=False):
         print('REMOVE OUTLIERS FAILED')
 
 
-def discretize_width(table_name, attr, intervals):
+def discretize_width(table_name, attr, intervals, dataframe=None):
     """
     Discretizes table_name.attr into a number of equal-width
     intervals equal to interval amount
@@ -347,9 +347,13 @@ def discretize_width(table_name, attr, intervals):
     :param intervals:
         - int: number of equal width intervals
         - [int]: non-uniform interval edges
+    :param dataframe: Dataframe if data has already been read from sql
     """
     try:
-        df = pd.read_sql_table(table_name, db.engine)
+        if dataframe is not None:
+            df = dataframe
+        else:
+            df = pd.read_sql_table(table_name, db.engine)
         if isinstance(intervals, list):
             column_name = attr + '_custom_intervals'
         else:
@@ -361,3 +365,32 @@ def discretize_width(table_name, attr, intervals):
         df.to_sql(name=table_name, con=db.engine, if_exists="fail")
     except:
         print('WIDTH DISCRETIZATION FAILED')
+
+
+def discretize_eq_freq(table_name, attr, intervals):
+    """
+    Discretizes table_name.attr into a number of equal-frequency
+    intervals equal to intervals
+    :param table_name: table to perform operation on
+    :param attr: attribute to discretize
+    :param intervals: number of equal frequency intervals
+    """
+    try:
+        df = pd.read_sql_table(table_name, db.engine)
+        attr_length = len(df[attr])
+        elements_per_interval = attr_length//intervals
+        sorted_data = list(df[attr].sort_values())
+        selector = 0
+        edge_list = []
+        while selector < attr_length:
+            edge_list.append(sorted_data[selector])
+            selector = selector + elements_per_interval
+        if edge_list[-1] != sorted_data[-1]:
+            edge_list.append(sorted_data[-1])
+        # Extend outer edges with 0.1% to include min and max values
+        edge_list[0] = edge_list[0]-edge_list[0]*0.001
+        edge_list[-1] = edge_list[-1]+edge_list[-1]*0.001
+
+        discretize_width(table_name, attr, edge_list)
+    except:
+        print('EQUAL FREQUENCY DISCRETIZATION FAILED')
