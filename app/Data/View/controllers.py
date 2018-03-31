@@ -92,6 +92,7 @@ def view():
     view_raw = bool(request.args.get('raw', None))
     change_type = bool(request.args.get('change_type', None))
     delete = bool(request.args.get('delete', None))
+    delete_selection = bool(request.args.get('delete_selection', None))
     if dataset is None:
         return redirect(url_for('main_bp.dashboard'))
     else:
@@ -115,8 +116,16 @@ def view():
                 data = delete_form.condition.data
                 col = request.form['column']
                 oper = request.form['operator']
-                delete_rows(table.name, col, oper, data)
-
+                try:
+                    delete_rows(table.name, col, oper, data)
+                    flash('items deleted', 'success')
+                except:
+                    flash('condition "{0} {1} {2}" not valid'.format(col, oper, data), 'danger')
+        if delete_selection:
+            selected_data = request.form.getlist("data_id[]")
+            print(len(selected_data))
+            for data in selected_data:
+                table.delete(table.c.index == data).execute()
         column_data = []
         table = table_name_to_object(dataset_info.working_copy)
         for column in table.columns:

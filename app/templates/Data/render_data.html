@@ -9,6 +9,7 @@
 {% endblock %}
 {% block content %}
 	{% include 'includes/_navbar_top.html' %}
+    {% include 'includes/_messages.html' %}
     <div class="col-md-12">
         {#			<h1 class="page-header">Table: {{ dataset_info.name }}</h1>#}
         <form method=post>
@@ -24,8 +25,10 @@
                 </thead>
                 <tbody></tbody>
             </table>
+	        <a class="btn btn-lg btn-success pull-left project-action" href="{{ url_for(request.endpoint, dataset=dataset_info.id) }}">View Table info</a>
 	        <a class="btn btn-lg btn-info pull-left project-action" href="{{ url_for('view_bp.history', dataset=dataset_info.id) }}">View History</a>
-	        <input id="btn" class="btn btn-lg btn-warning pull-left project-action" type="button" value="Delete" />
+	        <input onclick="this.form.action='{{ url_for(request.endpoint, dataset=dataset_info.id, raw=True, delete_selection=True) }}'; this.form.submit()" class="btn btn-lg btn-warning pull-left project-action" type="button" value="Delete Selection" />
+	        <input id="btn" class="btn btn-lg btn-danger pull-left project-action" type="button" value="Delete rows" />
         </form>
     </div>
 
