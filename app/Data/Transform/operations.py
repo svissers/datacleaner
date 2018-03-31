@@ -338,6 +338,19 @@ def remove_outliers(table_name, attr, value, smaller_than=False):
         print('REMOVE OUTLIERS FAILED')
 
 
+def delete_rows(table_name, column, operator, condition):
+    if operator == '=':
+        db.engine.execute(
+            'DELETE FROM "{0}" '
+            'WHERE "{1}"=\'{2}\''
+            .format(table_name, column, condition)
+        )
+    elif operator == '<':
+        remove_outliers(table_name, column, condition, True)
+    elif operator == '>':
+        remove_outliers(table_name, column, condition, False)
+
+
 def discretize_width(table_name, attr, intervals, dataframe=None):
     """
     Discretizes table_name.attr into a number of equal-width
