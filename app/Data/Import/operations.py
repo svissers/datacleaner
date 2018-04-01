@@ -16,8 +16,16 @@ def upload_csv(name, description, file, project):
     original = "og" + table_name
     working_copy = "wc" + table_name
 
-    csv_dataframe.to_sql(name=original, con=db_engine, if_exists="fail")
-    csv_dataframe.to_sql(name=working_copy, con=db_engine, if_exists="fail")
+    csv_dataframe.to_sql(name=original,
+                         con=db_engine,
+                         if_exists="fail",
+                         index=False
+                         )
+    csv_dataframe.to_sql(name=working_copy,
+                         con=db_engine,
+                         if_exists="fail",
+                         index=False
+                         )
 
     new_dataset = Dataset(name, original, working_copy, description, project)
     database.session.add(new_dataset)
@@ -81,8 +89,16 @@ def upload_joined(
     original = "og" + table_name
     working_copy = "wc" + table_name
 
-    result_dataframe.to_sql(name=original, con=db_engine, if_exists="fail")
-    result_dataframe.to_sql(name=working_copy, con=db_engine, if_exists="fail")
+    result_dataframe.to_sql(name=original,
+                            con=db_engine,
+                            if_exists="fail",
+                            index=False
+                            )
+    result_dataframe.to_sql(name=working_copy,
+                            con=db_engine,
+                            if_exists="fail",
+                            index=False
+                            )
 
     new_dataset = Dataset(
         join_name,
