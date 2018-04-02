@@ -118,14 +118,14 @@ def view():
                 oper = request.form['operator']
                 try:
                     delete_rows(table.name, col, oper, data)
-                    flash('items deleted', 'success')
+                    create_action('rows deleted with condition "{0} {1} {2}"'.format(col, oper, data), dataset, current_user.id)
                 except:
                     flash('condition "{0} {1} {2}" not valid'.format(col, oper, data), 'danger')
         if delete_selection:
             selected_data = request.form.getlist("data_id[]")
-            print(len(selected_data))
             for data in selected_data:
                 table.delete(table.c.index == data).execute()
+            create_action('deleted selected items', dataset, current_user.id)
         column_data = []
         table = table_name_to_object(dataset_info.working_copy)
         for column in table.columns:
