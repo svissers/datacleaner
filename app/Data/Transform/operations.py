@@ -349,6 +349,12 @@ def delete_rows(table_name, column, operator, condition):
         remove_outliers(table_name, column, condition, True)
     elif operator == '>':
         remove_outliers(table_name, column, condition, False)
+    elif operator == 'CONTAINS':
+        db.engine.execute(
+            'DELETE FROM "{0}" '
+            'WHERE "{1}" ~ \'{2}\''
+            .format(table_name, column, condition)
+        )
 
 
 def discretize_width(table_name, attr, intervals, dataframe=None):
