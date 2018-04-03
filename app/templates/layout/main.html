@@ -1,0 +1,39 @@
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}
+    ADReM - Data Wrangler
+{% endblock %}
+
+{% block styles %}
+    {{super()}}
+    <link rel="stylesheet" href="{{url_for('static', filename='css/layout/layout.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/layout/navbar_top.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/layout/navbar_side.css')}}">
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Ubuntu" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.9/css/all.css" integrity="sha384-5SOiIsAziJl6AWe0HWRKTXlfcSHKmYV4RBF18PPJ173Kzn7jzMyFuTtk8JA7QQG1" crossorigin="anonymous">
+{% endblock %}
+
+{% block navbar %}
+    {% include 'layout/navbar_top.html' %}
+{% endblock %}
+
+{% block content %}
+    <!-- Sidebar -->
+    <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+        <div class="sidebar-sticky">
+            {% block sidebar_content %}{% endblock %}
+        </div>
+    </nav>
+    <!-- Main content -->
+    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+        {% include 'layout/flash_messages.html' %}
+        {% block main_content %}{% endblock %}
+    </main>
+    <!-- Modals -->
+    {% block modals %}{% endblock %}
+{% endblock %}
+
+{% block scripts %}
+    {{super()}}
+{% endblock %}
