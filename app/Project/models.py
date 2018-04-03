@@ -15,7 +15,6 @@ class Access(db.Model):
         )
     )
     user_id = db.Column(db.Integer, db.ForeignKey('user_data.id'))
-    owner = db.Column(db.Boolean, nullable=False)
 
     user = db.relationship('User', backref=backref('projects',
                                                    cascade="all,delete")
@@ -28,6 +27,9 @@ class Project(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     name = db.Column(db.String(25))
     description = db.Column(db.Text())
+    owner_id = db.Column(db.Integer,
+                         db.ForeignKey('user_data.id'),
+                         nullable=False)
 
     # Dataset is parent of view, thus this relationship helper class
     datasets = db.relationship('Dataset',
@@ -40,6 +42,7 @@ class Project(db.Model):
     # otherwise we get SET NULL-like behaviour
     users = db.relationship("Access", backref='project', passive_deletes=True)
 
-    def __init__(self, name, descr):
+    def __init__(self, name, descr, creator):
         self.name = name
         self.description = descr
+        self.owner_id = creator

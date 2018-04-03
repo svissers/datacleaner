@@ -78,6 +78,7 @@ def delete_user_with_id(user_id):
     if user is None:
         raise RuntimeError('No user associated with this id.')
     else:
+        # TODO: Self cleaning
         project_ids = []
         for access in user.projects:
             project_ids.append(access.project_id)
@@ -97,6 +98,7 @@ def delete_user_with_username(username):
     if user is None:
         raise RuntimeError('No user associated with this username.')
     else:
+        # TODO: Self cleaning
         project_ids = []
         for access in user.projects:
             project_ids.append(access.project_id)

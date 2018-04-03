@@ -45,7 +45,7 @@ def update():
 @login_required
 def delete():
     delete_project_with_id(
-        request.args.get('project_id'),
+        request.form['project_id'],
         current_user.id
     )
     flash('Project deleted successfully!', 'success')
@@ -58,13 +58,11 @@ def share():
     form = ShareForm()
     if form.validate_on_submit():
         submitted_user = get_user_with_username(form.username.data)
-        with_ownership = request.form['button'] == 'with_ownership'
         if submitted_user is not None:
             try:
                 share_project(
-                    request.args.get('project_id'),
-                    submitted_user.id,
-                    with_ownership
+                    request.form['project_id'],
+                    submitted_user.id
                 )
                 flash(
                     'The project was succesfully shared with {}.'.
