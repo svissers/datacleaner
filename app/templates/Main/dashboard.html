@@ -1,186 +1,105 @@
-{% extends "bootstrap/base.html" %}
-{% import "bootstrap/wtf.html" as wtf %}
-
-{% block title %}
-    Dashboard
-{% endblock %}
+{% extends "layout/main.html" %}
 
 {% block styles %}
-    {{super()}}
-    <link rel="stylesheet" href="{{url_for('static', filename='dashboard.css')}}">
-    <link rel="stylesheet" href="{{url_for('static', filename='css/typeahead.css')}}">
+    {{ super() }}
+    <link rel="stylesheet" href="{{url_for('static', filename='css/Main/dashboard.css')}}">
 {% endblock %}
 
-{% block content %}
-    {% include 'includes/_navbar_top.html' %}
-    {% include 'includes/_messages.html' %}
-    <div class="container">
-        <h1>Projects</h1>
+{% block sidebar_content %}
+    <ul class="nav nav-pills flex-column">
+        <!-- Projects banner -->
+        <li class="nav-item">
+            <a class="nav-link active" href="#">
+                <i class="fas fa-sitemap"></i>
+                Projects
+            </a>
+        </li>
+        <!-- Projects -->
         {% for project in projects %}
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="panel panel-info">
-                        <div class="panel-heading clickable">
-                            <h3 class="panel-title" id="name-{{ project.id }}">{{ project.name }}</h3>
-                            <span class="pull-right "><i class="glyphicon glyphicon-minus"></i></span>
-                        </div>
-                        <div class="panel-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h4>Description:</h4>
-                                    <div id="description-{{ project.id }}">{{ project.description }}</div>
-                                    <hr/>
-                                    <div class="list-group">
-                                        {% for dataset in datasets %}
-                                            {% if dataset.project_id == project.id %}
-                                                <a href="{{ url_for('view_bp.view', dataset=dataset.id) }}" class="list-group-item">
-                                                    <h4 class="list-group-item-heading">{{ dataset.name }}</h4>
-                                                    <p class="list-group-item-text">{{ dataset.description }}</p>
-                                                </a>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <h4>Upload:</h4>
-                                    <form method="POST" action="{{ url_for('upload_bp.upload', project_id=project.id) }}" enctype="multipart/form-data">
-                                        {{ upload_form.hidden_tag() }}
-                                        {{ wtf.form_field(upload_form.file) }}
-                                        {{ wtf.form_field(upload_form.name) }}
-                                        {{ wtf.form_field(upload_form.description) }}
-                                        <button type="submit" class="btn btn-success pull-right" name="button" value="upload">Upload</button>
-                                    </form>
-                                </div>
-                            </div>
-                            <hr/>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <form class="form-horizontal" method="POST" action="{{ url_for('project_bp.share', project_id=project.id) }}">
-                                        <div class="btn-group">
-                                            <button type="submit"
-                                                    class="btn btn-info dropdown-toggle project-action"
-                                                    data-toggle="dropdown"
-                                                    aria-haspopup="true"
-                                                    aria-expanded="false">
-                                                Share <span
-                                                    class="caret"></span>
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                                <li>
-                                                    <button type="submit" class="btn btn-block btn-link" name="button" value="with_ownership">With ownership</button>
-                                                </li>
-                                                <li>
-                                                    <button type="submit" class="btn btn-block btn-link" name="button" value="without_ownership">Without ownership</button>
-                                                </li>
-
-                                            </ul>
-                                        </div>
-                                        {{ share_form.hidden_tag() }}
-                                        {{ share_form.username(class_="form-control typeahead",  autocomplete="off") }}
-                                    </form>
-                                </div>
-                                <div class="col-md-6">
-                                    <form method="post" action="{{ url_for('project_bp.delete', project_id=project.id ) }}">
-                                        <button type="submit" class="btn btn-danger pull-right project-action" name="{{ project.id }}" value="delete">Delete</button>
-                                    </form>
-                                        <button type="submit" class="btn btn-warning pull-right project-action" name="{{ project.id }}" value="edit">Edit</button>
-                                </div>
-                            </div>
-                        </div>
+            <!-- Project info toggle -->
+            <li class="nav-item">
+                <a class="nav-link sidebar-link" data-toggle="collapse"
+                   href="#project-{{ project.id }}-info">
+                    <i class="fas fa-caret-right " id="project-{{ project.id }}-toggle"></i>
+                    {{ project.name }}
+                </a>
+            </li>
+            <!-- Collapsable project info card -->
+            <div class="collapse project-collapse" id="project-{{ project.id }}-info">
+                <div class="card card-body project-card">
+                    <h6>Description:</h6>
+                    {{ project.description }}
+                    <hr/>
+                    <div class="row-fluid inline action-icons">
+                        <!-- Open project button -->
+                        <a href="#">
+                            <i class="fas fa-folder-open"></i>
+                        </a>
+                        <!-- Edit project button -->
+                        <a href="#edit-project-modal" data-toggle="modal"
+                           data-target="#edit-project-modal"
+                           data-projectid="{{ project.id }}"
+                           data-title="{{ project.name }}"
+                           data-description="{{ project.description }}">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <!-- Delete project button -->
+                        <form id="delete-form-{{ project.id }}"
+                              action="{{ url_for('project_bp.delete') }}"
+                              method="POST">
+                            <input type="hidden" name="project_id"
+                                   value="{{ project.id }}">
+                            <a href="#" onclick="document.getElementById('delete-form-{{ project.id }}').submit()">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </form>
+                        <!-- Share project button -->
+                        <a href="#share-project-modal" data-toggle="modal"
+                           data-target="#share-project-modal"
+                           data-projectid="{{ project.id }}">
+                            <i class="fas fa-share-alt"></i>
+                        </a>
                     </div>
                 </div>
             </div>
         {% endfor %}
-        <div class="row">
-            <div class="col-md-12">
-                <div class="panel panel-success">
-                    <div class="panel-heading clickable">
-                        <h3 class="panel-title">Create New Project</h3>
-                        <span class="pull-right "><i class="glyphicon glyphicon-minus"></i></span>
-                    </div>
-                    <div class="panel-body">
-                        <form method="POST" action="{{ url_for('project_bp.create') }}">
-                            {{ project_form.hidden_tag() }}
-                            {{ wtf.form_field(project_form.name) }}
-                            {{ wtf.form_field(project_form.description) }}
-                            <button type="submit" class="btn btn-success pull-right" name="button" value="create">Create</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
+    </ul>
+{% endblock %}
+
+{% block main_content %}
+    <div class="jumbotron">
+        {% if current_user.first_name %}
+            <h1 class="display-4">Hello, {{ current_user.first_name }}!</h1>
+        {% else%}
+            <h1 class="display-4">Hello there!</h1>
+        {% endif %}
+        <p class="lead">
+            Welcome to our data wrangling web application!
+        </p>
+        <hr class="my-4">
+        <p>
+            Continue working on one of your existing projects by clicking on them on the left, or create a new one by pressing the button below.
+        </p>
+        <p>
+            <a class="btn btn-outline-success btn-lg" href="#" data-toggle="modal" data-target="#create-project-modal" role="button">
+                <i class="fas fa-plus"></i>
+                Create Project
+            </a>
+        </p>
     </div>
-    <!-- Modal -->
-	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-		<div class="modal-dialog" role="document">
-			<div class="modal-content">
-				<div class="modal-body">
-					<form method="post" action="{{ url_for('project_bp.update') }}">
-                            {{ project_form.hidden_tag() }}
-                            <input type="hidden" id="project_id" name="project_id">
-                            {{ wtf.form_field(project_form.name) }}
-                            {{ wtf.form_field(project_form.description) }}
-                            <button type="submit" class="btn btn-success" name="button" value="update">Update</button>
-					</form>
-				</div>
-			</div>
-		</div>
-	</div>
+    <img class="background-filler" src="{{ url_for('static', filename='img/logo.svg') }}" alt="">
+{% endblock %}
+
+{% block modals %}
+    {% include 'Project/create_modal.html' %}
+    {% include 'Project/edit_modal.html' %}
+    {% include 'Project/share_modal.html' %}
 {% endblock %}
 
 {% block scripts %}
     {{ super() }}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
-    <script type="text/javascript" charset="utf-8">
-
-        $(document).on('click', '.project-action', function () {
-            var $this = $(this);
-            if ($this.val() === 'edit') {
-                $('#myModal').modal('show');
-                document.getElementById("project_id").value = $this.attr('name');
-                 $('#myModal').find("#name").val($('#name-'+ $this.attr('name')).text());
-                 $('#myModal').find("#description").val($('#description-'+ $this.attr('name')).text());
-            }
-        });
-
-        // panel expansion
-        $(document).on('click', '.panel div.clickable', function (e) {
-            var $this = $(this);
-            if (!$this.hasClass('panel-collapsed')) {
-                $this.parent('.panel').find('.panel-body').slideUp();
-                $this.addClass('panel-collapsed');
-                $this.find('i').removeClass('glyphicon-minus').addClass('glyphicon-plus');
-            } else {
-                $this.parent('.panel').find('.panel-body').slideDown();
-                $this.removeClass('panel-collapsed');
-                $this.find('i').removeClass('glyphicon-plus').addClass('glyphicon-minus');
-            }
-        });
-        $(document).ready(function () {
-            $('.clickable').click();
-        });
-    </script>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            localStorage.clear();
-            // Constructs the suggestion engine
-            var users = new Bloodhound({
-                datumTokenizer: Bloodhound.tokenizers.whitespace,
-                queryTokenizer: Bloodhound.tokenizers.whitespace,
-                // The url points to a json file that contains an array of country names
-                prefetch: "{{ url_for('user_bp.autocomplete') }}"
-            });
-
-            // Initializing the typeahead with remote dataset without highlighting
-            $('.typeahead').typeahead(null, {
-                name: 'users',
-                source: users,
-                limit: 5, /* Specify max number of suggestions to be displayed */
-                hint: true,
-                highlight: true, /* Enable substring highlighting */
-                minLength: 1 /* Specify minimum characters required for showing */
-            });
-        });
-    </script>
-
+	<script src="{{ url_for('static', filename='js/Main/dashboard.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/Project/edit_modal.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/Project/share_modal.js') }}"></script>
 {% endblock %}

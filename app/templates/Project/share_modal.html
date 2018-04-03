@@ -1,0 +1,23 @@
+<div class="modal fade" id="share-project-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Share Project:</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+		<form method="POST" action="{{ url_for('project_bp.share') }}">
+            <div class="modal-body">
+                <input type="hidden" id="share-hidden-id" name="project_id" value="">
+                <h6>Enter username:</h6>
+                {{ share_form.hidden_tag() }}
+                {{ wtf.form_field(share_form.username, class="form-control typeahead",  autocomplete="off") }}
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-info">Share</button>
+            </div>
+        </form>
+    </div>
+  </div>
+</div>
