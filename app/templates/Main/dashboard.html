@@ -7,6 +7,43 @@
 
 {% block sidebar_content %}
     <ul class="nav nav-pills flex-column">
+        <!-- User banner -->
+        <li class="nav-item">
+            <a class="nav-link active" href="#">
+                <i class="fas fa-user"></i>
+                User
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link sidebar-link"
+               href="#edit-profile-modal"
+               data-toggle="modal"
+               data-target="#edit-profile-modal">
+                <i class="fas fa-edit "></i>
+                Edit Profile
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="{{ url_for('user_bp.logout') }}">
+                <i class="fas fa-sign-out-alt "></i>
+                Sign Out
+            </a>
+        </li>
+        {% if current_user.admin %}
+            <!-- Admin banner -->
+            <li class="nav-item">
+                <a class="nav-link active" href="#">
+                    <i class="fas fa-key"></i>
+                    Admin
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link sidebar-link" href="{{ url_for('admin_bp.manage_users') }}">
+                    <i class="fas fa-users"></i>
+                    Manage Users
+                </a>
+            </li>
+        {% endif %}
         <!-- Projects banner -->
         <li class="nav-item">
             <a class="nav-link active" href="#">
@@ -94,6 +131,7 @@
     {% include 'Project/create_modal.html' %}
     {% include 'Project/edit_modal.html' %}
     {% include 'Project/share_modal.html' %}
+    {% include 'User/edit_modal.html' %}
 {% endblock %}
 
 {% block scripts %}
