@@ -33,7 +33,6 @@ class SignUpForm(FlaskForm):
         'Confirm password',
         validators=[EqualTo('password')]
     )
-    recaptcha = RecaptchaField()
 
 
 class LoginForm(FlaskForm):
@@ -46,12 +45,10 @@ class LoginForm(FlaskForm):
         'Password',
         validators=[InputRequired()]
     )
-    remember = BooleanField('Remember me?')
 
 
 class EditForm(FlaskForm):
     """Represents form used for edit user info"""
-    user_id = HiddenField('', id='user_id')
     first_name = StringField(
         'First Name',
         validators=[Optional(), Length(max=25)]

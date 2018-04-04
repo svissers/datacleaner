@@ -1,0 +1,27 @@
+<div class="modal fade" id="edit-profile-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Profile:</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+		<form method="POST" action="{{ url_for('user_bp.update') }}">
+            <div class="modal-body">
+                {{ edit_form.hidden_tag() }}
+                {{ wtf.form_field(edit_form.first_name, value=current_user.first_name) }}
+                {{ wtf.form_field(edit_form.last_name, value=current_user.last_name) }}
+                {{ wtf.form_field(edit_form.email, value=current_user.email) }}
+                {{ wtf.form_field(edit_form.username, value=current_user.username) }}
+                {{ wtf.form_field(edit_form.new_password) }}
+                {{ wtf.form_field(edit_form.confirm_password) }}
+                {{ wtf.form_field(edit_form.current_password) }}
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-success">Update</button>
+            </div>
+        </form>
+    </div>
+  </div>
+</div>
