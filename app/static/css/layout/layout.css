@@ -3,10 +3,10 @@ body {
   font-family: Ubuntu;
 }
 
-.feather {
-  width: 16px;
-  height: 16px;
-  vertical-align: text-bottom;
+.ignore-nav {
+  position: relative;
+  top: -42px;
+  z-index: 10000;
 }
 
 /*
