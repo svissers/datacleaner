@@ -9,7 +9,7 @@
     <ul class="nav nav-pills flex-column">
         <!-- User banner -->
         <li class="nav-item">
-            <a class="nav-link active" href="#">
+            <a class="nav-link not-clickable active" href="#">
                 <i class="fas fa-user"></i>
                 User
             </a>
@@ -32,7 +32,7 @@
         {% if current_user.admin %}
             <!-- Admin banner -->
             <li class="nav-item">
-                <a class="nav-link active" href="#">
+                <a class="nav-link not-clickable active" href="#">
                     <i class="fas fa-key"></i>
                     Admin
                 </a>
@@ -46,7 +46,7 @@
         {% endif %}
         <!-- Projects banner -->
         <li class="nav-item">
-            <a class="nav-link active" href="#">
+            <a class="nav-link not-clickable active" href="#">
                 <i class="fas fa-sitemap"></i>
                 Projects
             </a>
@@ -122,6 +122,9 @@
                 <i class="fas fa-plus"></i>
                 Create Project
             </a>
+        </p>
+        <p class="text-muted">
+            You can return to this screen at any time by pressing on the logo in the top left corner.
         </p>
     </div>
     <img class="background-filler" src="{{ url_for('static', filename='img/logo.svg') }}" alt="">

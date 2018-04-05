@@ -1,18 +1,50 @@
-{% extends "bootstrap/base.html" %}
-{% import "bootstrap/wtf.html" as wtf %}
-{% block title %}
-	Manage Users
-{% endblock %}
+{% extends "layout/main.html" %}
+
 {% block styles %}
-	{{ super() }}
+    {{ super() }}
 	<link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css">
-	<link rel="stylesheet" href="{{url_for('static', filename='css/_navbar_top.css')}}">
 {% endblock %}
-{% block content %}
-	{% include 'includes/_navbar_top.html' %}
-	<div class="row">
+
+{% block sidebar_content %}
+    <ul class="nav nav-pills flex-column">
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="{{ url_for('main_bp.dashboard') }}">
+                <i class="fas fa-home "></i>
+                Return to Dashboard
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link not-clickable active" href="#">
+                <i class="fas fa-users"></i>
+                Manage Users
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="#" id="admin-users-link">
+                <i class="fas fa-key "></i>
+                Toggle Admin
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="#" id="disable-users-link">
+                <i class="fas fa-minus-circle "></i>
+                Toggle Disabled
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="#" id="delete-users-link">
+                <i class="fas fa-trash-alt "></i>
+                Delete
+            </a>
+        </li>
+    </ul>
+{% endblock %}
+
+{% block main_content %}
+    <div class="row">
 		<div class="container">
-			<form method=post>
+			<form id="user-management" method="POST">
+                <input type="hidden" id="user-operation" name="operation" value="">
 				<table id="user_table" class="display" cellspacing="0" width="100%">
 					<thead>
 					<tr>
@@ -27,33 +59,38 @@
 					</thead>
 					<tbody></tbody>
 				</table>
-				<button type="submit" class="btn btn-danger" name="button" value="delete">Delete</button>
-				<button type="submit" class="btn btn-info" name="button" value="admin">Toggle admin</button>
-				<button type="submit" class="btn btn-info" name="button" value="disabled">Toggle disabled</button>
 			</form>
 		</div>
 	</div>
 {% endblock %}
+
+{% block modals %}
+{% endblock %}
+
 {% block scripts %}
-	{{ super() }}
+    {{ super() }}
 	<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
-	<script type="text/javascript" charset="utf-8">
-		$(document).ready(function (){
-		    var table = $('#user_table').DataTable({
-			    'processing': true,
-			    'serverSide': true,
-			    'ajax': "{{ url_for('admin_bp.data') }}",
-			    'columnDefs': [{
-			        'targets': 0,
-				    'searchable': false,
-				    'orderable': false,
-				    'className': 'dt-body-center',
-				    'render': function (data, type, full, meta){
-			            return '<input type="checkbox" name="user_id[]" value="' + $('<div/>').text(data).html() + '">';
-			        }
-			    }],
-			    'order': [[1, 'asc']]
-		    });
-		});
-		</script>
+	<script src="{{ url_for('static', filename='js/Admin/manage_users.js') }}"></script>
+        <script type="text/javascript" charset="utf-8">
+        $(document).ready(function (){
+            var table = $('#user_table').DataTable({
+                'processing': true,
+                'serverSide': true,
+                'ajax': "{{ url_for('admin_bp.data') }}",
+                'scrollY': '80vh',
+                'scrollCollapse': true,
+                'deferRender': true,
+                'columnDefs': [{
+                    'targets': 0,
+                    'searchable': false,
+                    'orderable': false,
+                    'className': 'dt-body-center',
+                    'render': function (data, type, full, meta){
+                        return '<input type="checkbox" name="user_id[]" value="' + $('<div/>').text(data).html() + '">';
+                    }
+                }],
+                'order': [[1, 'asc']]
+            });
+        });
+    </script>
 {% endblock %}
