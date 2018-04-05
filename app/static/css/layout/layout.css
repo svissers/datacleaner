@@ -6,7 +6,6 @@ body {
 .ignore-nav {
   position: relative;
   top: -42px;
-  z-index: 10000;
 }
 
 /*
