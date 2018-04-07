@@ -18,3 +18,12 @@ body {
   pointer-events: none;
   cursor: default;
 }
+
+img.background-filler {
+    position: fixed;
+    bottom: -30px;
+    right: -90px;
+    height: 25%;
+    width: 25%;
+    opacity: 0.2;
+}

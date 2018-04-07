@@ -29,3 +29,7 @@
 .nav-link.sidebar-link {
     color: rgba(128, 142, 155,1.0);
 }
+
+.nav-link.current-section {
+    color: rgba(46, 204, 113,1.0);
+}

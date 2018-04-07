@@ -11,16 +11,15 @@ from flask import (
 from flask_login import login_required, current_user
 from app import database as db
 from app.Data.models import Dataset, Action
-from app.Data.helpers import table_name_to_object
 from datatables import (
     DataTables,
     ColumnDT
 )
 from .operations import export_csv
-from .forms import DeleteForm
-from app.Data.Transform.operations import change_attribute_type, delete_rows
-from app.Data.operations import create_action
 from app.User.operations import get_user_with_id
+from app.Project.operations import get_project_with_id
+from app.Data.operations import get_datasets
+from app.Data.Import.forms import UploadForm
 
 
 _view = Blueprint('view_bp', __name__, url_prefix='/data/view')
@@ -81,73 +80,23 @@ def retrieve():
     return jsonify(rowTable.output_result())
 
 
-@_view.route('/', methods=['GET', 'POST'])
+@_view.route('/', methods=['GET'])
 @login_required
 def view():
     """
     Show entries of a specific table,
     or just list tables in the system if no parameter is provided
     """
-    dataset = request.args.get('dataset', None)
-    view_raw = bool(request.args.get('raw', None))
-    change_type = bool(request.args.get('change_type', None))
-    delete = bool(request.args.get('delete', None))
-    delete_selection = bool(request.args.get('delete_selection', None))
-    if dataset is None:
-        return redirect(url_for('main_bp.dashboard'))
-    else:
-        # get info from requested table out of dataset table
-        dataset = int(dataset)
-        dataset_info = Dataset.query.filter(Dataset.id == dataset).first()
-        table = table_name_to_object(dataset_info.working_copy)
-        if change_type:
-            col = request.form['column']
-            new_type = request.form['type']
-            if col != '' and new_type != '':
-                try:
-                    change_attribute_type(table.name, col, new_type)
-                    create_action('type {0} changed to {1}'.format(col, new_type), dataset, current_user.id)
-                except:
-                    flash('{0} could not be converted to {1}'.format(col, new_type), 'danger')
-
-        delete_form = DeleteForm()
-        if delete:
-            if delete_form.validate_on_submit():
-                data = delete_form.condition.data
-                col = request.form['column']
-                oper = request.form['operator']
-                try:
-                    delete_rows(table.name, col, oper, data)
-                    create_action('rows deleted with condition "{0} {1} {2}"'.format(col, oper, data), dataset, current_user.id)
-                except:
-                    flash('condition "{0} {1} {2}" not valid'.format(col, oper, data), 'danger')
-        if delete_selection:
-            selected_data = request.form.getlist("data_id[]")
-            for data in selected_data:
-                table.delete(table.c.index == data).execute()
-            create_action('deleted selected items', dataset, current_user.id)
-        column_data = []
-        table = table_name_to_object(dataset_info.working_copy)
-        for column in table.columns:
-            # change_column_type(table.name, column.name, 'integer')
-            start = str(column).find('.') + 1
-            column_data.append([str(column)[start:], column.type, 'b'])
-
-        if view_raw:
-            # render the table requested
-            return render_template(
-                "Data/render_data.html",
-                cnames=column_data[1:],
-                dataset_info=dataset_info,
-                delete_form=delete_form
-            )
-        else:
-            return render_template(
-                "Data/render_table.html",
-                dataset_info=dataset_info,
-                cnames=column_data,
-                columns=[]
-            )
+    project_id = request.args.get('project_id', default=None)
+    project = get_project_with_id(project_id)
+    # datasets = get_datasets(current_user.id, project_id)
+    upload_form = UploadForm()
+    return render_template(
+        'Data/project_upload.html',
+        project=project,
+        # datasets=datasets,
+        upload_form=upload_form
+    )
 
 
 @_view.route('/history', methods=['GET'])

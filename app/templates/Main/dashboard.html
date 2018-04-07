@@ -69,7 +69,7 @@
                     <hr/>
                     <div class="row-fluid inline action-icons">
                         <!-- Open project button -->
-                        <a href="#">
+                        <a href="{{ url_for('view_bp.view', project_id=project.id) }}">
                             <i class="fas fa-folder-open"></i>
                         </a>
                         <!-- Edit project button -->

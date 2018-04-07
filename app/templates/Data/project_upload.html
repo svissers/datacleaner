@@ -1,0 +1,70 @@
+{% extends "layout/main.html" %}
+
+{% block styles %}
+    {{ super() }}
+{% endblock %}
+
+{% block sidebar_content %}
+    <ul class="nav nav-pills flex-column">
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="{{ url_for('main_bp.dashboard') }}">
+                <i class="fas fa-home "></i>
+                Return to Dashboard
+            </a>
+        </li>
+        <!-- Project banner -->
+        <li class="nav-item">
+            <a class="nav-link not-clickable active" href="#">
+                <i class="fas fa-sitemap"></i>
+                Project
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link current-section" href="#">
+                <i class="fas fa-upload "></i>
+                Upload
+            </a>
+        </li>
+        <!-- Datasets banner -->
+        <li class="nav-item">
+            <a class="nav-link not-clickable active" href="#">
+                <i class="fas fa-database"></i>
+                Datasets
+            </a>
+        </li>
+    {% for dataset in project.datasets %}
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="#">
+                <i class="fas fa-hockey-puck "></i>
+                {{ dataset.name }}
+            </a>
+        </li>
+    {% endfor %}
+    </ul>
+{% endblock %}
+
+{% block main_content %}
+    <div class="jumbotron">
+        <h1 class="display-4">Project: {{ project.name }}</h1>
+        <p class="lead">
+            Description:
+        </p>
+        <p>
+            {{ project.description }}
+        </p>
+        <hr class="my-4">
+        <p class="text-muted">
+            Select one of your existing datasets on the left to continue working on them, or upload new data below.
+        </p>
+        <div class="col-md-5">
+            <form method="POST" action="{{ url_for('upload_bp.upload', project_id=project.id) }}" enctype="multipart/form-data">
+                    {{ upload_form.hidden_tag() }}
+                    {{ wtf.form_field(upload_form.file) }}
+                    {{ wtf.form_field(upload_form.name) }}
+                    {{ wtf.form_field(upload_form.description) }}
+                    <button type="submit" class="btn btn-outline-success">Upload</button>
+            </form>
+        </div>
+    </div>
+    <img class="background-filler" src="{{ url_for('static', filename='img/logo.svg') }}" alt="">
+{% endblock %}

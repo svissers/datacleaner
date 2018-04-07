@@ -35,6 +35,8 @@ def upload():
             return redirect(url_for('upload_bp.dump'), code=308)
         elif filename.lower()[-5:] == '.dump':
             return redirect(url_for('upload_bp.dump'), code=308)
+        else:
+            flash('Filetype not supported.', 'danger')
 
     filelist = os.listdir('./file_queue/')
     for f in filelist:
@@ -47,18 +49,19 @@ def upload():
 @login_required
 def csv():
     form = UploadForm()
+    project_id = request.args.get('project_id')
     try:
         upload_csv(
             form.name.data,
             form.description.data,
             request.files['file'],
-            request.args.get('project_id')
+            project_id
         )
     except Exception:
         flash('An error occured while uploading your file.', 'danger')
     else:
         flash('Your file has been uploaded successfully.', 'success')
-    return redirect(url_for('main_bp.dashboard'))
+    return redirect(url_for('view_bp.view', project_id=project_id))
 
 
 @_upload.route('/zip', methods=['POST'])
