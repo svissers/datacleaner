@@ -18,8 +18,9 @@ from datatables import (
 from .operations import export_csv
 from app.User.operations import get_user_with_id
 from app.Project.operations import get_project_with_id
-from app.Data.operations import get_datasets
+from app.Data.operations import get_dataset_with_id
 from app.Data.Import.forms import UploadForm
+from app.Data.View.operations import join_datasets
 
 
 _view = Blueprint('view_bp', __name__, url_prefix='/data/view')
@@ -51,7 +52,7 @@ def retrieve():
     sql_table_name = request.args.get('sql_table_name', None)
 
     if sql_table_name is None:
-        print(sql_table_name + "FAIL")
+        print(sql_table_name + " FAIL")
         return '{}'
 
     meta = db.MetaData(db.engine)
@@ -88,16 +89,63 @@ def view():
     or just list tables in the system if no parameter is provided
     """
     project_id = request.args.get('project_id', default=None)
-    project = get_project_with_id(project_id)
-    upload_form = UploadForm()
     if project_id is None:
         return redirect('main_bp.dashboard')
     else:
+        project = get_project_with_id(project_id)
+        upload_form = UploadForm()
         return render_template(
             'Data/Import/upload.html',
             project=project,
             upload_form=upload_form
         )
+
+
+@_view.route('/join', methods=['GET', 'POST'])
+@login_required
+def join():
+
+    if request.method == 'POST':
+        try:
+            join_datasets(request.form['file-left'],
+                          request.form['column-left'],
+                          request.form['file-right'],
+                          request.form['column-right'],
+                          request.form['join-type'],
+                          request.form['join-name'],
+                          request.form['join-description']
+                          )
+        except:
+            flash('An error occured while merging datasets.', 'danger')
+        else:
+            flash('Datasets merged succesfully.', 'succes')
+    project_id = request.args.get('project_id')
+    return render_template(
+        'Data/View/dataset_join.html',
+        project=get_project_with_id(project_id)
+    )
+
+
+@_view.route('/get_columns', methods=['GET'])
+@login_required
+def get_columns():
+    dataset_id = request.args.get('dataset_id')
+    dataset = get_dataset_with_id(dataset_id)
+
+    if dataset is None:
+        return '{}'
+
+    meta = db.MetaData(db.engine)
+    table = db.Table(dataset.working_copy, meta, autoload=True)
+
+    column_names = []
+    for column in table.columns:
+        start = str(column).find('.') + 1
+        col_name = str(column)[start:]
+        if col_name != 'index':
+            column_names.append(str(column)[start:])
+
+    return jsonify(column_names)
 
 
 @_view.route('/history', methods=['GET'])
