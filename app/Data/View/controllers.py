@@ -110,17 +110,28 @@ def view():
                 except:
                     flash('{0} could not be converted to {1}'.format(col, new_type), 'danger')
 
-        delete_form = DeleteForm()
         if delete:
-            if delete_form.validate_on_submit():
-                data = delete_form.condition.data
-                col = request.form['column']
-                oper = request.form['operator']
-                try:
-                    delete_rows(table.name, col, oper, data)
-                    create_action('rows deleted with condition "{0} {1} {2}"'.format(col, oper, data), dataset, current_user.id)
-                except:
-                    flash('condition "{0} {1} {2}" not valid'.format(col, oper, data), 'danger')
+            condition = ''
+            for i in request.form:
+                print(i)
+                print(request.form[i])
+                if i.startswith('column'):
+                    condition += '"' + request.form[i] + '"'
+                elif i.startswith('condition'):
+                    condition += '\'' + request.form[i] + '\''
+                elif i.startswith('logical'):
+                    condition += ' ' + request.form[i] + ' '
+                elif i.startswith('operator') and request.form[i] == 'CONTAINS':
+                    condition += ' ~ '
+                elif i.startswith('operator') and request.form[i] == 'NOT CONTAINS':
+                    condition += ' !~ '
+                else:
+                    condition += request.form[i]
+            try:
+                delete_rows(table.name, condition)
+                create_action('rows deleted with condition "{0}"'.format(condition), dataset, current_user.id)
+            except:
+                flash('condition "{0}" not valid'.format(condition), 'danger')
         if delete_selection:
             selected_data = request.form.getlist("data_id[]")
             for data in selected_data:
@@ -139,7 +150,6 @@ def view():
                 "Data/render_data.html",
                 cnames=column_data[1:],
                 dataset_info=dataset_info,
-                delete_form=delete_form
             )
         else:
             return render_template(

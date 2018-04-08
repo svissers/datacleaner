@@ -38,38 +38,46 @@
 			<div class="modal-content">
 				<div class="modal-body">
 				<form method="post" action="{{ url_for(request.endpoint, dataset=dataset_info.id, raw=True, delete=True) }}">
-					<table id="join_table" class="table table-striped table-bordered" width="100%">
+					<table id="delete_table" class="table table-striped table-bordered" width="100%">
                     <thead>
                     <tr>
                         <th>Column</th>
 	                    <th>Operator</th>
 	                    <th>Condition</th>
+	                    <th></th>
+	                    <th></th>
                     </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td>
-                                <select class="form-control" name="column">
+                                <select class="form-control" name="column0" id="column">
 	                                {% for cname in cnames %}
                                         <option>{{ cname[0] }}</option>
 	                                {% endfor %}
                                 </select>
                             </td>
 	                        <td>
-	                            <select class="form-control" name="operator">
+	                            <select class="form-control" name="operator0" id="operator">
 		                            <option>=</option>
+		                            <option>!=</option>
 		                            <option>></option>
+		                            <option>>=</option>
 		                            <option><</option>
+		                            <option><=</option>
 		                            <option>CONTAINS</option>
-		                            <option>AND</option>
-		                            <option>OR</option>
-		                            <option>NOT</option>
+		                            <option>NOT CONTAINS</option>
 	                            </select>
                             </td>
                             <td>
-	                            {{ delete_form.hidden_tag() }}
-	                            {{ delete_form.condition(class_="form-control typeahead",  autocomplete="off") }}
+	                            <input type="text" class="form-control" id="condition" name="condition0">
                             </td>
+                            <td width="20%"></td>
+	                        <td>
+		                        <button type="button" class="btn btn-info btn-block add-delete-btn">
+			                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+		                        </button>
+	                        </td>
                         </tr>
                     </tbody>
 
@@ -115,4 +123,38 @@
 		    });
 		});
 	</script>
+
+	<script>
+		var counter = 1;
+		$(document).on('click', '.add-delete-btn', function () {
+			var column = $('#column').val();
+			var operator = $('#operator').val();
+			var condition = $('#condition').val();
+			if (condition !== '') {
+			    $('#delete_table').find('tbody tr:last').before(
+			        '<tr>' +
+				    '<td><input class="form-control" name="column' + counter + '" type="text" value="' + column + '" readonly></td>' +
+				    '<td><input class="form-control" name="operator' + counter + '" type="text" value="' + operator + '" readonly></td>' +
+				    '<td><input class="form-control" name="condition' + counter + '" type="text" value="' + condition + '" readonly></td>' +
+				    '<td>' +
+				    '<select class="form-control" name="logical' + counter + '">\n' +
+	                '<option>AND</option><option>OR</option>' +
+	                '</select>' +
+	                '<td>' +
+				    '<button type="button" class="btn btn-warning btn-block remove-delete-btn">' +
+				    '<span class="glyphicon glyphicon-minus" aria-hidden="true"></span>' +
+				    '</button>' +
+				    '</td>' +
+				    '</tr>'
+			    );
+			    ++counter;
+			}
+		});
+		$(document).on('click', '.remove-delete-btn', function () {
+		    $(this).closest ('tr').remove ();
+		});
+	</script>
+
 {% endblock %}
+
+
