@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, FileField, TextAreaField
-from wtforms.validators import InputRequired, Length, Optional
+from wtforms.validators import InputRequired, Length
 
 
 class UploadForm(FlaskForm):
@@ -9,6 +9,6 @@ class UploadForm(FlaskForm):
     file = FileField('File (.csv, .zip or .dump)',
                      validators=[InputRequired()]
                      )
-    name = StringField('Name', validators=[Length(max=50)])
+    name = StringField('Name', validators=[InputRequired(), Length(max=50)])
     description = TextAreaField('Description',
-                                validators=[Optional(), Length(max=255)])
+                                validators=[InputRequired(), Length(max=255)])

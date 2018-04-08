@@ -1,0 +1,116 @@
+{% extends "layout/main.html" %}
+
+{% block styles %}
+    {{ super() }}
+{% endblock %}
+
+{% block sidebar_content %}
+    <ul class="nav nav-pills flex-column">
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="{{ url_for('main_bp.dashboard') }}">
+                <i class="fas fa-home fa-fw"></i>
+                Return to Dashboard
+            </a>
+        </li>
+        <!-- Project banner -->
+        <li class="nav-item">
+            <a class="nav-link not-clickable active" href="#">
+                <i class="fas fa-sitemap fa-fw"></i>
+                Project
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link current-section" href="{{ url_for('view_bp.view', project_id=project.id) }}">
+                <i class="fas fa-upload fa-fw"></i>
+                Upload data
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="#">
+                <i class="fas fa-object-group fa-fw"></i>
+                Merge data
+            </a>
+        </li>
+        <!-- Datasets banner -->
+        <li class="nav-item">
+            <a class="nav-link not-clickable active" href="#">
+                <i class="fas fa-database fa-fw"></i>
+                Datasets
+            </a>
+        </li>
+    {% for dataset in project.datasets %}
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" data-toggle="collapse"
+               href="#sidebar-{{ dataset.id }}-info">
+                <i class="fas fa-caret-right fa-fw" id="sidebar-{{ dataset.id }}-toggle"></i>
+                {{ dataset.name }}
+            </a>
+        </li>
+        <!-- Collapsable dataset info card -->
+        <div class="collapse sidebar-collapse" id="sidebar-{{ dataset.id }}-info">
+            <div class="card card-body sidebar-card">
+                <h6>Description:</h6>
+                {{ dataset.description }}
+                <hr/>
+                <div class="row-fluid inline action-icons">
+                    <!-- Open project button -->
+                    <a href="#">
+                        <i class="fas fa-folder-open"></i>
+                    </a>
+                    <!-- Edit project button -->
+                    <a href="" data-toggle="modal"
+                       data-target="#"
+                       data-projectid="{{ dataset.id }}"
+                       data-title="{{ dataset.name }}"
+                       data-description="{{ dataset.description }}">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <!-- Delete project button -->
+                    <form id="delete-form-{{ dataset.id }}"
+                          action="#"
+                          method="POST">
+                        <input type="hidden" name="dataset_id"
+                               value="{{ dataset.id }}">
+                        <a href="#" onclick="document.getElementById('delete-form-{{ dataset.id }}').submit()">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    </ul>
+{% endblock %}
+
+{% block main_content %}
+    <div class="jumbotron">
+        <h1 class="display-4">Project: {{ project.name }}</h1>
+        <p class="lead">
+            Description:
+        </p>
+        <p>
+            {{ project.description }}
+        </p>
+        <hr class="my-4">
+        <p class="text-muted">
+            Select one of your existing datasets on the left to continue working on them, or upload new data below.
+        </p>
+        <div class="col-md-5">
+            <form method="POST" action="{{ url_for('upload_bp.upload', project_id=project.id) }}" enctype="multipart/form-data">
+                    {{ upload_form.hidden_tag() }}
+                    {{ wtf.form_field(upload_form.file) }}
+                    {{ wtf.form_field(upload_form.name) }}
+                    {{ wtf.form_field(upload_form.description) }}
+                    <button class="btn btn-success">
+                        <i id="testing" class="fas fa-upload fa-fw"></i>
+                        Upload
+                    </button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+	<script src="{{ url_for('static', filename='js/layout/navbar_side.js') }}"></script>
+{% endblock %}

@@ -26,4 +26,5 @@ img.background-filler {
     height: 25%;
     width: 25%;
     opacity: 0.2;
+    z-index: -1;
 }

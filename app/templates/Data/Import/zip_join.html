@@ -1,0 +1,156 @@
+{% extends "layout/main.html" %}
+
+{% block styles %}
+    {{ super() }}
+{% endblock %}
+
+{% block sidebar_content %}
+    <ul class="nav nav-pills flex-column">
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="{{ url_for('main_bp.dashboard') }}">
+                <i class="fas fa-home "></i>
+                Return to Dashboard
+            </a>
+        </li>
+        <!-- Project banner -->
+        <li class="nav-item">
+            <a class="nav-link not-clickable active" href="#">
+                <i class="fas fa-sitemap"></i>
+                Project
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link current-section" href="#">
+                <i class="fas fa-upload "></i>
+                Upload
+            </a>
+        </li>
+        <!-- Datasets banner -->
+        <li class="nav-item">
+            <a class="nav-link not-clickable active" href="#">
+                <i class="fas fa-database"></i>
+                Datasets
+            </a>
+        </li>
+    {% for dataset in project.datasets %}
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="#">
+                <i class="fas fa-hockey-puck fa-xs"></i>
+                {{ dataset.name }}
+            </a>
+        </li>
+    {% endfor %}
+    </ul>
+{% endblock %}
+
+{% block main_content %}
+<div class="jumbotron">
+    <div class="row">
+        <div class="container">
+            <form method=post action="{{ url_for('upload_bp.zip', project_id=project.id) }}">
+                <h2>Upload without joining:</h2>
+                    <table id="upload-table" class="table table-bordered" width="100%">
+                        <thead>
+                            <tr>
+                                <th>File</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for file in files %}
+                            <tr>
+                                <td>
+                                     <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" name="checkbox-{{ file }}">
+                                            {{ file }}
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control" value="{{ name }}" name="name-{{ file }}" required>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control" value="{{ description }}" name="description-{{ file }}" required>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                <h2>Join and upload:</h2>
+                <table id="join_table" class="table table-bordered" width="100%">
+                    <thead>
+                    <tr>
+                        <th>Left</th>
+                        <th>Join type</th>
+                        <th>Right</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <select class="form-control file-select" id="file-left">
+                                    <option value="" disabled selected>Select file</option>
+                                    {% for file in files %}
+                                        <option>{{ file }}</option>
+                                    {% endfor %}
+                                </select>
+                                <hr/>
+                                <select class="form-control" id="column-left">
+                                    <option value="" disabled selected>Select column</option>
+                                    {# Dynamically genererated options #}
+                                </select>
+                            </td>
+                            <td>
+                                <select class="form-control" id="join-type">
+                                    <option>cross</option>
+                                    <option>inner</option>
+                                    <option>left outer</option>
+                                    <option>right outer</option>
+                                    <option>full outer</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select class="form-control file-select" id="file-right">
+                                    <option value="" disabled selected>Select file</option>
+                                    {% for file in files %}
+                                        <option>{{ file }}</option>
+                                    {% endfor %}
+                                </select>
+                                <hr/>
+                                <select class="form-control" id="column-right">
+                                    <option value="" disabled selected>Select column</option>
+                                    {# Dynamically genererated options #}
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" id="join-name">
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" id="join-description">
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-info btn-block add-join-btn"><i class="fas fa-plus"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button type="submit" class="btn btn-success pull-right" name="button" value="upload">
+                    <i class="fas fa-upload"></i>
+                    Upload
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='js/Data/Import/zip_join.js') }}"></script>
+{% endblock %}

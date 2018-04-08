@@ -56,14 +56,14 @@
             <!-- Project info toggle -->
             <li class="nav-item">
                 <a class="nav-link sidebar-link" data-toggle="collapse"
-                   href="#project-{{ project.id }}-info">
-                    <i class="fas fa-caret-right " id="project-{{ project.id }}-toggle"></i>
+                   href="#sidebar-{{ project.id }}-info">
+                    <i class="fas fa-caret-right fa-fw" id="sidebar-{{ project.id }}-toggle"></i>
                     {{ project.name }}
                 </a>
             </li>
             <!-- Collapsable project info card -->
-            <div class="collapse project-collapse" id="project-{{ project.id }}-info">
-                <div class="card card-body project-card">
+            <div class="collapse sidebar-collapse" id="sidebar-{{ project.id }}-info">
+                <div class="card card-body sidebar-card">
                     <h6>Description:</h6>
                     {{ project.description }}
                     <hr/>
@@ -72,14 +72,16 @@
                         <a href="{{ url_for('view_bp.view', project_id=project.id) }}">
                             <i class="fas fa-folder-open"></i>
                         </a>
-                        <!-- Edit project button -->
-                        <a href="#edit-project-modal" data-toggle="modal"
-                           data-target="#edit-project-modal"
-                           data-projectid="{{ project.id }}"
-                           data-title="{{ project.name }}"
-                           data-description="{{ project.description }}">
-                            <i class="fas fa-edit"></i>
-                        </a>
+                        {% if project.owner_id == current_user.id %}
+                            <!-- Edit project button -->
+                            <a href="#edit-project-modal" data-toggle="modal"
+                               data-target="#edit-project-modal"
+                               data-projectid="{{ project.id }}"
+                               data-title="{{ project.name }}"
+                               data-description="{{ project.description }}">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        {% endif %}
                         <!-- Delete project button -->
                         <form id="delete-form-{{ project.id }}"
                               action="{{ url_for('project_bp.delete') }}"
@@ -90,12 +92,14 @@
                                 <i class="fas fa-trash-alt"></i>
                             </a>
                         </form>
+                        {% if project.owner_id == current_user.id %}
                         <!-- Share project button -->
-                        <a href="#share-project-modal" data-toggle="modal"
-                           data-target="#share-project-modal"
-                           data-projectid="{{ project.id }}">
-                            <i class="fas fa-share-alt"></i>
-                        </a>
+                            <a href="#share-project-modal" data-toggle="modal"
+                               data-target="#share-project-modal"
+                               data-projectid="{{ project.id }}">
+                                <i class="fas fa-share-alt"></i>
+                            </a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -124,7 +128,6 @@
             </a>
         </p>
     </div>
-    <img class="background-filler" src="{{ url_for('static', filename='img/logo.svg') }}" alt="">
 {% endblock %}
 
 {% block modals %}
@@ -137,7 +140,7 @@
 {% block scripts %}
     {{ super() }}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
-	<script src="{{ url_for('static', filename='js/Main/dashboard.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/layout/navbar_side.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/Project/edit_modal.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/Project/share_modal.js') }}"></script>
 {% endblock %}

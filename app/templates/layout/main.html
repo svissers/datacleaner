@@ -29,6 +29,7 @@
     <main role="main" class="col-md-9 ml-sm-auto col-lg-10 ignore-nav">
         {% include 'layout/flash_messages.html' %}
         {% block main_content %}{% endblock %}
+        <img class="background-filler" src="{{ url_for('static', filename='img/logo.svg') }}" alt="">
     </main>
     <!-- Modals -->
     {% block modals %}{% endblock %}

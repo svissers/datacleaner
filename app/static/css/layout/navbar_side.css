@@ -33,3 +33,13 @@
 .nav-link.current-section {
     color: rgba(46, 204, 113,1.0);
 }
+
+.sidebar-card {
+    left: 15px;
+    width: 87%;
+}
+
+.action-icons {
+  display: flex;
+  justify-content: space-between;
+}

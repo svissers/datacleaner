@@ -35,6 +35,8 @@ def upload_joined(
     dataframe_right = pandas.read_csv('./file_queue/' + right_file)
     result_dataframe = pandas.DataFrame()
 
+    suffixes = ('left', 'right')
+
     if join_type == "cross join":
         dataframe_left['temp'] = 0
         dataframe_right['temp'] = 0
@@ -46,7 +48,8 @@ def upload_joined(
             dataframe_right,
             left_on=left_column,
             right_on=right_column,
-            how='inner'
+            how='inner',
+            suffixes=suffixes
         )
     elif join_type == "left outer join":
         result_dataframe = pandas.merge(
@@ -54,7 +57,8 @@ def upload_joined(
             dataframe_right,
             left_on=left_column,
             right_on=right_column,
-            how='left'
+            how='left',
+            suffixes=suffixes
         )
     elif join_type == "right outer join":
         result_dataframe = pandas.merge(
@@ -62,7 +66,8 @@ def upload_joined(
             dataframe_right,
             left_on=left_column,
             right_on=right_column,
-            how='right'
+            how='right',
+            suffixes=suffixes
         )
     elif join_type == "full outer join":
         result_dataframe = pandas.merge(
@@ -70,7 +75,8 @@ def upload_joined(
             dataframe_right,
             left_on=left_column,
             right_on=right_column,
-            how='outer'
+            how='outer',
+            suffixes=suffixes
         )
 
     table_name = str(datetime.datetime.now())

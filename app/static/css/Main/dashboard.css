@@ -1,13 +1,3 @@
-.project-card {
-    left: 15px;
-    width: 87%;
-}
-
-.action-icons {
-  display: flex;
-  justify-content: space-between;
-}
-
 /* TypeAhead */
 
 .tt-query, /* UPDATE: newer versions use tt-input instead of tt-query */

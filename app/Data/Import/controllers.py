@@ -4,7 +4,7 @@ from .operations import upload_csv, upload_joined
 from flask_login import login_required
 import zipfile as zf
 import os
-import pprint
+from app.Project.operations import get_project_with_id
 
 _upload = Blueprint('upload_bp', __name__, url_prefix='/data/upload')
 
@@ -12,6 +12,14 @@ _upload = Blueprint('upload_bp', __name__, url_prefix='/data/upload')
 @_upload.route('/', methods=['GET', 'POST'])
 @login_required
 def upload():
+
+    project_id = request.args.get('project_id')
+
+    # Clear any files from previous (unfinished) uploads
+    filelist = os.listdir('./file_queue/')
+    for f in filelist:
+        os.remove(os.path.join('./file_queue/', f))
+
     form = UploadForm()
     if form.validate_on_submit():
         filename = request.files['file'].filename
@@ -19,7 +27,7 @@ def upload():
             return redirect(
                 url_for(
                     'upload_bp.csv',
-                    project_id=request.args.get('project_id')
+                    project_id=project_id
                 ),
                 code=308
             )
@@ -27,7 +35,7 @@ def upload():
             return redirect(
                 url_for(
                     'upload_bp.zip',
-                    project_id=request.args.get('project_id')
+                    project_id=project_id
                         ),
                 code=308
             )
@@ -38,11 +46,7 @@ def upload():
         else:
             flash('Filetype not supported.', 'danger')
 
-    filelist = os.listdir('./file_queue/')
-    for f in filelist:
-        os.remove(os.path.join('./file_queue/', f))
-
-    return redirect(url_for('main_bp.dashboard'))
+    return redirect(url_for('view_bp.view', project_id=project_id))
 
 
 @_upload.route('/csv', methods=['POST'])
@@ -67,6 +71,8 @@ def csv():
 @_upload.route('/zip', methods=['POST'])
 @login_required
 def zip():
+    form = UploadForm()
+    project_id = request.args.get('project_id')
     if request.files.get('file', None) is None:
         for submission in request.form:
             if submission.startswith('checkbox-'):
@@ -75,7 +81,7 @@ def zip():
                     request.form['name-' + filename],
                     request.form['description-' + filename],
                     './file_queue/' + filename,
-                    request.args.get('project_id')
+                    project_id
                 )
             elif submission.startswith('join-type'):
                 number = submission[-1]
@@ -87,10 +93,10 @@ def zip():
                     request.form['column-left' + number],
                     request.form['file-right' + number],
                     request.form['column-right' + number],
-                    request.args.get('project_id')
+                    project_id
                 )
         flash('Your file has been uploaded.', 'success')
-        return redirect(url_for('upload_bp.upload'))
+        return redirect(url_for('upload_bp.upload', project_id=project_id))
 
     else:
         with zf.ZipFile(request.files['file'], 'r') as csv_zip:
@@ -108,9 +114,11 @@ def zip():
                 data.close()
 
             return render_template(
-                'Data/join_view.html',
-                files=files,
-                project_id=request.args.get('project_id')
+                'Data/Import/zip_join.html',
+                name=form.name.data,
+                description=form.description.data,
+                project=get_project_with_id(project_id),
+                files=files
             )
 
 
@@ -129,7 +137,7 @@ def extract_columns():
     for file in files:
         data = open('./file_queue/{}'.format(file), 'r')
         cscolumns = data.readline()
-        columns = [x.strip() for x in cscolumns.split(',')]
+        columns = [x.strip('\"').strip('\'') for x in cscolumns.split(',')]
         file_to_column[file] = columns
         data.close()
     return jsonify(file_to_column)

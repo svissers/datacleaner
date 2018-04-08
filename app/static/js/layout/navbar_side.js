@@ -1,4 +1,4 @@
-$(document).on('show.bs.collapse hide.bs.collapse', '.project-collapse', function () {
+$(document).on('show.bs.collapse hide.bs.collapse', '.sidebar-collapse', function () {
     var id = $(this).attr('id');
     var toggle_id = id.substring(0, id.lastIndexOf('-')) + '-toggle';
     var carret = $('#'+toggle_id);

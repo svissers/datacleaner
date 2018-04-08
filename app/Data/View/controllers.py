@@ -89,14 +89,15 @@ def view():
     """
     project_id = request.args.get('project_id', default=None)
     project = get_project_with_id(project_id)
-    # datasets = get_datasets(current_user.id, project_id)
     upload_form = UploadForm()
-    return render_template(
-        'Data/project_upload.html',
-        project=project,
-        # datasets=datasets,
-        upload_form=upload_form
-    )
+    if project_id is None:
+        return redirect('main_bp.dashboard')
+    else:
+        return render_template(
+            'Data/Import/upload.html',
+            project=project,
+            upload_form=upload_form
+        )
 
 
 @_view.route('/history', methods=['GET'])

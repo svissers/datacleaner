@@ -49,20 +49,20 @@ $(document).on('click', '.add-join-btn', function () {
         $('#join_table').find('tbody').prepend(
         '<tr id="join-row' + counter + '">' +
         '<td><input class="form-control" name="file-left' + counter + '" type="text" value="' + escapeHtml(file_left) + '" ' +
-        'placeholder="' + escapeHtml(file_left) + '" readonly></td>' +
-        '<td><input class="form-control" name="column-left' + counter + '" type="text" value="' + escapeHtml(column_left) + '" ' +
-        'placeholder="' + escapeHtml(column_left) + '" readonly></td>' +
+        'placeholder="' + escapeHtml(file_left) + '" readonly required><hr/>' +
+        '<input class="form-control" name="column-left' + counter + '" type="text" value="' + escapeHtml(column_left) + '" ' +
+        'placeholder="' + escapeHtml(column_left) + '" readonly required></td>' +
         '<td><input class="form-control" name="join-type' + counter + '" type="text" value="' + escapeHtml(join_type) + '" ' +
-        'placeholder="' + escapeHtml(join_type) + '" readonly></td>' +
+        'placeholder="' + escapeHtml(join_type) + '" readonly required></td>' +
         '<td><input class="form-control" name="file-right' + counter + '" type="text" value="' + escapeHtml(file_right) + '" ' +
-        'placeholder="' + escapeHtml(file_right) + '" readonly></td>' +
-        '<td><input class="form-control" name="column-right' + counter + '" type="text" value="' + escapeHtml(column_right) + '" ' +
-        'placeholder="' + escapeHtml(column_right) + '" readonly></td>' +
+        'placeholder="' + escapeHtml(file_right) + '" readonly required><hr/>' +
+        '<input class="form-control" name="column-right' + counter + '" type="text" value="' + escapeHtml(column_right) + '" ' +
+        'placeholder="' + escapeHtml(column_right) + '" readonly required></td>' +
         '<td><input class="form-control" name="join-name' + counter + '" type="text" value="' + escapeHtml(join_name) + '" ' +
-        'placeholder="' + escapeHtml(join_name) + '" readonly></td>' +
+        'placeholder="' + escapeHtml(join_name) + '" readonly required></td>' +
         '<td><input class="form-control" name="join-description' + counter + '" type="text" value="' + escapeHtml(join_description) + '" ' +
-        'placeholder="' + escapeHtml(join_description) + '" readonly></td>' +
-        '<td><button type="button" class="btn btn-warning btn-block remove-join-btn"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></button></td>' +
+        'placeholder="' + escapeHtml(join_description) + '" readonly required></td>' +
+        '<td><button type="button" class="btn btn-warning btn-block remove-join-btn"><i class="fas fa-minus"></i></button></td>' +
         '</tr>'
     );
     ++counter;
