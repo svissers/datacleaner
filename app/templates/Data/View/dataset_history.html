@@ -1,0 +1,161 @@
+{% extends "layout/main.html" %}
+
+{% block styles %}
+    {{ super() }}
+{% endblock %}
+
+{% block sidebar_content %}
+    <ul class="nav nav-pills flex-column">
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="{{ url_for('main_bp.dashboard') }}">
+                <i class="fas fa-home fa-fw"></i>
+                Return to Dashboard
+            </a>
+        </li>
+    <li class="nav-item">
+            <a class="nav-link sidebar-link" href="{{ url_for('view_bp.view', project_id=dataset.project.id) }}">
+                <i class="fas fa-sitemap fa-fw"></i>
+                Return to Project
+            </a>
+        </li>
+        <!-- Dataset banner -->
+        <li class="nav-item">
+            <a class="nav-link not-clickable active" href="#">
+                <i class="fas fa-database fa-fw"></i>
+                Dataset
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="{{ url_for('view_bp.view', dataset_id=dataset.id) }}">
+                <i class="fas fa-chart-pie fa-fw"></i>
+                Overview
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="{{ url_for('view_bp.raw', dataset_id=dataset.id) }}">
+                <i class="fas fa-table fa-fw"></i>
+                View raw
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link current-section" href="{{ url_for('view_bp.history', dataset_id=dataset.id) }}">
+                <i class="fas fa-history fa-fw"></i>
+                View history
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="#">
+                <i class="fas fa-redo-alt fa-flip-horizontal fa-fw"></i>
+                Restore original
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="#">
+                <i class="fas fa-download fa-fw"></i>
+                Export CSV
+            </a>
+        </li>
+        <!-- Operations banner -->
+        <li class="nav-item">
+            <a class="nav-link not-clickable active" href="#">
+                <i class="fas fa-filter fa-fw"></i>
+                Transformations
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="#">
+                <i class="fas fa-search-minus fa-fw"></i>
+                Predicate delete
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="#">
+                <i class="fas fa-syringe fa-fw"></i>
+                Fill empty values
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="#">
+                <i class="fas fa-edit fa-fw"></i>
+                Rename column
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="#">
+                <i class="fas fa-eraser fa-fw"></i>
+                Delete column
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="#">
+                <i class="fas fa-search fa-fw"></i>
+                Find-and-replace
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="#">
+                <i class="fas fa-registered fa-fw"></i>
+                Find-and-replace (REGEX)
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="#">
+                <i class="fas fa-exchange-alt fa-fw"></i>
+                Change column type
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="#">
+                <span  style="position: relative; left: 2px">
+                    <b>01</b> One-hot-encode
+                </span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="#">
+                <i class="fas fa-align-justify fa-rotate-90 fa-fw"></i>
+                Normalize
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="#">
+                <i class="fas fa-align-left fa-rotate-270 fa-fw"></i>
+                Discretize
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="#">
+                <i class="fas fa-calendar-alt fa-fw"></i>
+                Extract from date
+            </a>
+        </li>
+    </ul>
+{% endblock %}
+
+{% block main_content %}
+    <div class="jumbotron">
+        <h1 class="display-4">History</h1>
+        <table class="table table-condensed">
+            <thead>
+            <tr>
+                <th>Time</th>
+                <th>Description</th>
+                <th>User</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for action in dataset.actions %}
+                <tr>
+                    <td>{{ action[0] }}</td>
+                    <td>{{ action[1] }}</td>
+                    <td>{{ action[2] }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+{% endblock %}

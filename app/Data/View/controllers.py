@@ -81,33 +81,6 @@ def retrieve():
     return jsonify(rowTable.output_result())
 
 
-@_view.route('/', methods=['GET'])
-@login_required
-def view():
-    """
-    Show entries of a specific table,
-    or just list tables in the system if no parameter is provided
-    """
-    project_id = request.args.get('project_id', default=None)
-    dataset_id = request.args.get('dataset_id', default=None)
-    if dataset_id is not None:
-        dataset = get_dataset_with_id(dataset_id)
-        return render_template(
-            'Data/View/dataset.html',
-            dataset=dataset
-        )
-    if project_id is not None:
-        project = get_project_with_id(project_id)
-        upload_form = UploadForm()
-        return render_template(
-            'Data/Import/upload.html',
-            project=project,
-            upload_form=upload_form
-        )
-    else:
-        return redirect('main_bp.dashboard')
-
-
 @_view.route('/join', methods=['GET', 'POST'])
 @login_required
 def join():
@@ -155,19 +128,60 @@ def get_columns():
     return jsonify(column_names)
 
 
+@_view.route('/', methods=['GET'])
+@login_required
+def view():
+    """
+    Show entries of a specific table,
+    or just list tables in the system if no parameter is provided
+    """
+    project_id = request.args.get('project_id', default=None)
+    dataset_id = request.args.get('dataset_id', default=None)
+    if dataset_id is not None:
+        dataset = get_dataset_with_id(dataset_id)
+        return render_template(
+            'Data/View/dataset.html',
+            dataset=dataset
+        )
+    if project_id is not None:
+        project = get_project_with_id(project_id)
+        upload_form = UploadForm()
+        return render_template(
+            'Data/Import/upload.html',
+            project=project,
+            upload_form=upload_form
+        )
+    else:
+        return redirect('main_bp.dashboard')
+
+
+@_view.route('/raw', methods=['GET'])
+@login_required
+def raw():
+    """
+    Show entries of a specific table,
+    or just list tables in the system if no parameter is provided
+    """
+    dataset_id = request.args.get('dataset_id', default=None)
+    if dataset_id is not None:
+        dataset = get_dataset_with_id(dataset_id)
+        return render_template(
+            'Data/View/dataset_raw.html',
+            dataset=dataset
+        )
+    else:
+        return redirect('main_bp.dashboard')
+
+
 @_view.route('/history', methods=['GET'])
 @login_required
 def history():
-    dataset = request.args.get('dataset', None)
-    if dataset is not None:
-        # get info from requested table out of dataset table
-
-        dataset = int(dataset)
-        dataset_info = Dataset.query.filter(Dataset.id == dataset).first()
-        all_actions = Action.query.filter(Action.dataset_id == dataset).order_by(Action.time.desc()).all()
-        actions = []
-        for action in all_actions:
-            actions.append([action.time.replace(microsecond=0), action.description, get_user_with_id(action.user_id).username])
-
-        return render_template("Data/history.html", actions=actions, dataset_info=dataset_info)
-    return redirect(url_for('main_bp.dashboard'))
+    dataset_id = request.args.get('dataset_id', default=None)
+    if dataset_id is not None:
+        dataset = get_dataset_with_id(dataset_id)
+        return render_template(
+            'Data/View/dataset_history.html',
+            dataset=dataset
+        )
+    else:
+        return redirect('main_bp.dashboard')
