@@ -123,7 +123,7 @@ def get_columns():
         start = str(column).find('.') + 1
         col_name = str(column)[start:]
         if col_name != 'index':
-            column_names.append(str(column)[start:])
+            column_names.append(col_name)
 
     return jsonify(column_names)
 
@@ -165,9 +165,19 @@ def raw():
     dataset_id = request.args.get('dataset_id', default=None)
     if dataset_id is not None:
         dataset = get_dataset_with_id(dataset_id)
+
+        meta = db.MetaData(db.engine)
+        table = db.Table(dataset.working_copy, meta, autoload=True)
+
+        column_names = []
+        for column in table.columns:
+            start = str(column).find('.') + 1
+            column_names.append(str(column)[start:])
+
         return render_template(
             'Data/View/dataset_raw.html',
-            dataset=dataset
+            dataset=dataset,
+            columns=column_names
         )
     else:
         return redirect('main_bp.dashboard')

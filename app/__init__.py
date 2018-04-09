@@ -27,6 +27,7 @@ from app.User.controllers import _user as user_module
 from app.Admin.controllers import _admin as admin_module
 from app.Data.Import.controllers import _upload as upload_module
 from app.Data.View.controllers import _view as view_module
+from app.Data.Transform.controllers import _transform as transform_module
 from app.Project.controllers import _project as project_module
 from app.Main.controllers import _main as main_module
 
@@ -35,6 +36,7 @@ app.register_blueprint(user_module)
 app.register_blueprint(admin_module)
 app.register_blueprint(upload_module)
 app.register_blueprint(view_module)
+app.register_blueprint(transform_module)
 app.register_blueprint(project_module)
 app.register_blueprint(main_module)
 
