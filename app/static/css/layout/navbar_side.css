@@ -22,8 +22,9 @@
   overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
 }
 
-.nav-link.active {
+.nav-pills .nav-link.active {
   border-radius: 0;
+  background-color: rgba(128, 142, 155,1.0);
 }
 
 .nav-link.sidebar-link {
