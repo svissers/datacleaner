@@ -54,7 +54,7 @@
                 <hr/>
                 <div class="row-fluid inline action-icons">
                     <!-- Open project button -->
-                    <a href="#">
+                    <a href="{{ url_for('view_bp.view', dataset_id=dataset.id) }}">
                         <i class="fas fa-folder-open"></i>
                     </a>
                     <!-- Edit project button -->
@@ -71,7 +71,7 @@
                           method="POST">
                         <input type="hidden" name="dataset_id"
                                value="{{ dataset.id }}">
-                        <a href="#" onclick="document.getElementById('delete-form-{{ dataset.id }}').submit()">
+                        <a href="#">
                             <i class="fas fa-trash-alt"></i>
                         </a>
                     </form>

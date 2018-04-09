@@ -89,9 +89,14 @@ def view():
     or just list tables in the system if no parameter is provided
     """
     project_id = request.args.get('project_id', default=None)
-    if project_id is None:
-        return redirect('main_bp.dashboard')
-    else:
+    dataset_id = request.args.get('dataset_id', default=None)
+    if dataset_id is not None:
+        dataset = get_dataset_with_id(dataset_id)
+        return render_template(
+            'Data/View/dataset.html',
+            dataset=dataset
+        )
+    if project_id is not None:
         project = get_project_with_id(project_id)
         upload_form = UploadForm()
         return render_template(
@@ -99,6 +104,8 @@ def view():
             project=project,
             upload_form=upload_form
         )
+    else:
+        return redirect('main_bp.dashboard')
 
 
 @_view.route('/join', methods=['GET', 'POST'])
