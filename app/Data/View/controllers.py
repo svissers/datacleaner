@@ -21,6 +21,7 @@ from app.Project.operations import get_project_with_id
 from app.Data.operations import get_dataset_with_id
 from app.Data.Import.forms import UploadForm
 from app.Data.View.operations import join_datasets
+from app.Data.helpers import table_name_to_object, extract_columns_from_db
 
 
 _view = Blueprint('view_bp', __name__, url_prefix='/data/view')
@@ -128,6 +129,18 @@ def get_columns():
     return jsonify(column_names)
 
 
+@_view.route('/get_column_info', methods=['GET'])
+@login_required
+def get_column_info():
+    dataset_id = request.args.get('dataset_id')
+    column_name = request.args.get('column_name')
+    stats = {}
+
+
+
+    return jsonify(stats)
+
+
 @_view.route('/', methods=['GET'])
 @login_required
 def view():
@@ -139,9 +152,13 @@ def view():
     dataset_id = request.args.get('dataset_id', default=None)
     if dataset_id is not None:
         dataset = get_dataset_with_id(dataset_id)
+
+        table = table_name_to_object(dataset.working_copy)
+
         return render_template(
             'Data/View/dataset.html',
-            dataset=dataset
+            dataset=dataset,
+            columns=extract_columns_from_db(table)
         )
     if project_id is not None:
         project = get_project_with_id(project_id)
@@ -166,18 +183,12 @@ def raw():
     if dataset_id is not None:
         dataset = get_dataset_with_id(dataset_id)
 
-        meta = db.MetaData(db.engine)
-        table = db.Table(dataset.working_copy, meta, autoload=True)
-
-        column_names = []
-        for column in table.columns:
-            start = str(column).find('.') + 1
-            column_names.append(str(column)[start:])
+        table = table_name_to_object(dataset.working_copy)
 
         return render_template(
             'Data/View/dataset_raw.html',
             dataset=dataset,
-            columns=column_names
+            columns=extract_columns_from_db(table)
         )
     else:
         return redirect('main_bp.dashboard')
@@ -189,9 +200,11 @@ def history():
     dataset_id = request.args.get('dataset_id', default=None)
     if dataset_id is not None:
         dataset = get_dataset_with_id(dataset_id)
+        table = table_name_to_object(dataset.working_copy)
         return render_template(
             'Data/View/dataset_history.html',
-            dataset=dataset
+            dataset=dataset,
+            columns=extract_columns_from_db(table)
         )
     else:
         return redirect('main_bp.dashboard')
