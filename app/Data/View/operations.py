@@ -8,9 +8,8 @@ from app.Data.operations import get_dataset_with_id
 def export_csv(table_name, delim=',', quote='"', null=''):
     try:
         df = pd.read_sql_table(table_name, db.engine)
-        df.drop(labels='index')
-        df.fillna(null)
-        return df.to_csv(sep=delim, quotechar=quote)
+        df = df.drop('index', 1)
+        return df.to_csv(sep=delim, quotechar=quote, na_rep=null, index=False)
     except:
         print('AN ERROR OCCURED WHILE EXPORTING TO CSV')
 

@@ -64,6 +64,10 @@
     </form>
 {% endblock %}
 
+{% block modals %}
+    {% include 'Data/View/operation_modals.html' %}
+{% endblock %}
+
 {% block scripts %}
     {{ super() }}
 	<script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.16/b-1.5.1/datatables.min.js"></script>

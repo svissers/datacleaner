@@ -48,7 +48,14 @@
 {% endblock %}
 
 {% block main_content %}
+    {% for column in columns %}
+        <h2>{{ column }}</h2>
+        <hr/>
+    {% endfor %}
+{% endblock %}
 
+{% block modals %}
+    {% include 'Data/View/operation_modals.html' %}
 {% endblock %}
 
 {% block scripts %}

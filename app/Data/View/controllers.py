@@ -26,13 +26,13 @@ from app.Data.View.operations import join_datasets
 _view = Blueprint('view_bp', __name__, url_prefix='/data/view')
 
 
-@_view.route('download_csv')
+@_view.route('/download_csv', methods=['POST'])
 @login_required
 def download_csv():
     table_name = request.args.get('table_name')
-    delim_char = request.args.get('delim_char', ',')
-    quote_char = request.args.get('quote_char', '"')
-    null_char = request.args.get('null_char', '')
+    delim_char = request.form['delimiter']
+    quote_char = request.form['quote']
+    null_char = request.form['null']
     if table_name is None:
         flash('ERROR: No table named "{0}" found.'.format(table_name), 'danger')
         return redirect(request.referrer)
@@ -40,7 +40,7 @@ def download_csv():
         return Response(
             export_csv(table_name, delim_char, quote_char, null_char),
             mimetype="text/csv",
-            headers={"Content-disposition": "attachment; filename=myplot.csv"}
+            headers={"Content-disposition": "attachment; filename=data.csv"}
         )
 
 

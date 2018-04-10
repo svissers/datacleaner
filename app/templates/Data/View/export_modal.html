@@ -1,0 +1,42 @@
+<div class="modal fade" id="export-dataset-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Export dataset:</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+		<form method="POST" action="{{ url_for('view_bp.download_csv', table_name=dataset.working_copy) }}">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <select class="form-control" style="padding-bottom: 5px" name="quote" required>
+                            <option value="" disabled selected>Select quote character</option>
+                            <option value="'">'</option>
+                            <option value='"'>"</option>
+                            <option value='`'>`</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <select class="form-control" name="delimiter" required>
+                            <option value="" disabled selected>Select delimiter</option>
+                            <option value=",">,</option>
+                            <option value=".">.</option>
+                            <option value=";">;</option>
+                            <option value=":">:</option>
+                        </select>
+                    </div>
+                </div>
+                <input type="text" name="null" class="form-control" style="margin-top: 10px" placeholder="String for NULL-values">
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-download fa-fw"></i>
+                    Export
+                </button>
+            </div>
+        </form>
+    </div>
+  </div>
+</div>
