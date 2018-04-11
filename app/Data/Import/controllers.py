@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash,jsonify
 from .forms import UploadForm, EditForm
-from .operations import upload_csv, upload_joined, update_dataset_with_id
+from .operations import upload_csv, upload_joined, update_dataset_with_id, delete_dataset_with_id
 from flask_login import login_required
 import zipfile as zf
 import os
@@ -142,6 +142,16 @@ def update():
             form.description.data
         )
         flash('Project updated successfully!', 'success')
+    return redirect(request.referrer)
+
+
+@_upload.route('/delete', methods=['POST'])
+@login_required
+def delete():
+    delete_dataset_with_id(
+        request.form['dataset_id']
+    )
+    flash('Project deleted successfully!', 'success')
     return redirect(request.referrer)
 
 

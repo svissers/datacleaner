@@ -67,11 +67,11 @@
                     </a>
                     <!-- Delete project button -->
                     <form id="delete-form-{{ dataset.id }}"
-                          action="#"
+                          action="{{ url_for('upload_bp.delete', dataset_id=dataset.id) }}"
                           method="POST">
                         <input type="hidden" name="dataset_id"
                                value="{{ dataset.id }}">
-                        <a href="#">
+                        <a href="#" onclick="document.getElementById('delete-form-{{ dataset.id }}').submit()">
                             <i class="fas fa-trash-alt"></i>
                         </a>
                     </form>

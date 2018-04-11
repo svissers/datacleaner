@@ -40,10 +40,10 @@ def delete_dataset_with_id(dataset_id):
     if dataset is None:
         raise RuntimeError('No dataset associated with this id.')
     else:
-        database.execute(
+        database.engine.execute(
             'DROP TABLE {0}'.format(dataset.working_copy)
         )
-        database.execute(
+        database.engine.execute(
             'DROP TABLE {0}'.format(dataset.original_data)
         )
         database.session.delete(dataset)
