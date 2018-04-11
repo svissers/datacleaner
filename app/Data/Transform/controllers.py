@@ -58,7 +58,7 @@ def delete_predicate():
     try:
         delete_rows(table.name, condition)
         create_action('rows deleted with condition "{0}"'
-                      .format(condition), dataset, current_user.id
+                      .format(condition), dataset.id, current_user.id
                       )
     except:
         flash('condition "{0}" not valid'.format(condition), 'danger')
