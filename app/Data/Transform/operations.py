@@ -339,23 +339,11 @@ def remove_outliers(table_name, attr, value, smaller_than=False):
         print('REMOVE OUTLIERS FAILED')
 
 
-def delete_rows(table_name, column, operator, condition):
-    if operator == '=':
-        db.engine.execute(
-            'DELETE FROM "{0}" '
-            'WHERE "{1}"=\'{2}\''
-            .format(table_name, column, condition)
-        )
-    elif operator == '<':
-        remove_outliers(table_name, column, condition, True)
-    elif operator == '>':
-        remove_outliers(table_name, column, condition, False)
-    elif operator == 'CONTAINS':
-        db.engine.execute(
-            'DELETE FROM "{0}" '
-            'WHERE "{1}" ~ \'{2}\''
-            .format(table_name, column, condition)
-        )
+def delete_rows(table_name, condition):
+
+    db.engine.execute(
+        'DELETE FROM "{0}" WHERE {1}'.format(table_name, condition)
+    )
 
 
 def discretize_width(table_name, attr, intervals, dataframe=None):

@@ -13,7 +13,8 @@ from app.Data.operations import create_action, get_dataset_with_id
 from app.Data.helpers import table_name_to_object
 from app.Data.Transform.operations import (
     restore_original,
-    change_attribute_type
+    change_attribute_type,
+    delete_rows
 )
 
 _transform = Blueprint('transform_bp', __name__, url_prefix='/data/transform')
@@ -32,6 +33,39 @@ def delete_selection():
         dataset.id,
         current_user.id
     )
+    return redirect(request.referrer)
+
+
+@_transform.route('/delete_predicate', methods=['POST'])
+@login_required
+def delete_predicate():
+    dataset = get_dataset_with_id(request.args.get('dataset_id'))
+    table = table_name_to_object(dataset.working_copy)
+    condition = ''
+    for i in request.form:
+        if i.startswith('column'):
+            condition += '"' + request.form[i] + '"'
+        elif i.startswith('condition'):
+            condition += '\'' + request.form[i] + '\''
+        elif i.startswith('logical'):
+            condition += ' ' + request.form[i] + ' '
+        elif i.startswith('operator') and request.form[i] == 'CONTAINS':
+            condition += ' ~ '
+        elif i.startswith('operator') and request.form[i] == 'NOT CONTAINS':
+            condition += ' !~ '
+        else:
+            condition += request.form[i]
+    try:
+        delete_rows(table.name, condition)
+        create_action('rows deleted with condition "{0}"'
+                      .format(condition), dataset, current_user.id
+                      )
+    except:
+        flash('condition "{0}" not valid'.format(condition), 'danger')
+    else:
+        flash('successfully deleted rows using condition "{0}"'
+              .format(condition), 'success'
+              )
     return redirect(request.referrer)
 
 
@@ -63,6 +97,6 @@ def change_type():
         except:
             flash('{0} could not be converted to {1}'.format(col, new_type), 'danger')
         else:
-            flash('{0} successfully  converted to {1}'.format(col, new_type), 'succes')
+            flash('{0} successfully  converted to {1}'.format(col, new_type), 'success')
 
     return redirect(request.referrer)
