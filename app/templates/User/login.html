@@ -1,25 +1,92 @@
 {% extends "bootstrap/base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
+
 {% block title %}
-	Login
+    ADReM - Data Wrangler
 {% endblock %}
+
 {% block styles %}
-	{{super()}}
-	<link rel="stylesheet" href="{{url_for('static', filename='signin.css')}}">
+	{{ super() }}
+	<link rel="stylesheet" href="{{url_for('static', filename='css/User/signin.css')}}">
 {% endblock %}
+
+{% block body_attribs %}
+    class="text-center"
+{% endblock %}
+
 {% block content %}
-	{% include 'includes/_messages.html' %}
-	<div class="container">
+    <form class="form-signin" action="{{ url_for('user_bp.login') }}" method="POST">
+        <img class="mb-4"
+             src="{{ url_for('static', filename='img/logo.svg') }}"
+             alt="" width="150" height="150">
+        <h3 class="mb-3 font-weight-normal">Data Wrangler</h3>
+        {% include 'layout/flash_messages.html' %}
+        {{ login_form.hidden_tag() }}
+        {{ login_form.username(class="form-control", placeholder="Username", type="username") }}
+        {{ login_form.password(class="form-control", placeholder="Passsword", type="password") }}
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+        <h7>Don't have an account? <a href="#signup-modal" data-toggle="modal" data-target="#signup-modal">Register here.</a></h7>
+        <p class="mt-5 mb-3 text-muted">&copy; Group4</p>
+    </form>
 
-		<form class="form-signin" method="POST" action="{{ url_for('user_bp.login') }}">
-			<h2 class="form-signin-heading">Please sign in</h2>
-			{{ form.hidden_tag() }}
-			{{ wtf.form_field(form.username) }}
-			{{ wtf.form_field(form.password) }}
-			{{ wtf.form_field(form.remember) }}
-			<button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-			<a class="btn btn-lg btn-primary btn-block" href="{{ url_for('user_bp.signup') }}" role="button">Sign Up</a>
-		</form>
 
-	</div> <!-- /container -->
+    <div class="modal fade" id="signup-modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Register:</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+            <form method="POST" action="{{ url_for('user_bp.signup') }}">
+                <div class="modal-body">
+                    {{ signup_form.hidden_tag() }}
+                    <div class="row">
+                        <div class="col-md-6">
+                        {{ signup_form.username(class="form-control signup-forms", placeholder="Username*") }}
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="signup-forms-fix text-muted">* = Required</h6>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                        {{ signup_form.first_name(class="form-control signup-forms", placeholder="First Name") }}
+                        </div>
+                        <div class="col-md-6">
+                        {{ signup_form.last_name(class="form-control signup-forms", placeholder="Last Name") }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                        {{ signup_form.email(class="form-control signup-forms", placeholder="Email*") }}
+                        </div>
+                        <div class="col-md-6">
+                        {{ signup_form.confirm_email(class="form-control signup-forms", placeholder="Confirm Email") }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                        {{ signup_form.password(class="form-control signup-forms", placeholder="Password*") }}
+                        </div>
+                        <div class="col-md-6">
+                        {{ signup_form.confirm_password(class="form-control signup-forms", placeholder="Confirm Password") }}
+                        </div>
+                    </div>
+                    <hr/>
+                    <hr/>
+                    <div class="row">
+                        <button type="submit" class="btn btn-block btn-success fixed-bottom">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+      </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
 {% endblock %}

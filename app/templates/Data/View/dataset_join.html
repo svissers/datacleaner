@@ -1,0 +1,161 @@
+{% extends "layout/main.html" %}
+
+{% block styles %}
+    {{ super() }}
+{% endblock %}
+
+{% block sidebar_content %}
+    <ul class="nav nav-pills flex-column">
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="{{ url_for('main_bp.dashboard') }}">
+                <i class="fas fa-home fa-fw"></i>
+                Return to Dashboard
+            </a>
+        </li>
+        <!-- Project banner -->
+        <li class="nav-item">
+            <a class="nav-link not-clickable active" href="#">
+                <i class="fas fa-sitemap fa-fw"></i>
+                Project
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="{{ url_for('view_bp.view', project_id=project.id) }}">
+                <i class="fas fa-upload fa-fw"></i>
+                Upload data
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link current-section" href="{{ url_for('view_bp.join', project_id=project.id) }}">
+                <i class="fas fa-random fa-rotate-270 fa-fw"></i>
+                Merge data
+            </a>
+        </li>
+        <!-- Datasets banner -->
+        <li class="nav-item">
+            <a class="nav-link not-clickable active" href="#">
+                <i class="fas fa-database fa-fw"></i>
+                Datasets
+            </a>
+        </li>
+    {% for dataset in project.datasets %}
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" data-toggle="collapse"
+               href="#sidebar-{{ dataset.id }}-info">
+                <i class="fas fa-caret-right fa-fw" id="sidebar-{{ dataset.id }}-toggle"></i>
+                {{ dataset.name }}
+            </a>
+        </li>
+        <!-- Collapsable dataset info card -->
+        <div class="collapse sidebar-collapse" id="sidebar-{{ dataset.id }}-info">
+            <div class="card card-body sidebar-card">
+                <h6>Description:</h6>
+                {{ dataset.description }}
+                <hr/>
+                <div class="row-fluid inline action-icons">
+                    <!-- Open project button -->
+                    <a href="{{ url_for('view_bp.view', dataset_id=dataset.id) }}">
+                        <i class="fas fa-folder-open"></i>
+                    </a>
+                    <!-- Edit project button -->
+                    <a href="" data-toggle="modal"
+                       data-target="#"
+                       data-projectid="{{ dataset.id }}"
+                       data-title="{{ dataset.name }}"
+                       data-description="{{ dataset.description }}">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <!-- Delete project button -->
+                    <form id="delete-form-{{ dataset.id }}"
+                          action="#"
+                          method="POST">
+                        <input type="hidden" name="dataset_id"
+                               value="{{ dataset.id }}">
+                        <a href="#">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    </ul>
+{% endblock %}
+
+{% block main_content %}
+<div class="jumbotron">
+    <div class="row">
+        <div class="container">
+            <form method=post action="#">
+                <h2>Join existing datasets:</h2>
+                <table id="join_table" class="table table-bordered" width="100%">
+                    <thead>
+                    <tr>
+                        <th>Left</th>
+                        <th>Join type</th>
+                        <th>Right</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <select class="form-control file-select" name="file-left" id="file-left" required>
+                                    <option value="" disabled selected>Select file</option>
+                                    {% for dataset in project.datasets %}
+                                        <option value="{{ dataset.id }}">{{ dataset.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <hr/>
+                                <select class="form-control" name="column-left" id="column-left" required>
+                                    <option value="" disabled selected>Select column</option>
+                                    {# Dynamically genererated options #}
+                                </select>
+                            </td>
+                            <td>
+                                <select class="form-control" name="join-type" id="join-type">
+                                    <option>cross</option>
+                                    <option>inner</option>
+                                    <option>left outer</option>
+                                    <option>right outer</option>
+                                    <option>full outer</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select class="form-control file-select" name="file-right" id="file-right" required>
+                                    <option value="" disabled selected>Select file</option>
+                                    {% for dataset in project.datasets %}
+                                        <option value="{{ dataset.id }}">{{ dataset.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <hr/>
+                                <select class="form-control" name="column-right" id="column-right" required>
+                                    <option value="" disabled selected>Select column</option>
+                                    {# Dynamically genererated options #}
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="join-name" id="join-name" required>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="join-description" id="join-description" required>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button type="submit" class="btn btn-success pull-right" name="button" value="upload">
+                    <i class="fas fa-upload"></i>
+                    Join
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+	<script src="{{ url_for('static', filename='js/layout/navbar_side.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/Data/Import/dataset_join.js') }}"></script>
+{% endblock %}

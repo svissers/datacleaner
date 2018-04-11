@@ -1,0 +1,30 @@
+body {
+  font-size: .875rem;
+  font-family: Ubuntu;
+}
+
+.ignore-nav {
+  position: relative;
+  top: -42px;
+}
+
+/*
+ * Utilities
+ */
+
+.border-top { border-top: 1px solid #e5e5e5; }
+.border-bottom { border-bottom: 1px solid #e5e5e5; }
+.not-clickable {
+  pointer-events: none;
+  cursor: default;
+}
+
+img.background-filler {
+    position: fixed;
+    bottom: -30px;
+    right: -90px;
+    height: 25%;
+    width: 25%;
+    opacity: 0.2;
+    z-index: -1;
+}

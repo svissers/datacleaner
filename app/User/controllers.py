@@ -43,7 +43,7 @@ def autocomplete():
     return jsonify(users)
 
 
-@_user.route('/signup', methods=['GET', 'POST'])
+@_user.route('/signup', methods=['POST'])
 def signup():
     form = SignUpForm()
     if form.validate_on_submit():
@@ -56,29 +56,32 @@ def signup():
                 form.password.data
             )
             flash('You have been registered and can now log in.', 'success')
-            return redirect(url_for('user_bp.login'))
         except RuntimeError as error:
             flash(str(error), 'danger')
-    return render_template('User/signup.html', form=form)
+    return redirect(url_for('user_bp.login'))
 
 
 @_user.route('/login', methods=['GET', 'POST'])
 def login():
-    form = LoginForm()
-    # Upon submission of the form it gets validated,
-    # if it's valid and de login info is valid we redirect to the dashboard
-    if form.validate_on_submit():
+    login_form = LoginForm()
+    signup_form = SignUpForm()
+
+    if login_form.validate_on_submit():
         result = validate_login_credentials(
-            form.username.data,
-            form.password.data
+            login_form.username.data,
+            login_form.password.data
         )
         if result[0] is True:
-            user = get_user_with_username(form.username.data)
+            user = get_user_with_username(login_form.username.data)
             login_user(user)
             return redirect(url_for('main_bp.dashboard'))
         else:
             flash(result[1], 'danger')
-    return render_template('User/login.html', form=form)
+
+    return render_template('User/login.html',
+                           login_form=login_form,
+                           signup_form=signup_form
+                           )
 
 
 @_user.route('/logout')
@@ -88,9 +91,9 @@ def logout():
     return redirect(url_for('user_bp.login'))
 
 
-@_user.route('/profile', methods=['GET', 'POST'])
+@_user.route('/update', methods=['POST'])
 @login_required
-def profile():
+def update():
     form = EditForm()
     if form.validate_on_submit():
         if not validate_login_credentials(
@@ -109,5 +112,5 @@ def profile():
             flash('Your account information has been updated.', 'success')
         except RuntimeError as error:
             flash(str(error), 'danger')
-    return render_template('User/profile.html', form=form)
+    return redirect(request.referrer)
 

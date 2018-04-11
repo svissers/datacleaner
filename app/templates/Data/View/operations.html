@@ -1,0 +1,95 @@
+<li class="nav-item">
+    <a class="nav-link sidebar-link" href="{{ url_for('transform_bp.reset', dataset_id=dataset.id) }}">
+        <i class="fas fa-redo-alt fa-flip-horizontal fa-fw"></i>
+        Restore original
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link sidebar-link"
+       href="#export-dataset-modal"
+       data-toggle="modal"
+       data-target="#export-dataset-modal">
+        <i class="fas fa-download fa-fw"></i>
+        Export CSV
+    </a>
+</li>
+<!-- Operations banner -->
+<li class="nav-item">
+    <a class="nav-link not-clickable active" href="#">
+        <i class="fas fa-filter fa-fw"></i>
+        Transformations
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link sidebar-link"
+       href="#delete_predicate_modal"
+       data-toggle="modal"
+       data-target="#delete_predicate_modal">
+        <i class="fas fa-search-minus fa-fw"></i>
+        Predicate delete
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link sidebar-link" href="#">
+        <i class="fas fa-syringe fa-fw"></i>
+        Fill empty values
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link sidebar-link" href="#">
+        <i class="fas fa-edit fa-fw"></i>
+        Rename column
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link sidebar-link" href="#">
+        <i class="fas fa-eraser fa-fw"></i>
+        Delete column
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link sidebar-link" href="#">
+        <i class="fas fa-search fa-fw"></i>
+        Find-and-replace
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link sidebar-link" href="#">
+        <i class="fas fa-registered fa-fw"></i>
+        Find-and-replace (REGEX)
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link sidebar-link"
+       href="#change_type_modal"
+       data-toggle="modal"
+       data-target="#change_type_modal">
+        <i class="fas fa-exchange-alt fa-fw"></i>
+        Change column type
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link sidebar-link" href="#">
+        <span  style="position: relative; left: 2px">
+            <b>01</b> One-hot-encode
+        </span>
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link sidebar-link" href="#">
+        <i class="fas fa-align-justify fa-rotate-90 fa-fw"></i>
+        Normalize
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link sidebar-link" href="#">
+        <i class="fas fa-align-left fa-rotate-270 fa-fw"></i>
+        Discretize
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link sidebar-link" href="#">
+        <i class="fas fa-calendar-alt fa-fw"></i>
+        Extract from date
+    </a>
+</li>

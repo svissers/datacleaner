@@ -67,11 +67,11 @@ def manage_users():
         return redirect(url_for('main_bp.dashboard'))
 
     if request.method == 'POST':
-        if request.form["button"] == "admin":
+        if request.form["operation"] == "admin":
             return redirect(url_for('admin_bp.update_admin'), code=307)
-        elif request.form["button"] == "disabled":
+        elif request.form["operation"] == "disable":
             return redirect(url_for('admin_bp.update_disabled'), code=307)
-        elif request.form["button"] == "delete":
+        elif request.form["operation"] == "delete":
             return redirect(url_for('admin_bp.delete'), code=307)
 
     return render_template('Admin/manage_users.html')

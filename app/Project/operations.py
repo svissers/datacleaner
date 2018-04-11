@@ -10,10 +10,9 @@ def create_project(project_name, description, user_id):
     :param description: project description
     :param user_id: id of the creator
     """
-    new_project = Project(project_name, description)
-    ownership = Access(owner=True)
-    ownership.user = get_user_with_id(user_id)
-    new_project.users.append(ownership)
+    new_project = Project(project_name, description, user_id)
+    access = Access(user=get_user_with_id(user_id))
+    new_project.users.append(access)
     database.session.commit()
 
 
@@ -36,31 +35,6 @@ def get_all_projects_for_user(user_id):
     return [access.project for access in user.projects]
 
 
-def cleanup(project_id):
-    """
-    Cleanup function for projects
-    Needed because cleanup needs to happen based on ownership which can't be
-    done directly via SQL
-    :param project_id: candidate project for cleanup
-    """
-    accesses = Access.query.filter(Access.project_id == project_id)
-    if accesses is None:
-        return
-    for access in accesses:
-        if access.owner:
-            return
-    project = get_project_with_id(project_id)
-    for dataset in project.datasets:
-        database.engine.execute(
-            'DROP TABLE "{0}"'.format(dataset.original_data)
-        )
-        database.engine.execute(
-            'DROP TABLE "{0}"'.format(dataset.working_copy)
-        )
-    database.session.delete(project)
-    database.session.commit()
-
-
 def delete_project_with_id(project_id, user_id):
     """
     Deletes the project associated with
@@ -75,7 +49,11 @@ def delete_project_with_id(project_id, user_id):
             filter(Access.user_id == user_id).first()
         database.session.delete(access)
         database.session.commit()
-        cleanup(project_id)
+        if project.owner_id == user_id:
+            for dataset in project.datasets:
+                pass # TODO: DELETE DATASET
+            database.session.delete(project)
+            database.session.commit()
 
 
 def update_project_with_id(project_id, new_name, new_description):
@@ -94,13 +72,12 @@ def update_project_with_id(project_id, new_name, new_description):
         database.session.commit()
 
 
-def share_project(project_id, with_user_id, with_ownership):
+def share_project(project_id, with_user_id):
     """
     Shares project associated with given project_id with user with given
     user_id, with(out) ownership
     :param project_id: id of project to be shared
     :param with_user_id: id of user to share with
-    :param with_ownership: bool indicating whether ownership should be granted
     :exception RuntimeError: thrown if project already shared with user
     """
     project = get_project_with_id(project_id)
@@ -108,7 +85,6 @@ def share_project(project_id, with_user_id, with_ownership):
         if access.user_id == with_user_id:
             raise RuntimeError(
                 'This user already has access to this project.')
-    ownership = Access(owner=with_ownership)
-    ownership.user = get_user_with_id(with_user_id)
-    project.users.append(ownership)
+    access = Access(user=get_user_with_id(with_user_id))
+    project.users.append(access)
     database.session.commit()

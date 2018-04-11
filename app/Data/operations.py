@@ -14,6 +14,10 @@ def get_datasets(user_id, project_id=None):
     return query_data
 
 
+def get_dataset_with_id(dataset_id):
+    return db.session.query(Dataset).filter(Dataset.id == dataset_id).first()
+
+
 def create_action(description, dataset_id, user_id):
     new_action = Action(description, dataset_id, user_id)
     db.session.add(new_action)

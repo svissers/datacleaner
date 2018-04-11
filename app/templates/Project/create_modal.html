@@ -1,0 +1,22 @@
+<div class="modal fade" id="create-project-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Create Project:</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+		<form method="POST" action="{{ url_for('project_bp.create') }}">
+            <div class="modal-body">
+                {{ project_form.hidden_tag() }}
+                {{ wtf.form_field(project_form.name) }}
+                {{ wtf.form_field(project_form.description) }}
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-success">Create</button>
+            </div>
+        </form>
+    </div>
+  </div>
+</div>

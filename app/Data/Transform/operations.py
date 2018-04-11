@@ -17,7 +17,8 @@ def restore_original(table_name):
             'DROP TABLE "{0}"'.format(table_name)
         )
         db.engine.execute(
-            'SELECT * INTO "{0}" from "{1}"'.format(table_name, original)
+            'CREATE TABLE "{0}" AS SELECT * FROM "{1}"'
+            .format(table_name, original)
         )
     except:
         print("FAILED TO RESTORE ORIGINAL")

@@ -1,0 +1,106 @@
+{% extends "layout/main.html" %}
+
+{% block styles %}
+    {{ super() }}
+	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.16/b-1.5.1/datatables.min.css"/>
+{% endblock %}
+
+{% block sidebar_content %}
+    <ul class="nav nav-pills flex-column">
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="{{ url_for('main_bp.dashboard') }}">
+                <i class="fas fa-home fa-fw"></i>
+                Return to Dashboard
+            </a>
+        </li>
+    <li class="nav-item">
+            <a class="nav-link sidebar-link" href="{{ url_for('view_bp.view', project_id=dataset.project.id) }}">
+                <i class="fas fa-sitemap fa-fw"></i>
+                Return to Project
+            </a>
+        </li>
+        <!-- Dataset banner -->
+        <li class="nav-item">
+            <a class="nav-link not-clickable active" href="#">
+                <i class="fas fa-database fa-fw"></i>
+                Dataset
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="{{ url_for('view_bp.view', dataset_id=dataset.id) }}">
+                <i class="fas fa-chart-pie fa-fw"></i>
+                Overview
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link current-section" href="{{ url_for('view_bp.raw', dataset_id=dataset.id) }}">
+                <i class="fas fa-table fa-fw"></i>
+                View raw
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="{{ url_for('view_bp.history', dataset_id=dataset.id) }}">
+                <i class="fas fa-history fa-fw"></i>
+                View history
+            </a>
+        </li>
+        {% include 'Data/View/operations.html' %}
+    </ul>
+{% endblock %}
+
+{% block main_content %}
+<form name="delete-form" method="POST" action="{{ url_for('transform_bp.delete_selection', table_name=dataset.working_copy) }}">
+        <table id="user_table" class="display" cellspacing="0" width="100%">
+            <thead>
+            <tr style="background-color: #eef5f8">
+                <th></th>
+                {% for column in columns %}
+                    <th>{{ column[0] }}</th>
+                {% endfor %}
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </form>
+{% endblock %}
+
+{% block modals %}
+    {% include 'Data/View/operation_modals.html' %}
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+	<script src="{{ url_for('static', filename='js/Data/Transform/delete_predicate_modal.js') }}"></script>
+	<script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.16/b-1.5.1/datatables.min.js"></script>
+	<script type="text/javascript" charset="utf-8">
+		$(document).ready(function (){
+		    var table = $('#user_table').DataTable({
+                dom: 'rfBtlp',
+                "iDisplayLength": 25,
+			    'processing': true,
+			    'serverSide': true,
+                'scrollY':  '78vh',
+                'scrollCollapse': true,
+			    'ajax': "{{ url_for('view_bp.retrieve', sql_table_name=dataset.working_copy) }}",
+			    'columnDefs': [{
+			        'targets': 0,
+				    'searchable': false,
+				    'orderable': false,
+				    'className': 'dt-body-center',
+				    'render': function (data, type, full, meta){
+			            return '<input type="checkbox" name="data_id" value="' + $('<div/>').text(data).html() + '">';
+			        }
+			    }],
+			    'order': [[1, 'asc']],
+                'buttons': [
+                    {
+                        text: '<i class="fas fa-trash-alt"></i>',
+                        attr: {
+                            onclick: "this.form.action='{{ url_for('transform_bp.delete_selection',dataset_id=dataset.id) }}'; this.form.submit()"
+                        }
+                    }
+                ]
+		    });
+		});
+	</script>
+{% endblock %}

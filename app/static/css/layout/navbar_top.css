@@ -1,0 +1,23 @@
+/*
+ * Navbar
+ */
+.navbar-brand {
+    color: rgba(210, 218, 226,1.0);
+    padding-top: .75rem;
+    padding-bottom: .75rem;
+    font-size: 1rem;
+    text-align: left;
+    background-color: rgba(61, 61, 61,1.0);
+    overflow-x: hidden;
+}
+
+.navbar {
+    background-color: transparent;
+}
+
+.brand-text {
+    font-family: Ubuntu;
+	font-style: normal;
+	font-variant: normal;
+	padding-left: 5px;
+}
