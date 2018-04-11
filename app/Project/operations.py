@@ -1,6 +1,7 @@
 from .models import Project, Access
-from app.User import get_user_with_id
+from app.User.models import User
 from app import database
+from app.Data.Import.operations import delete_dataset_with_id
 
 
 def create_project(project_name, description, user_id):
@@ -11,7 +12,7 @@ def create_project(project_name, description, user_id):
     :param user_id: id of the creator
     """
     new_project = Project(project_name, description, user_id)
-    access = Access(user=get_user_with_id(user_id))
+    access = Access(user=User.query.filter_by(id=user_id).first())
     new_project.users.append(access)
     database.session.commit()
 
@@ -31,7 +32,7 @@ def get_all_projects_for_user(user_id):
     :param user_id: id user for lookup
     :return list(Project): list of Projects
     """
-    user = get_user_with_id(user_id)
+    user = User.query.filter_by(id=user_id).first()
     return [access.project for access in user.projects]
 
 
@@ -51,7 +52,7 @@ def delete_project_with_id(project_id, user_id):
         database.session.commit()
         if project.owner_id == user_id:
             for dataset in project.datasets:
-                pass # TODO: DELETE DATASET
+                delete_dataset_with_id(dataset.id)
             database.session.delete(project)
             database.session.commit()
 
@@ -85,6 +86,6 @@ def share_project(project_id, with_user_id):
         if access.user_id == with_user_id:
             raise RuntimeError(
                 'This user already has access to this project.')
-    access = Access(user=get_user_with_id(with_user_id))
+    access = Access(user=User.query.filter_by(id=with_user_id).first())
     project.users.append(access)
     database.session.commit()
