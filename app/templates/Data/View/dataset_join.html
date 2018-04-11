@@ -58,8 +58,8 @@
                         <i class="fas fa-folder-open"></i>
                     </a>
                     <!-- Edit project button -->
-                    <a href="" data-toggle="modal"
-                       data-target="#"
+                    <a href="#edit-dataset-modal" data-toggle="modal"
+                       data-target="#edit-dataset-modal"
                        data-projectid="{{ dataset.id }}"
                        data-title="{{ dataset.name }}"
                        data-description="{{ dataset.description }}">
@@ -154,8 +154,13 @@
 </div>
 {% endblock %}
 
+{% block modals %}
+{% include 'Data/Import/edit_modal.html' %}
+{% endblock %}
+
 {% block scripts %}
     {{ super() }}
 	<script src="{{ url_for('static', filename='js/layout/navbar_side.js') }}"></script>
     <script src="{{ url_for('static', filename='js/Data/Import/dataset_join.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/Data/Import/edit_modal.js') }}"></script>
 {% endblock %}
