@@ -2,6 +2,7 @@ from app import database as db
 from .models import User
 from app.Project.models import Project, Access
 from werkzeug.security import generate_password_hash, check_password_hash
+from app.Project.operations import delete_project_with_id
 
 
 def create_user(first_name, last_name, email, username, password):
@@ -78,7 +79,8 @@ def delete_user_with_id(user_id):
     if user is None:
         raise RuntimeError('No user associated with this id.')
     else:
-        # TODO: Self cleaning
+        for project in user.projects:
+            delete_project_with_id(project.id, user_id)
         project_ids = []
         for access in user.projects:
             project_ids.append(access.project_id)
@@ -98,7 +100,8 @@ def delete_user_with_username(username):
     if user is None:
         raise RuntimeError('No user associated with this username.')
     else:
-        # TODO: Self cleaning
+        for project in user.projects:
+            delete_project_with_id(project.id, user.id)
         project_ids = []
         for access in user.projects:
             project_ids.append(access.project_id)

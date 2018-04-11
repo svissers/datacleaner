@@ -1,6 +1,7 @@
 from .models import Project, Access
 from app.User import get_user_with_id
 from app import database
+from app.Data.Import.operations import delete_dataset_with_id
 
 
 def create_project(project_name, description, user_id):
@@ -51,7 +52,7 @@ def delete_project_with_id(project_id, user_id):
         database.session.commit()
         if project.owner_id == user_id:
             for dataset in project.datasets:
-                pass # TODO: DELETE DATASET
+                delete_dataset_with_id(dataset.id)
             database.session.delete(project)
             database.session.commit()
 
