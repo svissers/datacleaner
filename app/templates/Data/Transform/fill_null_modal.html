@@ -1,0 +1,62 @@
+<div class="modal fade" id="fill_null_modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <form method="post" action="{{ url_for('transform_bp.fill_null', dataset_id=dataset.id) }}">
+                    <table class="table" width="100%">
+                        <thead>
+                        <tr class="table-primary">
+                            <th>Column:</th>
+                            <th>Fill with:</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>
+                                <select class="form-control" name="column">
+                                    {% for column in columns %}
+                                        <option>{{ column[0] }} ({{ column[1] }})</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td width="35%">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <input type="radio" name="fill_value" id="custom-radio" onclick="$('#custom-input').prop('required', true)" required>
+                                        </div>
+                                    </div>
+                                    <input type="text" class="form-control" id="custom-input">
+                                </div>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <input type="radio" name="fill_value" onclick="$('#custom-input').prop('required', false)" value="~option-average~" required>
+                                        </div>
+                                    </div>
+                                    <input type="text" class="form-control" value="average*" readonly>
+                                </div>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <input type="radio" name="fill_value" onclick="$('#custom-input').prop('required', false)" value="~option-median~" required>
+                                        </div>
+                                    </div>
+                                    <input type="text" class="form-control" value="median*" readonly>
+                                </div>
+                                * = for numerical data only
+                            </td>
+                            <td width="5%">
+                                <button type="submit" class="btn btn-success btn-block" onclick="$('#custom-radio').val($('#custom-input').val());">
+                                    Fill
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

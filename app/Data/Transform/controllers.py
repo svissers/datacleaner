@@ -14,7 +14,10 @@ from app.Data.helpers import table_name_to_object
 from app.Data.Transform.operations import (
     restore_original,
     change_attribute_type,
-    delete_rows
+    delete_rows,
+    fill_null_with,
+    fill_null_with_average,
+    fill_null_with_median
 )
 
 _transform = Blueprint('transform_bp', __name__, url_prefix='/data/transform')
@@ -88,7 +91,7 @@ def change_type():
     dataset = get_dataset_with_id(request.args.get('dataset_id'))
     table = table_name_to_object(dataset.working_copy)
     col = request.form['column']
-    col = col[:col.find(',')]
+    col = col[:col.find(' ')]
     new_type = request.form['type']
     if col != '' and new_type != '':
         try:
@@ -98,5 +101,63 @@ def change_type():
             flash('{0} could not be converted to {1}'.format(col, new_type), 'danger')
         else:
             flash('{0} successfully  converted to {1}'.format(col, new_type), 'success')
+
+    return redirect(request.referrer)
+
+
+@_transform.route('/fill_null', methods=['POST'])
+@login_required
+def fill_null():
+    dataset = get_dataset_with_id(request.args.get('dataset_id'))
+    column_and_type = request.form['column']
+    column_name = column_and_type[:column_and_type.find(' ')]
+    column_type = column_and_type[column_and_type.find('(')+1:column_and_type.rfind(')')]
+    fill_value = request.form['fill_value']
+
+    try:
+        if fill_value == '~option-average~':
+            if column_type not in ['INTEGER', 'BIGINT', 'DOUBLE PRECISION']:
+                flash('Operation not supported for this column type.', 'danger')
+            else:
+                fill_null_with_average(dataset.working_copy, column_name)
+                create_action(
+                    'Filled null values in {0} with average'.format(column_name),
+                    dataset.id,
+                    current_user.id
+                )
+        elif fill_value == '~option-median~':
+            if column_type not in ['INTEGER', 'BIGINT', 'DOUBLE PRECISION']:
+                flash('Operation not supported for this column type.', 'danger')
+            else:
+                fill_null_with_median(dataset.working_copy, column_name)
+                create_action(
+                    'Filled null values in {0} with median'.format(column_name),
+                    dataset.id,
+                    current_user.id
+                )
+        else:
+            is_text_type = column_type in ['TEXT',
+                                           'VARCHAR(10)',
+                                           'VARCHAR(25)',
+                                           'VARCHAR(255)']
+            fill_null_with(
+                dataset.working_copy,
+                column_name,
+                fill_value,
+                is_text_type
+            )
+            create_action(
+                'Filled null values in {0} with {1}'
+                .format(column_name, fill_value),
+                dataset.id,
+                current_user.id
+            )
+    except:
+        flash(
+            'An unexpected error occured while performing the operation',
+            'danger'
+            )
+    else:
+        flash('Fill operation completed successfully', 'success')
 
     return redirect(request.referrer)
