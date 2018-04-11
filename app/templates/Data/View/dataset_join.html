@@ -101,14 +101,14 @@
                     <tbody>
                         <tr>
                             <td>
-                                <select class="form-control file-select" name="file-left" id="file-left">
+                                <select class="form-control file-select" name="file-left" id="file-left" required>
                                     <option value="" disabled selected>Select file</option>
                                     {% for dataset in project.datasets %}
                                         <option value="{{ dataset.id }}">{{ dataset.name }}</option>
                                     {% endfor %}
                                 </select>
                                 <hr/>
-                                <select class="form-control" name="column-left" id="column-left">
+                                <select class="form-control" name="column-left" id="column-left" required>
                                     <option value="" disabled selected>Select column</option>
                                     {# Dynamically genererated options #}
                                 </select>
@@ -123,14 +123,14 @@
                                 </select>
                             </td>
                             <td>
-                                <select class="form-control file-select" name="file-right" id="file-right">
+                                <select class="form-control file-select" name="file-right" id="file-right" required>
                                     <option value="" disabled selected>Select file</option>
                                     {% for dataset in project.datasets %}
                                         <option value="{{ dataset.id }}">{{ dataset.name }}</option>
                                     {% endfor %}
                                 </select>
                                 <hr/>
-                                <select class="form-control" name="column-right" id="column-right">
+                                <select class="form-control" name="column-right" id="column-right" required>
                                     <option value="" disabled selected>Select column</option>
                                     {# Dynamically genererated options #}
                                 </select>
