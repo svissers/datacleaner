@@ -20,7 +20,8 @@ from app.Data.Transform.operations import (
     fill_null_with_median,
     rename_attribute,
     delete_attribute,
-    one_hot_encode
+    one_hot_encode,
+    normalize_attribute
 )
 
 _transform = Blueprint('transform_bp', __name__, url_prefix='/data/transform')
@@ -81,6 +82,28 @@ def one_hot_encode_column():
         )
     except:
         flash('An unexpected error occured while one-hot-encoding the column',
+              'danger'
+              )
+    else:
+        flash('Column one-hot-encoded successfully.', 'success')
+
+    return redirect(request.referrer)
+
+
+@_transform.route('normalize_column', methods=['POST'])
+@login_required
+def normalize_column():
+    dataset = get_dataset_with_id(request.args.get('dataset_id'))
+    col = request.form['column']
+    try:
+        normalize_attribute(dataset.working_copy, col)
+        create_action(
+            'Normalized {0}'.format(col),
+            dataset.id,
+            current_user.id
+        )
+    except:
+        flash('An unexpected error occured while normalizing the column',
               'danger'
               )
     else:

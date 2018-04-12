@@ -346,7 +346,7 @@ def normalize_attribute(table_name, attr):
         db.engine.execute(
             'DROP TABLE "{0}"'.format(table_name)
         )
-        df.to_sql(name=table_name, con=db.engine, if_exists="fail")
+        df.to_sql(name=table_name, con=db.engine, if_exists="fail", index=False)
     except:
         print('NORMALIZATION FAILED')
 

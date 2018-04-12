@@ -1,0 +1,40 @@
+<div class="modal fade" id="normalize_modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <form method="post" action="{{ url_for('transform_bp.normalize_column', dataset_id=dataset.id) }}">
+                    <table class="table" width="100%">
+                        <thead>
+                        <tr class="table-primary">
+                            <th>Column:</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>
+                                <select class="form-control" name="column">
+                                    {% for column in columns %}
+                                        {% if
+                                        column[1] == 'BIGINT' or
+                                        column[1] == 'INTEGER' or
+                                        column[1] == 'DOUBLE PRECISION'
+                                        %}
+                                        <option>{{ column[0] }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td width="5%">
+                                <button type="submit" class="btn btn-success btn-block">
+                                    Normalize
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
