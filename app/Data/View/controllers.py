@@ -66,7 +66,7 @@ def retrieve():
 
     columns = []
     for name in column_names:
-        statement = "columns.append(ColumnDT(table.c['{0}']))".format(name)
+        statement = "columns.append(ColumnDT(table.c[\"{0}\"]))".format(name)
         exec(statement)
 
     # defining initial query
