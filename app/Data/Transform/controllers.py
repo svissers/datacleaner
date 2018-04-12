@@ -42,19 +42,44 @@ def delete_predicate():
     dataset = get_dataset_with_id(request.args.get('dataset_id'))
     table = table_name_to_object(dataset.working_copy)
     condition = ''
+    columns = []
+    conditions = []
+    operators = []
+    logics = []
     for i in request.form:
         if i.startswith('column'):
-            condition += '"' + request.form[i] + '"'
+            columns.append(i)
         elif i.startswith('condition'):
-            condition += '\'' + request.form[i] + '\''
+            conditions.append(i)
         elif i.startswith('logical'):
-            condition += ' ' + request.form[i] + ' '
-        elif i.startswith('operator') and request.form[i] == 'CONTAINS':
-            condition += ' ~ '
-        elif i.startswith('operator') and request.form[i] == 'NOT CONTAINS':
-            condition += ' !~ '
+            logics.append(i)
+        elif i.startswith('operator'):
+            operators.append(i)
+    columns.sort()
+    conditions.sort()
+    logics.sort()
+    operators.sort()
+    for i in range(len(columns)):
+        if i != len(columns) - 1:
+            condition += '"' + request.form[columns[i + 1]] + '"'
+            if request.form[operators[i + 1]] == 'CONTAINS':
+                condition += ' ~ '
+            elif request.form[operators[i + 1]] == 'NOT CONTIANS':
+                condition += ' !~ '
+            else:
+                condition += request.form[operators[i + 1]]
+            condition += '\'' + request.form[conditions[i + 1]] + '\''
+            condition += ' ' + request.form[logics[i]] + ' '
         else:
-            condition += request.form[i]
+            condition += '"' + request.form[columns[0]] + '"'
+            if request.form[operators[0]] == 'CONTAINS':
+                condition += ' ~ '
+            elif request.form[operators[0]] == 'NOT CONTIANS':
+                condition += ' !~ '
+            else:
+                condition += request.form[operators[0]]
+            condition += '\'' + request.form[conditions[0]] + '\''
+
     try:
         delete_rows(table.name, condition)
         create_action('rows deleted with condition "{0}"'
