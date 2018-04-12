@@ -3,6 +3,28 @@ import pandas as pd
 import re
 
 
+def rename_attribute(table_name, column, new_name):
+    try:
+        db.engine.execute(
+            'ALTER TABLE {0} '
+            'RENAME COLUMN "{1}" TO "{2}"'
+            .format(table_name, column, new_name)
+        )
+    except Exception as e:
+        print("RENAMING FAILED: "+str(e))
+
+
+def delete_attribute(table_name, column):
+    try:
+        db.engine.execute(
+            'ALTER TABLE {0} '
+            'DROP COLUMN "{1}"'
+            .format(table_name, column)
+        )
+    except:
+        print("DELETING FAILED")
+
+
 def restore_original(table_name):
     """
     Resets given table to its original state
@@ -160,31 +182,47 @@ def one_hot_encode(table_name, attr):
     try:
         dataframe = pd.read_sql_table(table_name, db.engine)
         one_hot = pd.get_dummies(dataframe[attr])
+        print('OH', one_hot)
         dataframe = dataframe.join(one_hot)
+        print('DF', dataframe)
         db.engine.execute(
             'DROP TABLE "{0}"'.format(table_name)
         )
-        dataframe.to_sql(name=table_name, con=db.engine, if_exists="fail")
+        dataframe.to_sql(
+            name=table_name,
+            con=db.engine,
+            if_exists="fail",
+            index=False
+        )
     except:
         print('ONE-HOT ENCODING FAILED')
 
 
-def fill_null_with(table_name, attr, value):
+def fill_null_with(table_name, attr, value, text_type):
     """
     Fills all NULL values with provided value in table_name.attr
     :param table_name: table to perform the operation on
     :param attr: attribute containing NULL values
+    :param text_type: indicates whether column is a text type
     :param value: value to insert
     """
     try:
-        db.engine.execute(
-            'UPDATE "{0}"'
-            'SET "{1}" = {2}'
-            'WHERE "{1}" IS NULL'
-            .format(table_name, attr, value)
-        )
-    except:
-        print('FILL VALUE FAILED')
+        if text_type:
+            db.engine.execute(
+                'UPDATE "{0}" '
+                'SET "{1}" = \'{2}\' '
+                'WHERE ("{1}" = \'\') IS NOT FALSE'
+                .format(table_name, attr, value)
+            )
+        else:
+            db.engine.execute(
+                'UPDATE "{0}" '
+                'SET "{1}" = {2} '
+                'WHERE "{1}" IS NULL'
+                .format(table_name, attr, value)
+            )
+    except Exception as e:
+        print('FILL NULL FAILED WITH FOLLOWING MESSAGE:\n' + str(e))
 
 
 def fill_null_with_average(table_name, attr):
@@ -197,8 +235,8 @@ def fill_null_with_average(table_name, attr):
         dataframe = pd.read_sql_table(table_name, db.engine, columns=[attr])
         average = dataframe[attr].mean()
         db.engine.execute(
-            'UPDATE "{0}"'
-            'SET "{1}" = {2}'
+            'UPDATE "{0}" '
+            'SET "{1}" = {2} '
             'WHERE "{1}" IS NULL'
             .format(table_name, attr, average)
         )
@@ -216,8 +254,8 @@ def fill_null_with_median(table_name, attr):
         dataframe = pd.read_sql_table(table_name, db.engine, columns=[attr])
         median = dataframe[attr].median()
         db.engine.execute(
-            'UPDATE "{0}"'
-            'SET "{1}" = {2}'
+            'UPDATE "{0}" '
+            'SET "{1}" = {2} '
             'WHERE "{1}" IS NULL'
             .format(table_name, attr, median)
         )
@@ -235,8 +273,8 @@ def non_text_find_replace(table_name, attr, find, replace):
     """
     try:
         db.engine.execute(
-            'UPDATE "{0}"'
-            'SET "{1}" = {2}'
+            'UPDATE "{0}" '
+            'SET "{1}" = {2} '
             'WHERE "{1}" = {3}'
             .format(table_name, attr, replace, find)
         )
@@ -256,16 +294,16 @@ def text_find_replace(table_name, attr, find, replace, ignore_case=False):
     try:
         if ignore_case:
             db.engine.execute(
-                'UPDATE "{0}"'
-                'SET "{1}" = \'{2}\''
+                'UPDATE "{0}" '
+                'SET "{1}" = \'{2}\' '
                 'WHERE LOWER("{1}") = LOWER(\'{3}\')'
                 .format(table_name, attr, replace, find)
             )
         else:
             db.engine.execute(
-                'UPDATE "{0}"'
-                'SET "{1}" = \'{2}\''
-                'WHERE "{1}" = \'{3}\''
+                'UPDATE "{0}" '
+                'SET "{1}" = \'{2}\' '
+                'WHERE "{1}" = \'{3}\' '
                 .format(table_name, attr, replace, find)
             )
     except:
@@ -288,7 +326,7 @@ def text_regex_find_replace(table_name, attr, regex, replace):
             is_valid = False
         if is_valid:
             db.engine.execute(
-                'UPDATE "{0}"'
+                'UPDATE "{0}" '
                 'SET "{1}" = REGEXP_REPLACE("{1}", \'{2}\', {3})'
                 .format(table_name, attr, regex, replace)
             )
@@ -325,13 +363,13 @@ def remove_outliers(table_name, attr, value, smaller_than=False):
     try:
         if smaller_than:
             db.engine.execute(
-                'DELETE FROM "{0}"'
+                'DELETE FROM "{0}" '
                 'WHERE "{1}" < {2}'
                 .format(table_name, attr, value)
             )
         else:  # greater than
             db.engine.execute(
-                'DELETE FROM "{0}"'
+                'DELETE FROM "{0}" '
                 'WHERE "{1}" > {2}'
                 .format(table_name, attr, value)
             )

@@ -12,3 +12,12 @@ class UploadForm(FlaskForm):
     name = StringField('Name', validators=[InputRequired(), Length(max=50)])
     description = TextAreaField('Description',
                                 validators=[InputRequired(), Length(max=255)])
+
+
+class EditForm(FlaskForm):
+    """docstring for UploadForm"""
+
+    name = StringField('Name', validators=[InputRequired(), Length(max=50)])
+    description = TextAreaField('Description',
+                                validators=[InputRequired(), Length(max=255)])
+

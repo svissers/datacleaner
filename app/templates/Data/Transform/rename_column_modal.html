@@ -1,13 +1,13 @@
-<div class="modal fade" id="change_type_modal" tabindex="-1" role="dialog">
+<div class="modal fade" id="rename_column_modal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-body">
-                <form method="post" action="{{ url_for('transform_bp.change_type', dataset_id=dataset.id) }}">
+                <form method="post" action="{{ url_for('transform_bp.rename_column', dataset_id=dataset.id) }}">
                     <table class="table" width="100%">
                         <thead>
                         <tr class="table-primary">
                             <th>Column:</th>
-                            <th>New type:</th>
+                            <th>New name:</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -16,24 +16,12 @@
                             <td>
                                 <select class="form-control" name="column">
                                     {% for column in columns %}
-                                        <option>{{ column[0] }} ({{ column[1] }})</option>
+                                        <option>{{ column[0] }}</option>
                                     {% endfor %}
                                 </select>
                             </td>
-                            <td width="35%">
-                                <select class="form-control" name="type">
-                                    <option></option>
-                                    <option>INTEGER</option>
-                                    <option>BIGINT</option>
-                                    <option>DOUBLE PRECISION</option>
-                                    <option>VARCHAR(10)</option>
-                                    <option>VARCHAR(25)</option>
-                                    <option>VARCHAR(255)</option>
-                                    <option>TEXT</option>
-                                    <option>BOOLEAN</option>
-                                    <option>DATE</option>
-                                    <option>TIMESTAMP</option>
-                                </select>
+                            <td width="45%">
+                                <input type="text" class="form-control" name="new_name">
                             </td>
                             <td width="5%">
                                 <button type="submit" class="btn btn-success btn-block">

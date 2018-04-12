@@ -2,6 +2,7 @@ from app import database as db
 from .models import User
 from app.Project.models import Project, Access
 from werkzeug.security import generate_password_hash, check_password_hash
+from app.Project.operations import delete_project_with_id
 
 
 def create_user(first_name, last_name, email, username, password):
@@ -47,27 +48,6 @@ def get_user_with_username(username):
     return User.query.filter_by(username=username).first()
 
 
-def project_cleanup(project_id):
-    """
-    Cleanup function for projects
-    Needed because cleanup needs to happen based on ownership which can't be
-    done directly via SQL
-    :param project_id: candidate project for cleanup
-    """
-    accesses = Access.query.filter(Access.project_id == project_id)
-    if accesses is None:
-        return
-    for access in accesses:
-        if access.owner:
-            return
-    project = Project.query.filter(Project.id == project_id).first()
-    for dataset in project.datasets:
-        db.engine.execute('DROP TABLE "{0}"'.format(dataset.original_data))
-        db.engine.execute('DROP TABLE "{0}"'.format(dataset.working_copy))
-    db.session.delete(project)
-    db.session.commit()
-
-
 def delete_user_with_id(user_id):
     """
     Deletes User instance associated with given id
@@ -78,14 +58,10 @@ def delete_user_with_id(user_id):
     if user is None:
         raise RuntimeError('No user associated with this id.')
     else:
-        # TODO: Self cleaning
-        project_ids = []
-        for access in user.projects:
-            project_ids.append(access.project_id)
+        for project in user.projects:
+            delete_project_with_id(project.id, user_id)
         db.session.delete(user)
         db.session.commit()
-        for pid in project_ids:
-            project_cleanup(pid)
 
 
 def delete_user_with_username(username):
@@ -98,14 +74,10 @@ def delete_user_with_username(username):
     if user is None:
         raise RuntimeError('No user associated with this username.')
     else:
-        # TODO: Self cleaning
-        project_ids = []
-        for access in user.projects:
-            project_ids.append(access.project_id)
+        for project in user.projects:
+            delete_project_with_id(project.id, user.id)
         db.session.delete(user)
         db.session.commit()
-        for pid in project_ids:
-            project_cleanup(pid)
 
 
 def update_user_with_id(

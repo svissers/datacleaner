@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash,jsonify
-from .forms import UploadForm
-from .operations import upload_csv, upload_joined
+from .forms import UploadForm, EditForm
+from .operations import upload_csv, upload_joined, update_dataset_with_id, delete_dataset_with_id
 from flask_login import login_required
 import zipfile as zf
 import os
@@ -99,6 +99,7 @@ def zip():
         return redirect(url_for('upload_bp.upload', project_id=project_id))
 
     else:
+        edit_form = EditForm()
         with zf.ZipFile(request.files['file'], 'r') as csv_zip:
             files = []
             for file in csv_zip.namelist():
@@ -118,7 +119,8 @@ def zip():
                 name=form.name.data,
                 description=form.description.data,
                 project=get_project_with_id(project_id),
-                files=files
+                files=files,
+                edit_form=edit_form
             )
 
 
@@ -126,6 +128,30 @@ def zip():
 @login_required
 def dump():
     # TODO: implement .sql/.dump upload
+    return redirect(request.referrer)
+
+
+@_upload.route('/update', methods=['POST'])
+@login_required
+def update():
+    form = EditForm()
+    if form.validate_on_submit():
+        update_dataset_with_id(
+            request.form['dataset_id'],
+            form.name.data,
+            form.description.data
+        )
+        flash('Project updated successfully!', 'success')
+    return redirect(request.referrer)
+
+
+@_upload.route('/delete', methods=['POST'])
+@login_required
+def delete():
+    delete_dataset_with_id(
+        request.form['dataset_id']
+    )
+    flash('Project deleted successfully!', 'success')
     return redirect(request.referrer)
 
 

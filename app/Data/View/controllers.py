@@ -19,7 +19,7 @@ from .operations import export_csv
 from app.User.operations import get_user_with_id
 from app.Project.operations import get_project_with_id
 from app.Data.operations import get_dataset_with_id
-from app.Data.Import.forms import UploadForm
+from app.Data.Import.forms import UploadForm, EditForm
 from app.Data.View.operations import join_datasets
 from app.Data.helpers import table_name_to_object, extract_columns_from_db
 
@@ -66,7 +66,7 @@ def retrieve():
 
     columns = []
     for name in column_names:
-        statement = "columns.append(ColumnDT(table.c['{0}']))".format(name)
+        statement = "columns.append(ColumnDT(table.c[\"{0}\"]))".format(name)
         exec(statement)
 
     # defining initial query
@@ -101,9 +101,11 @@ def join():
         else:
             flash('Datasets merged succesfully.', 'succes')
     project_id = request.args.get('project_id')
+    edit_form = EditForm()
     return render_template(
         'Data/View/dataset_join.html',
-        project=get_project_with_id(project_id)
+        project=get_project_with_id(project_id),
+        edit_form=edit_form
     )
 
 
@@ -163,10 +165,12 @@ def view():
     if project_id is not None:
         project = get_project_with_id(project_id)
         upload_form = UploadForm()
+        edit_form = EditForm()
         return render_template(
             'Data/Import/upload.html',
             project=project,
-            upload_form=upload_form
+            upload_form=upload_form,
+            edit_form=edit_form
         )
     else:
         return redirect('main_bp.dashboard')

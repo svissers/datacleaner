@@ -1,0 +1,34 @@
+<div class="modal fade" id="delete_column_modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <form method="post" action="{{ url_for('transform_bp.delete_column', dataset_id=dataset.id) }}">
+                    <table class="table" width="100%">
+                        <thead>
+                        <tr class="table-primary">
+                            <th>Column:</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>
+                                <select class="form-control" name="column">
+                                    {% for column in columns %}
+                                        <option>{{ column[0] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td width="5%">
+                                <button type="submit" class="btn btn-danger btn-block">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

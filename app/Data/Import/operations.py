@@ -2,6 +2,7 @@ from app.Data.models import Dataset
 from app import database
 import pandas
 import datetime
+from app.Data.operations import get_dataset_with_id
 
 
 def upload_csv(name, description, file, project):
@@ -22,6 +23,31 @@ def upload_csv(name, description, file, project):
     new_dataset = Dataset(name, original, working_copy, description, project)
     database.session.add(new_dataset)
     database.session.commit()
+
+
+def update_dataset_with_id(dataset_id, new_name, new_description):
+    dataset = get_dataset_with_id(dataset_id)
+    if dataset is None:
+        raise RuntimeError('No dataset associated with this id.')
+    else:
+        dataset.name = new_name
+        dataset.description = new_description
+        database.session.commit()
+
+
+def delete_dataset_with_id(dataset_id):
+    dataset = get_dataset_with_id(dataset_id)
+    if dataset is None:
+        raise RuntimeError('No dataset associated with this id.')
+    else:
+        database.engine.execute(
+            'DROP TABLE {0}'.format(dataset.working_copy)
+        )
+        database.engine.execute(
+            'DROP TABLE {0}'.format(dataset.original_data)
+        )
+        database.session.delete(dataset)
+        database.session.commit()
 
 
 def upload_joined(
