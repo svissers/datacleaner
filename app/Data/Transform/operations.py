@@ -7,18 +7,18 @@ def rename_attribute(table_name, column, new_name):
     try:
         db.engine.execute(
             'ALTER TABLE {0} '
-            'RENAME COLUMN {1} TO {2}'
+            'RENAME COLUMN "{1}" TO "{2}"'
             .format(table_name, column, new_name)
         )
-    except:
-        print("RENAMING FAILED")
+    except Exception as e:
+        print("RENAMING FAILED: "+str(e))
 
 
 def delete_attribute(table_name, column):
     try:
         db.engine.execute(
             'ALTER TABLE {0} '
-            'DROP COLUMN {1}'
+            'DROP COLUMN "{1}"'
             .format(table_name, column)
         )
     except:
