@@ -17,10 +17,32 @@ from app.Data.Transform.operations import (
     delete_rows,
     fill_null_with,
     fill_null_with_average,
-    fill_null_with_median
+    fill_null_with_median,
+    rename_attribute
 )
 
 _transform = Blueprint('transform_bp', __name__, url_prefix='/data/transform')
+
+
+@_transform.route('/rename_col', methods=['POST'])
+@login_required
+def rename():
+    dataset = get_dataset_with_id(request.args.get('dataset_id'))
+    col = request.form['column']
+    new_name = request.form['new_name']
+    try:
+        rename_attribute(dataset.working_copy, col, new_name)
+        create_action(
+            'Renamed column {0} to {1}'.format(col, new_name),
+            dataset.id,
+            current_user.id
+        )
+    except:
+        flash('An unexpected error occured while renaming the column', 'danger')
+    else:
+        flash('Column renamed successfully.', 'success')
+
+    return redirect(request.referrer)
 
 
 @_transform.route('/delete_selection', methods=['POST'])

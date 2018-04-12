@@ -3,6 +3,17 @@ import pandas as pd
 import re
 
 
+def rename_attribute(table_name, column, new_name):
+    try:
+        db.engine.execute(
+            'ALTER TABLE {0} '
+            'RENAME COLUMN {1} TO {2}'
+            .format(table_name, column, new_name)
+        )
+    except:
+        print("RENAMING FAILED")
+
+
 def restore_original(table_name):
     """
     Resets given table to its original state
