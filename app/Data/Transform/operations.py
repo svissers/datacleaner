@@ -14,6 +14,17 @@ def rename_attribute(table_name, column, new_name):
         print("RENAMING FAILED")
 
 
+def delete_attribute(table_name, column):
+    try:
+        db.engine.execute(
+            'ALTER TABLE {0} '
+            'DROP COLUMN {1}'
+            .format(table_name, column)
+        )
+    except:
+        print("DELETING FAILED")
+
+
 def restore_original(table_name):
     """
     Resets given table to its original state

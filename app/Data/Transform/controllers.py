@@ -18,15 +18,16 @@ from app.Data.Transform.operations import (
     fill_null_with,
     fill_null_with_average,
     fill_null_with_median,
-    rename_attribute
+    rename_attribute,
+    delete_attribute
 )
 
 _transform = Blueprint('transform_bp', __name__, url_prefix='/data/transform')
 
 
-@_transform.route('/rename_col', methods=['POST'])
+@_transform.route('/rename_column', methods=['POST'])
 @login_required
-def rename():
+def rename_column():
     dataset = get_dataset_with_id(request.args.get('dataset_id'))
     col = request.form['column']
     new_name = request.form['new_name']
@@ -41,6 +42,26 @@ def rename():
         flash('An unexpected error occured while renaming the column', 'danger')
     else:
         flash('Column renamed successfully.', 'success')
+
+    return redirect(request.referrer)
+
+
+@_transform.route('/delete_column', methods=['POST'])
+@login_required
+def delete_column():
+    dataset = get_dataset_with_id(request.args.get('dataset_id'))
+    col = request.form['column']
+    try:
+        delete_attribute(dataset.working_copy, col)
+        create_action(
+            'Deleted column {0}'.format(col),
+            dataset.id,
+            current_user.id
+        )
+    except:
+        flash('An unexpected error occured while deleting the column', 'danger')
+    else:
+        flash('Column deleted successfully.', 'success')
 
     return redirect(request.referrer)
 
