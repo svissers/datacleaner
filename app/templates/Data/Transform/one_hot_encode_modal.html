@@ -1,0 +1,41 @@
+<div class="modal fade" id="one_hot_encode_modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <form method="post" action="{{ url_for('transform_bp.one_hot_encode_column', dataset_id=dataset.id) }}">
+                    <table class="table" width="100%">
+                        <thead>
+                        <tr class="table-primary">
+                            <th>Column:</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>
+                                <select class="form-control" name="column">
+                                    {% for column in columns %}
+                                        {% if
+                                        column[1] == 'TEXT' or
+                                        column[1] == 'VARCHAR(10)' or
+                                        column[1] == 'VARCHAR(25)' or
+                                        column[1] == 'VARCHAR(255)'
+                                        %}
+                                        <option>{{ column[0] }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td width="5%">
+                                <button type="submit" class="btn btn-success btn-block">
+                                    Encode
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

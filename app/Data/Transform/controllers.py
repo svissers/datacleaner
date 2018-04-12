@@ -19,7 +19,8 @@ from app.Data.Transform.operations import (
     fill_null_with_average,
     fill_null_with_median,
     rename_attribute,
-    delete_attribute
+    delete_attribute,
+    one_hot_encode
 )
 
 _transform = Blueprint('transform_bp', __name__, url_prefix='/data/transform')
@@ -62,6 +63,28 @@ def delete_column():
         flash('An unexpected error occured while deleting the column', 'danger')
     else:
         flash('Column deleted successfully.', 'success')
+
+    return redirect(request.referrer)
+
+
+@_transform.route('one_hot_encode_column', methods=['POST'])
+@login_required
+def one_hot_encode_column():
+    dataset = get_dataset_with_id(request.args.get('dataset_id'))
+    col = request.form['column']
+    try:
+        one_hot_encode(dataset.working_copy, col)
+        create_action(
+            'One-hot-encoded {0}'.format(col),
+            dataset.id,
+            current_user.id
+        )
+    except:
+        flash('An unexpected error occured while one-hot-encoding the column',
+              'danger'
+              )
+    else:
+        flash('Column one-hot-encoded successfully.', 'success')
 
     return redirect(request.referrer)
 

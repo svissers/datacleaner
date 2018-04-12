@@ -182,11 +182,18 @@ def one_hot_encode(table_name, attr):
     try:
         dataframe = pd.read_sql_table(table_name, db.engine)
         one_hot = pd.get_dummies(dataframe[attr])
+        print('OH', one_hot)
         dataframe = dataframe.join(one_hot)
+        print('DF', dataframe)
         db.engine.execute(
             'DROP TABLE "{0}"'.format(table_name)
         )
-        dataframe.to_sql(name=table_name, con=db.engine, if_exists="fail")
+        dataframe.to_sql(
+            name=table_name,
+            con=db.engine,
+            if_exists="fail",
+            index=False
+        )
     except:
         print('ONE-HOT ENCODING FAILED')
 
