@@ -70,7 +70,7 @@
 
 {% block scripts %}
     {{ super() }}
-	<script src="{{ url_for('static', filename='js/Data/Transform/delete_predicate_modal.js') }}"></script>
+    {% include 'Data/View/operations_scripts.html' %}
 	<script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.16/b-1.5.1/datatables.min.js"></script>
 	<script type="text/javascript" charset="utf-8">
 		$(document).ready(function (){

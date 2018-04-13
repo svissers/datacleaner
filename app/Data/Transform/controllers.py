@@ -21,7 +21,9 @@ from app.Data.Transform.operations import (
     rename_attribute,
     delete_attribute,
     one_hot_encode,
-    normalize_attribute
+    normalize_attribute,
+    discretize_width,
+    discretize_eq_freq
 )
 
 _transform = Blueprint('transform_bp', __name__, url_prefix='/data/transform')
@@ -107,7 +109,45 @@ def normalize_column():
               'danger'
               )
     else:
-        flash('Column one-hot-encoded successfully.', 'success')
+        flash('Column normalized successfully.', 'success')
+
+    return redirect(request.referrer)
+
+
+@_transform.route('/discretize_column', methods=['POST'])
+@login_required
+def discretize_column():
+    dataset = get_dataset_with_id(request.args.get('dataset_id'))
+    column = request.form['column']
+    intervals = request.form['intervals']
+
+    try:
+        if intervals == 'equal-distance':
+            amount = request.form['amount-dist']
+            discretize_width(dataset.working_copy, column, int(amount))
+        elif intervals == 'equal-frequency':
+            amount = request.form['amount-freq']
+            discretize_eq_freq(dataset.working_copy, column, int(amount))
+        else:
+            edges = str(request.form['custom-edges'])
+            edges = edges.replace(' ', '')
+            edge_list = edges.split(',')
+            if len(edge_list) < 2:
+                raise ValueError
+            for i in range(len(edge_list)):
+                edge_list[i] = float(edge_list[i])
+            discretize_width(dataset.working_copy, column, edge_list)
+
+    except ValueError:
+        flash('Invalid list of edges provided.',
+              'danger'
+              )
+    except:
+        flash('An unexpected error occured while discretizing the column',
+              'danger'
+              )
+    else:
+        flash('Column discretized successfully.', 'success')
 
     return redirect(request.referrer)
 

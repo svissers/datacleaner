@@ -1,0 +1,71 @@
+<div class="modal fade" id="discretize_modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <form method="post" action="{{ url_for('transform_bp.discretize_column', dataset_id=dataset.id) }}">
+                    <table class="table" width="100%">
+                        <thead>
+                        <tr class="table-primary">
+                            <th>Column:</th>
+                            <th>Intervals:</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>
+                                <select class="form-control" name="column">
+                                    {% for column in columns %}
+                                        {% if
+                                        column[1] == 'BIGINT' or
+                                        column[1] == 'INTEGER' or
+                                        column[1] == 'DOUBLE PRECISION'
+                                        %}
+                                        <option>{{ column[0] }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td width="50%">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <input type="radio" name="intervals" id="discretize-radio-1" value="equal-distance" required>
+                                        </div>
+                                    </div>
+                                    <input type="text" class="form-control" value="Equal Distance" readonly>
+                                    <input type="text" name="amount-dist" id="amount-dist" class="form-control" placeholder="Amount">
+                                </div>
+                                <div class="input-group" style="padding-top: 15px">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <input type="radio" name="intervals" id="discretize-radio-2" value="equal-frequency" required>
+                                        </div>
+                                    </div>
+                                    <input type="text" class="form-control" value="Equal Frequency" readonly>
+                                    <input type="text" name="amount-freq" id="amount-freq" class="form-control" placeholder="Amount">
+                                </div>
+                                <hr/>
+                                <h6>Custom edges (comma separate):</h6>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <input type="radio" name="intervals" id="discretize-radio-3" required>
+                                        </div>
+                                    </div>
+                                    <input type="text" name="custom-edges" class="form-control" id="custom-edges">
+                                </div>
+                            </td>
+                            <td width="5%">
+                                <button type="submit" class="btn btn-success btn-block">
+                                    Discretize
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

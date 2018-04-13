@@ -1,6 +1,7 @@
 from app import database as db
 import pandas as pd
 import re
+import numpy as np
 
 
 def rename_attribute(table_name, column, new_name):
@@ -384,7 +385,7 @@ def delete_rows(table_name, condition):
     )
 
 
-def discretize_width(table_name, attr, intervals, dataframe=None):
+def discretize_width(table_name, attr, intervals, dataframe=None, name=None):
     """
     Discretizes table_name.attr into a number of equal-width
     intervals equal to interval amount
@@ -400,17 +401,20 @@ def discretize_width(table_name, attr, intervals, dataframe=None):
             df = dataframe
         else:
             df = pd.read_sql_table(table_name, db.engine)
-        if isinstance(intervals, list):
+        if name is not None:
+            column_name = name
+        elif isinstance(intervals, list):
             column_name = attr + '_custom_intervals'
         else:
-            column_name = attr + '_' + intervals + '_eq_intervals'
-        df[column_name] = pd.cut(df[attr], intervals)
+            column_name = attr + '_' + str(intervals) + '_eq_intervals'
+
+        df[column_name] = pd.cut(df[attr], intervals).apply(str)
         db.engine.execute(
             'DROP TABLE "{0}"'.format(table_name)
         )
-        df.to_sql(name=table_name, con=db.engine, if_exists="fail")
-    except:
-        print('WIDTH DISCRETIZATION FAILED')
+        df.to_sql(name=table_name, con=db.engine, if_exists="fail", index=False)
+    except Exception as e:
+        print('WIDTH DISCRETIZATION FAILED:\n' + str(e))
 
 
 def discretize_eq_freq(table_name, attr, intervals):
@@ -429,14 +433,22 @@ def discretize_eq_freq(table_name, attr, intervals):
         selector = 0
         edge_list = []
         while selector < attr_length:
-            edge_list.append(sorted_data[selector])
-            selector = selector + elements_per_interval
-        if edge_list[-1] != sorted_data[-1]:
+            try:
+                edge_list.append(sorted_data[selector])
+                selector += elements_per_interval
+            except IndexError:
+                pass
+        if edge_list[-1] != sorted_data[-1] and len(edge_list) == intervals + 1:
+            edge_list[-1] = sorted_data[-1]
+        elif edge_list[-1] != sorted_data[-1] and len(edge_list) != intervals + 1:
             edge_list.append(sorted_data[-1])
+
         # Extend outer edges with 0.1% to include min and max values
         edge_list[0] = edge_list[0]-edge_list[0]*0.001
         edge_list[-1] = edge_list[-1]+edge_list[-1]*0.001
 
-        discretize_width(table_name, attr, edge_list)
-    except:
-        print('EQUAL FREQUENCY DISCRETIZATION FAILED')
+        column_name = attr + '_' + str(intervals) + '_eq_freq_intervals'
+
+        discretize_width(table_name, attr, edge_list, df, column_name)
+    except Exception as e:
+        print('EQUAL FREQUENCY DISCRETIZATION FAILED:\n' + str(e))
