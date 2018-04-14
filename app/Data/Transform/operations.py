@@ -408,7 +408,7 @@ def discretize_width(table_name, attr, intervals, dataframe=None, name=None):
         else:
             column_name = attr + '_' + str(intervals) + '_eq_intervals'
 
-        df[column_name] = pd.cut(df[attr], intervals).apply(str)
+        df[column_name] = pd.cut(df[attr], intervals, precision=9).apply(str)
         db.engine.execute(
             'DROP TABLE "{0}"'.format(table_name)
         )
