@@ -2,7 +2,7 @@
 
 {% block styles %}
     {{ super() }}
-	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.16/b-1.5.1/datatables.min.css"/>
+	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.16/b-1.5.1/datatables.min.css"/>
 {% endblock %}
 
 {% block sidebar_content %}
@@ -50,10 +50,16 @@
 
 {% block main_content %}
 <form name="delete-form" method="POST" action="{{ url_for('transform_bp.delete_selection', table_name=dataset.working_copy) }}">
-        <table id="user_table" class="display" cellspacing="0" width="100%">
+        <table id="user_table" class="table" cellspacing="0" width="100%">
             <thead>
             <tr style="background-color: #eef5f8">
-                <th></th>
+                <th>
+                    <button style="margin-bottom: -5px;margin-left: -8px;"
+                            class="btn btn-outline-danger btn-sm" tabindex="0" aria-controls="user_table"
+                            onclick="this.form.action='{{ url_for('transform_bp.delete_selection',dataset_id=dataset.id) }}'; this.form.submit()">
+                        <span><i class="fas fa-trash-alt"></i></span>
+                    </button>
+                </th>
                 {% for column in columns %}
                     <th>{{ column[0] }}</th>
                 {% endfor %}
@@ -71,15 +77,14 @@
 {% block scripts %}
     {{ super() }}
     {% include 'Data/View/operations_scripts.html' %}
-	<script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.16/b-1.5.1/datatables.min.js"></script>
+	<script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.16/b-1.5.1/datatables.min.js"></script>
 	<script type="text/javascript" charset="utf-8">
 		$(document).ready(function (){
 		    var table = $('#user_table').DataTable({
-                dom: 'rfBtlp',
                 "iDisplayLength": 25,
 			    'processing': true,
 			    'serverSide': true,
-                'scrollY':  '78vh',
+                'scrollY':  '75vh',
                 'scrollX': '100vh',
                 'scrollCollapse': true,
 			    'ajax': "{{ url_for('view_bp.retrieve', sql_table_name=dataset.working_copy) }}",
@@ -92,16 +97,11 @@
 			            return '<input type="checkbox" name="data_id" value="' + $('<div/>').text(data).html() + '">';
 			        }
 			    }],
-			    'order': [[1, 'asc']],
-                'buttons': [
-                    {
-                        text: '<i class="fas fa-trash-alt"></i>',
-                        attr: {
-                            onclick: "this.form.action='{{ url_for('transform_bp.delete_selection',dataset_id=dataset.id) }}'; this.form.submit()"
-                        }
-                    }
-                ]
+			    'order': [[1, 'asc']]
 		    });
+		    $('select[name=user_table_length]').removeClass();
+		    $('select[name=user_table_length]').addClass('custom-select');
+		    $('select[name=user_table_length]').addClass('custom-select-sm');
 		});
 	</script>
 {% endblock %}
