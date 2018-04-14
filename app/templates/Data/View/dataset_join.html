@@ -101,20 +101,20 @@
                     <tbody>
                         <tr>
                             <td>
-                                <select class="form-control file-select" name="file-left" id="file-left" required>
+                                <select class="custom-select file-select" name="file-left" id="file-left" required>
                                     <option value="" disabled selected>Select file</option>
                                     {% for dataset in project.datasets %}
                                         <option value="{{ dataset.id }}">{{ dataset.name }}</option>
                                     {% endfor %}
                                 </select>
                                 <hr/>
-                                <select class="form-control" name="column-left" id="column-left" required>
+                                <select class="custom-select" name="column-left" id="column-left" required>
                                     <option value="" disabled selected>Select column</option>
                                     {# Dynamically genererated options #}
                                 </select>
                             </td>
                             <td>
-                                <select class="form-control" name="join-type" id="join-type">
+                                <select class="custom-select" name="join-type" id="join-type">
                                     <option>cross</option>
                                     <option>inner</option>
                                     <option>left outer</option>
@@ -123,14 +123,14 @@
                                 </select>
                             </td>
                             <td>
-                                <select class="form-control file-select" name="file-right" id="file-right" required>
+                                <select class="custom-select file-select" name="file-right" id="file-right" required>
                                     <option value="" disabled selected>Select file</option>
                                     {% for dataset in project.datasets %}
                                         <option value="{{ dataset.id }}">{{ dataset.name }}</option>
                                     {% endfor %}
                                 </select>
                                 <hr/>
-                                <select class="form-control" name="column-right" id="column-right" required>
+                                <select class="custom-select" name="column-right" id="column-right" required>
                                     <option value="" disabled selected>Select column</option>
                                     {# Dynamically genererated options #}
                                 </select>

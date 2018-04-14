@@ -14,14 +14,14 @@
                         <tbody>
                         <tr>
                             <td>
-                                <select class="form-control" name="column">
+                                <select class="custom-select" name="column">
                                     {% for column in columns %}
                                         <option>{{ column[0] }} ({{ column[1] }})</option>
                                     {% endfor %}
                                 </select>
                             </td>
                             <td width="35%">
-                                <select class="form-control" name="type">
+                                <select class="custom-select" name="type">
                                     <option></option>
                                     <option>INTEGER</option>
                                     <option>BIGINT</option>

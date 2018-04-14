@@ -133,20 +133,20 @@
                     <tbody>
                         <tr>
                             <td>
-                                <select class="form-control file-select" id="file-left">
+                                <select class="custom-select file-select" id="file-left">
                                     <option value="" disabled selected>Select file</option>
                                     {% for file in files %}
                                         <option>{{ file }}</option>
                                     {% endfor %}
                                 </select>
                                 <hr/>
-                                <select class="form-control" id="column-left">
+                                <select class="custom-select" id="column-left">
                                     <option value="" disabled selected>Select column</option>
                                     {# Dynamically genererated options #}
                                 </select>
                             </td>
                             <td>
-                                <select class="form-control" id="join-type">
+                                <select class="custom-select" id="join-type">
                                     <option>cross</option>
                                     <option>inner</option>
                                     <option>left outer</option>
@@ -155,14 +155,14 @@
                                 </select>
                             </td>
                             <td>
-                                <select class="form-control file-select" id="file-right">
+                                <select class="custom-select file-select" id="file-right">
                                     <option value="" disabled selected>Select file</option>
                                     {% for file in files %}
                                         <option>{{ file }}</option>
                                     {% endfor %}
                                 </select>
                                 <hr/>
-                                <select class="form-control" id="column-right">
+                                <select class="custom-select" id="column-right">
                                     <option value="" disabled selected>Select column</option>
                                     {# Dynamically genererated options #}
                                 </select>

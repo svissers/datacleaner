@@ -14,7 +14,7 @@
                         <tbody>
                         <tr>
                             <td>
-                                <select class="form-control" name="column">
+                                <select class="custom-select" name="column">
                                     {% for column in columns %}
                                         <option>{{ column[0] }} ({{ column[1] }})</option>
                                     {% endfor %}
@@ -27,23 +27,23 @@
                                             <input type="radio" name="fill_value" id="custom-radio" onclick="$('#custom-input').prop('required', true)" required>
                                         </div>
                                     </div>
-                                    <input type="text" class="form-control" id="custom-input">
+                                    <input type="text" class="form-control" id="custom-input"  placeholder="Value">
                                 </div>
-                                <div class="input-group">
+                                <div class="input-group" style="padding-top: 15px">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text">
                                             <input type="radio" name="fill_value" onclick="$('#custom-input').prop('required', false)" value="~option-average~" required>
                                         </div>
                                     </div>
-                                    <input type="text" class="form-control" value="average*" readonly>
+                                    <input type="text" class="form-control" value="Average*" readonly>
                                 </div>
-                                <div class="input-group">
+                                <div class="input-group" style="padding-top: 15px">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text">
                                             <input type="radio" name="fill_value" onclick="$('#custom-input').prop('required', false)" value="~option-median~" required>
                                         </div>
                                     </div>
-                                    <input type="text" class="form-control" value="median*" readonly>
+                                    <input type="text" class="form-control" value="Median*" readonly>
                                 </div>
                                 * = for numerical data only
                             </td>
