@@ -5,6 +5,66 @@ from app.Data.models import Dataset
 from app.Data.operations import get_dataset_with_id
 
 
+def get_most_frequent_value(table_name, column):
+    return db.engine.execute(
+        'SELECT "{0}", COUNT("{0}") AS "frequency" '
+        'FROM "{1}" '
+        'GROUP BY "{0}" '
+        'ORDER BY "frequency" DESC '
+        'LIMIT 1;'
+        .format(column, table_name)
+    ).first()
+
+
+def get_number_of_null_values(table_name, column, text_type=False):
+    if text_type:
+        return db.engine.execute(
+            'SELECT COUNT(*) '
+            'FROM "{1}" '
+            'WHERE "{0}" IS NULL OR "{0}" = \'\''
+            .format(column, table_name)
+        ).first()[0]
+    else:
+        return db.engine.execute(
+            'SELECT COUNT(*) '
+            'FROM "{1}" '
+            'WHERE "{0}" IS NULL'
+            .format(column, table_name)
+        ).first()[0]
+
+
+def get_average_value(table_name, column):
+    return str(
+        db.engine.execute(
+            'SELECT AVG("{0}") '
+            'FROM "{1}" '
+            .format(column, table_name)
+        ).first().avg
+    )
+
+
+def get_maximum_value(table_name, column):
+    return db.engine.execute(
+        'SELECT "{0}" '
+        'FROM "{1}" '
+        'WHERE "{0}" IS NOT NULL '
+        'ORDER BY "{0}" DESC '
+        'LIMIT 1;'
+        .format(column, table_name)
+    ).first()[0]
+
+
+def get_minimum_value(table_name, column):
+    return db.engine.execute(
+        'SELECT "{0}" '
+        'FROM "{1}" '
+        'WHERE "{0}" IS NOT NULL '
+        'ORDER BY "{0}" ASC '
+        'LIMIT 1;'
+        .format(column, table_name)
+    ).first()[0]
+
+
 def export_csv(table_name, delim=',', quote='"', null=''):
     try:
         df = pd.read_sql_table(table_name, db.engine)

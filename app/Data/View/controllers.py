@@ -3,25 +3,28 @@ from flask import (
     request,
     jsonify,
     redirect,
-    url_for,
     render_template,
     flash,
     Response
 )
 from flask_login import login_required, current_user
 from app import database as db
-from app.Data.models import Dataset, Action
 from datatables import (
     DataTables,
     ColumnDT
 )
 from .operations import export_csv
-from app.User.operations import get_user_with_id
 from app.Project.operations import get_project_with_id
 from app.Data.operations import get_dataset_with_id
 from app.Data.Import.forms import UploadForm, EditForm
 from app.Data.View.operations import join_datasets
 from app.Data.helpers import table_name_to_object, extract_columns_from_db
+from app.Data.View.operations import get_maximum_value, \
+    get_minimum_value, \
+    get_most_frequent_value, \
+    get_number_of_null_values, \
+    get_average_value
+
 
 
 _view = Blueprint('view_bp', __name__, url_prefix='/data/view')
@@ -131,14 +134,45 @@ def get_columns():
     return jsonify(column_names)
 
 
-@_view.route('/get_column_info', methods=['GET'])
+@_view.route('/get_column_chart', methods=['GET'])
 @login_required
-def get_column_info():
+def get_column_chart():
     dataset_id = request.args.get('dataset_id')
     column_name = request.args.get('column_name')
     stats = {}
 
+    return jsonify(stats)
 
+
+@_view.route('/get_column_info', methods=['GET'])
+@login_required
+def get_column_info():
+    dataset = get_dataset_with_id(request.args.get('dataset_id'))
+    column_name = request.args.get('column_name')
+    column_type = request.args.get('column_type')
+
+    most_freq = get_most_frequent_value(dataset.working_copy, column_name)
+    nulls = get_number_of_null_values(dataset.working_copy, column_name)
+
+    stats = {
+        'Most Frequent Value': most_freq[column_name],
+        'Most Frequent Value Count': most_freq['frequency'],
+        'Empty Cells': nulls
+    }
+
+    if column_type in ['INTEGER', 'BIGINT', 'DOUBLE PRECISION']:
+        stats['Biggest Value'] = get_maximum_value(dataset.working_copy,
+                                                   column_name
+                                                   )
+        stats['Smallest Value'] = get_minimum_value(dataset.working_copy,
+                                                    column_name
+                                                    )
+        stats['Average Value'] = get_average_value(dataset.working_copy,
+                                                   column_name
+                                                   )
+
+
+    print(stats)
 
     return jsonify(stats)
 
@@ -148,6 +182,7 @@ def get_column_info():
 def view():
     """
     Show entries of a specific table,
+    or just list tables in the system if no parameter is provided
     or just list tables in the system if no parameter is provided
     """
     project_id = request.args.get('project_id', default=None)

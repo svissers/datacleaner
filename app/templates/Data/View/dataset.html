@@ -48,10 +48,34 @@
 {% endblock %}
 
 {% block main_content %}
-    {% for column in columns %}
-        <h2>{{ column }}</h2>
-        <hr/>
-    {% endfor %}
+        <div class="card">
+            <div class="card-header">
+                <h3 class="float-left">Statistics</h3>
+                <div class="float-right">
+                    <select id="stat-column-select" class="custom-select">
+                        {% for column in columns %}
+                            <option data-type="{{ column[1] }}">{{ column[0] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row-fluid">
+                    GRAPH
+                </div>
+                <hr/>
+                <div class="row-fluid">
+                    <table class="table table-bordered">
+                        <thead class="text-muted">
+                            <tr id="stat-names">
+                        </thead>
+                        <tbody>
+                            <tr id="stat-values"></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 {% endblock %}
 
 {% block modals %}
@@ -60,5 +84,34 @@
 
 {% block scripts %}
     {{ super() }}
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
     {% include 'Data/View/operations_scripts.html' %}
+    <script type="text/javascript" charset="utf-8">
+    {#  Can't move this to separate file because we need data provided by jinja template engine  #}
+    function update_stats(){
+        $.getJSON(
+            '{{ url_for('view_bp.get_column_info') }}',
+            {
+            dataset_id: '{{ dataset.id }}',
+            column_name: $('#stat-column-select').val(),
+            column_type: $('#stat-column-select option:selected').data('type')
+            },
+            function (data) {
+                var name_section = $('#stat-names');
+                var value_section = $('#stat-values');
+                name_section.empty();
+                value_section.empty();
+                $.each(data, function(index, element) {
+                    name_section.append('<td>' + index + '</td>');
+                    value_section.append('<td>' + element + '</td>');
+                });
+        });
+    }
+    $(document).ready(function () {
+        update_stats();
+    });
+    $('#stat-column-select').on('change', function () {
+        update_stats();
+    });
+    </script>
 {% endblock %}
