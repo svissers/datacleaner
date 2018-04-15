@@ -28,7 +28,7 @@
         <li class="nav-item">
             <a class="nav-link current-section" href="{{ url_for('view_bp.view', dataset_id=dataset.id) }}">
                 <i class="fas fa-chart-pie fa-fw"></i>
-                Overview
+                Statistics
             </a>
         </li>
         <li class="nav-item">
@@ -50,14 +50,12 @@
 {% block main_content %}
         <div class="card">
             <div class="card-header">
-                <h3 class="float-left">Statistics</h3>
-                <div class="float-right">
-                    <select id="stat-column-select" class="custom-select">
-                        {% for column in columns %}
-                            <option data-type="{{ column[1] }}">{{ column[0] }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+                <select id="stat-column-select" class="custom-select" style="width: 25%">
+                    {% for column in columns %}
+                        <option data-type="{{ column[1] }}">{{ column[0] }}</option>
+                    {% endfor %}
+                </select>
+                <span id="type-display" class="float-right text-muted" style="margin-top: 9px">TYPE: BIGINT</span>
             </div>
             <div class="card-body">
                 <div class="row-fluid">
@@ -105,6 +103,9 @@
                     name_section.append('<td>' + index + '</td>');
                     value_section.append('<td>' + element + '</td>');
                 });
+                var type_display = $('#type-display');
+                type_display.empty();
+                type_display.append('TYPE: ' +  $('#stat-column-select option:selected').data('type'));
         });
     }
     $(document).ready(function () {
