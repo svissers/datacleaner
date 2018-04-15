@@ -59,7 +59,7 @@
             </div>
             <div class="card-body">
                 <div class="row-fluid">
-                    GRAPH
+                    <canvas id="stats-chart" height="auto"></canvas>
                 </div>
                 <hr/>
                 <div class="row-fluid">
@@ -86,6 +86,10 @@
     {% include 'Data/View/operations_scripts.html' %}
     <script type="text/javascript" charset="utf-8">
     {#  Can't move this to separate file because we need data provided by jinja template engine  #}
+
+    var ctx = document.getElementById('stats-chart').getContext('2d');
+    var chart;
+
     function update_stats(){
         $.getJSON(
             '{{ url_for('view_bp.get_column_info') }}',
@@ -108,11 +112,30 @@
                 type_display.append('TYPE: ' +  $('#stat-column-select option:selected').data('type'));
         });
     }
+
+    function update_chart(){
+        $.getJSON(
+            '{{ url_for('view_bp.get_column_chart') }}',
+            {
+            dataset_id: '{{ dataset.id }}',
+            column_name: $('#stat-column-select').val(),
+            column_type: $('#stat-column-select option:selected').data('type')
+            },
+            function (data) {
+                console.log(data);
+                chart = new Chart(ctx, data);
+        });
+    }
+
     $(document).ready(function () {
         update_stats();
+        update_chart();
     });
+
     $('#stat-column-select').on('change', function () {
         update_stats();
+        chart.destroy();
+        update_chart();
     });
     </script>
 {% endblock %}

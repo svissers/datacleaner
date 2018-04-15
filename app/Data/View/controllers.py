@@ -23,7 +23,9 @@ from app.Data.View.operations import get_maximum_value, \
     get_minimum_value, \
     get_most_frequent_value, \
     get_number_of_null_values, \
-    get_average_value
+    get_average_value, \
+    get_chart_data_numerical, \
+    get_chart_data_categorical
 
 
 
@@ -137,9 +139,52 @@ def get_columns():
 @_view.route('/get_column_chart', methods=['GET'])
 @login_required
 def get_column_chart():
-    dataset_id = request.args.get('dataset_id')
+    dataset = get_dataset_with_id(request.args.get('dataset_id'))
     column_name = request.args.get('column_name')
-    stats = {}
+    column_type = request.args.get('column_type')
+
+    stats = {
+        'data': {'label': column_name + ' data'}
+    }
+
+    if column_type in [
+        'TEXT', 'VARCHAR(10)', 'VARCHAR(25)', 'VARCHAR(255)', 'BOOLEAN'
+    ]:
+        data = get_chart_data_categorical(dataset.working_copy, column_name)
+        if len(data[0]) <= 50:
+            stats['type'] = 'pie'
+        else:
+            stats['type'] = 'bar'
+
+    else:
+        stats['type'] = 'bar'
+        data = get_chart_data_numerical(dataset.working_copy, column_name)
+        stats['options'] = {
+            'scaleShowValues': True,
+            'scales': {
+                'yAxes': [{
+                    'ticks': {
+                        'beginAtZero': True
+                    }
+                }],
+                'xAxes': [{
+                    'ticks': {
+                        'autoSkip': False
+                    }
+                }]
+            }
+        }
+
+    stats['data'] = {
+        'labels': data[0],
+        'datasets': [{
+            'label': column_name,
+            'data': data[1],
+            'backgroundColor': data[2],
+            'borderColor': data[3],
+            'borderWidth': 1
+        }]
+    }
 
     return jsonify(stats)
 
@@ -170,9 +215,6 @@ def get_column_info():
         stats['Average Value'] = get_average_value(dataset.working_copy,
                                                    column_name
                                                    )
-
-
-    print(stats)
 
     return jsonify(stats)
 

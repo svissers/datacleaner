@@ -1,4 +1,5 @@
 from app import database as db
+import numpy as np
 import pandas as pd
 import datetime
 from app.Data.models import Dataset
@@ -63,6 +64,57 @@ def get_minimum_value(table_name, column):
         'LIMIT 1;'
         .format(column, table_name)
     ).first()[0]
+
+
+def get_chart_data_numerical(table_name, column):
+    df = pd.read_sql_table(table_name, db.engine, columns=[column])
+    intervals = pd.cut(df[column], 10, precision=9).apply(str)
+    data = {}
+    for row in intervals:
+        if row in data:
+            data[row] += 1
+        else:
+            data[row] = 1
+    result = []
+    for key in data:
+        result.append((key, data[key]))
+    result.sort(key=lambda tup: tup[0])
+    labels, values = map(list, zip(*result))
+    colours = []
+    body_colours = []
+    border_colours = []
+    while len(colours) < len(labels):
+        random_colour = list(np.random.choice(range(256), size=3))
+        if random_colour not in colours:
+            colours.append(random_colour)
+            body_colours.append('rgba' + str(tuple(random_colour + [0.2])))
+            border_colours.append('rgba' + str(tuple(random_colour + [1.0])))
+    return labels, values, body_colours, border_colours
+
+
+def get_chart_data_categorical(table_name, column):
+    df = pd.read_sql_table(table_name, db.engine, columns=[column])
+    data = {}
+    for value in df[column]:
+        if value in data:
+            data[value] += 1
+        else:
+            data[value] = 1
+    result = []
+    for key in data:
+        result.append((key, data[key]))
+    result.sort(key=lambda tup: tup[0])
+    labels, values = map(list, zip(*result))
+    colours = []
+    body_colours = []
+    border_colours = []
+    while len(colours) < len(labels):
+        random_colour = list(np.random.choice(range(256), size=3))
+        if random_colour not in colours:
+            colours.append(random_colour)
+            body_colours.append('rgba' + str(tuple(random_colour + [0.2])))
+            border_colours.append('rgba' + str(tuple(random_colour + [1.0])))
+    return labels, values, body_colours, border_colours
 
 
 def export_csv(table_name, delim=',', quote='"', null=''):
