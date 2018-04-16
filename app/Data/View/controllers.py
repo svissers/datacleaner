@@ -25,7 +25,9 @@ from app.Data.View.operations import get_maximum_value, \
     get_number_of_null_values, \
     get_average_value, \
     get_chart_data_numerical, \
-    get_chart_data_categorical
+    get_chart_data_categorical, \
+    get_number_of_values, \
+    get_number_of_distinct_values
 
 
 
@@ -198,11 +200,15 @@ def get_column_info():
 
     most_freq = get_most_frequent_value(dataset.working_copy, column_name)
     nulls = get_number_of_null_values(dataset.working_copy, column_name)
+    total = get_number_of_values(dataset.working_copy)
+    distinct = get_number_of_distinct_values(dataset.working_copy, column_name)
 
     stats = {
         'Most Frequent Value': most_freq[column_name],
         'Most Frequent Value Count': most_freq['frequency'],
-        'Empty Cells': nulls
+        '# Empty Cells': nulls,
+        '# Rows': total,
+        '# Distinct Values': distinct
     }
 
     if column_type in ['INTEGER', 'BIGINT', 'DOUBLE PRECISION']:

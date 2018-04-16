@@ -17,6 +17,22 @@ def get_most_frequent_value(table_name, column):
     ).first()
 
 
+def get_number_of_values(table_name):
+        return db.engine.execute(
+            'SELECT COUNT(*) '
+            'FROM "{0}" '
+            .format(table_name)
+        ).first()[0]
+
+
+def get_number_of_distinct_values(table_name, column):
+    return db.engine.execute(
+        'SELECT COUNT(DISTINCT("{0}")) '
+        'FROM "{1}" '
+        .format(column, table_name)
+    ).first()[0]
+
+
 def get_number_of_null_values(table_name, column, text_type=False):
     if text_type:
         return db.engine.execute(
