@@ -189,8 +189,8 @@ class ProjectTests(TestCase):
         user_id3 = get_user_with_username('uname3').id
         create_project('name', 'desc', user_id1)
         project = Project.query.filter_by(name='name').first()
-        share_project(project.id, user_id2, False)
-        share_project(project.id, user_id3, True)
+        share_project(project.id, user_id2)
+        share_project(project.id, user_id3)
         access2 = Access.query.\
             filter(Access.project_id == project.id).\
             filter(Access.user_id == user_id2).first()
@@ -199,8 +199,6 @@ class ProjectTests(TestCase):
             filter(Access.user_id == user_id3).first()
         self.assertIsNotNone(access2)
         self.assertIsNotNone(access3)
-        self.assertFalse(access2.owner)
-        self.assertTrue(access3.owner)
 
 
 class FrontEnd(unittest.TestCase):
