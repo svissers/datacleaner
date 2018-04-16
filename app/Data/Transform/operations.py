@@ -264,61 +264,38 @@ def fill_null_with_median(table_name, attr):
         print('FILL MEAN FAILED')
 
 
-def non_text_find_replace(table_name, attr, find, replace):
-    """
-    Find and replace function for non-text values where case doesn't matter
-    :param table_name: table to perform the operation on
-    :param attr: attribute to search
-    :param find: value to replace
-    :param replace: replacement value
-    """
+def find_replace(table_name, attr, find, replace):
     try:
         db.engine.execute(
             'UPDATE "{0}" '
-            'SET "{1}" = {2} '
-            'WHERE "{1}" = {3}'
+            'SET "{1}" = \'{2}\' '
+            'WHERE "{1}" = \'{3}\' '
             .format(table_name, attr, replace, find)
         )
     except:
-        print('NON-TEXT FIND-REPLACE FAILED')
+        print('FIND-REPLACE FAILED')
 
 
-def text_find_replace(table_name, attr, find, replace, ignore_case=False):
-    """
-    Find and replace function for text values where case matters
-    :param table_name: table to perform the operation on
-    :param attr: attribute to search
-    :param find: value to replace
-    :param replace: replacement value
-    :param ignore_case: bool indicating case sensitivity
-    """
+def substring_find_replace(table_name, attr, find, replace, full=False):
     try:
-        if ignore_case:
+        if full:
             db.engine.execute(
                 'UPDATE "{0}" '
                 'SET "{1}" = \'{2}\' '
-                'WHERE LOWER("{1}") = LOWER(\'{3}\')'
+                'WHERE "{1}" LIKE \'%%{3}%%\' '
                 .format(table_name, attr, replace, find)
             )
         else:
             db.engine.execute(
                 'UPDATE "{0}" '
-                'SET "{1}" = \'{2}\' '
-                'WHERE "{1}" = \'{3}\' '
-                .format(table_name, attr, replace, find)
+                'SET "{1}" = REPLACE("{1}", \'{2}\', \'{3}\')'
+                .format(table_name, attr, find, replace)
             )
-    except:
-        print('TEXT FIND-REPLACE FAILED')
+    except Exception as e:
+        print('FIND-REPLACE FAILED\n' + str(e))
 
 
-def text_regex_find_replace(table_name, attr, regex, replace):
-    """
-    Find and replace function for text values using a regex for lookup
-    :param table_name: table to perform the operation on
-    :param attr: attribute to search
-    :param regex: regex used for lookup
-    :param replace: replacement value
-    """
+def regex_find_replace(table_name, attr, regex, replace):
     try:
         is_valid = True
         try:
@@ -328,11 +305,11 @@ def text_regex_find_replace(table_name, attr, regex, replace):
         if is_valid:
             db.engine.execute(
                 'UPDATE "{0}" '
-                'SET "{1}" = REGEXP_REPLACE("{1}", \'{2}\', {3})'
+                'SET "{1}" = REGEXP_REPLACE("{1}", \'{2}\', \'{3}\')'
                 .format(table_name, attr, regex, replace)
             )
-    except:
-        print('TEXT REGEX FIND-REPLACE FAILED')
+    except Exception as e:
+        print('REGEX FIND-REPLACE FAILED:\n' + str(e))
 
 
 def normalize_attribute(table_name, attr):

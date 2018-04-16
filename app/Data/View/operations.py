@@ -118,7 +118,8 @@ def get_chart_data_categorical(table_name, column):
             data[value] = 1
     result = []
     for key in data:
-        result.append((key, data[key]))
+        if key is not None:
+            result.append((key, data[key]))
     result.sort(key=lambda tup: tup[0])
     labels, values = map(list, zip(*result))
     colours = []

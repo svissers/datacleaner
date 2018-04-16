@@ -23,7 +23,10 @@ from app.Data.Transform.operations import (
     one_hot_encode,
     normalize_attribute,
     discretize_width,
-    discretize_eq_freq
+    discretize_eq_freq,
+    find_replace,
+    regex_find_replace,
+    substring_find_replace
 )
 
 _transform = Blueprint('transform_bp', __name__, url_prefix='/data/transform')
@@ -255,6 +258,37 @@ def change_type():
             flash('{0} could not be converted to {1}'.format(col, new_type), 'danger')
         else:
             flash('{0} successfully  converted to {1}'.format(col, new_type), 'success')
+
+    return redirect(request.referrer)
+
+
+@_transform.route('/find_and_replace', methods=['POST'])
+@login_required
+def find_and_replace():
+    dataset = get_dataset_with_id(request.args.get('dataset_id'))
+    col = request.form['column']
+    find = request.form['find']
+    match_mode = request.form['match-mode']
+    replace = request.form['replace']
+
+    if match_mode == 'full-match':
+        find_replace(dataset.working_copy, col, find, replace)
+    elif match_mode == 'substring-match':
+        replace_mode = request.form['replace-mode']
+        if replace_mode == 'full-replace':
+            substring_find_replace(dataset.working_copy,
+                                   col,
+                                   find,
+                                   replace,
+                                   full=True)
+        elif replace_mode == 'substring-replace':
+            substring_find_replace(dataset.working_copy,
+                                   col,
+                                   find,
+                                   replace,
+                                   full=False)
+    elif match_mode == 'regex-match':
+        regex_find_replace(dataset.working_copy, col, find, replace)
 
     return redirect(request.referrer)
 

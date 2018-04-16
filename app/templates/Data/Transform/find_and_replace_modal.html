@@ -1,0 +1,74 @@
+<div class="modal fade" id="find_and_replace_modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <form method="post" action="{{ url_for('transform_bp.find_and_replace', dataset_id=dataset.id) }}">
+                    <table class="table" width="100%">
+                        <thead>
+                        <tr class="table-primary">
+                            <th>Column:</th>
+                            <th>Find:</th>
+                            <th>Replace:</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>
+                                <select class="custom-select" id="far_column_select" name="column" required>
+                                    <option value="" disabled selected>Select Column...</option>
+                                    {% for column in columns %}
+                                        <option data-type="{{ column[1] }}">{{ column[0] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="find" required>
+                                <div class="form-check" style="margin-top: 8px">
+                                    <input class="form-check-input far-match-radio" type="radio" name="match-mode" id="full-match-radio" value="full-match" required>
+                                    <label class="form-check-label" for="full-match-radio">
+                                        Full match
+                                    </label>
+                                </div>
+                                <div class="form-check" style="margin-top: 8px">
+                                    <input class="form-check-input far-match-radio far-text-type-only" type="radio" name="match-mode" id="substring-match-radio" value="substring-match" required>
+                                    <label class="form-check-label" for="substring-match-radio">
+                                        Substring match*
+                                    </label>
+                                </div>
+                                <div class="form-check" style="margin-top: 8px">
+                                    <input class="form-check-input far-match-radio far-text-type-only" type="radio" name="match-mode" id="regex-match-radio" value="regex-match" required>
+                                    <label class="form-check-label" for="regex-match-radio">
+                                        Regex match*
+                                    </label>
+                                </div>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="replace">
+                                <div class="form-check" style="margin-top: 8px">
+                                    <input class="form-check-input far-replace-radio" type="radio" name="replace-mode" id="full-replace-radio" value="full-replace" disabled>
+                                    <label class="form-check-label" for="full-replace-radio">
+                                        Full replace
+                                    </label>
+                                </div>
+                                <div class="form-check" style="margin-top: 8px">
+                                    <input class="form-check-input far-replace-radio" type="radio" name="replace-mode" id="substring-replace-radio" value="substring-replace" disabled>
+                                    <label class="form-check-label" for="substring-replace-radio">
+                                        Substring replace
+                                    </label>
+                                </div>
+                            </td>
+                            <td width="5%">
+                                <button type="submit" class="btn btn-success btn-block">
+                                    Execute
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <span class="text-muted">*Only supported for text types.</span>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
