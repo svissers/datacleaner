@@ -28,3 +28,9 @@ img.background-filler {
     opacity: 0.2;
     z-index: -1;
 }
+
+table.dataTable td {
+padding: 3px 10px !important;
+width: 1px !important;
+white-space: nowrap !important;
+}
