@@ -63,47 +63,14 @@ def change_attribute_type(table_name, table_col, new_type):
         db.engine.execute(
             'ALTER TABLE {0} '
             'ALTER COLUMN "{1}" '
-            'TYPE INTEGER USING "{1}"::integer'
-            .format(table_name, table_col))
-    if new_type == 'BIGINT':
-        db.engine.execute(
-            'ALTER TABLE {0} '
-            'ALTER COLUMN "{1}" '
             'TYPE BIGINT USING "{1}"::bigint'
             .format(table_name, table_col))
-    if new_type == 'DOUBLE PRECISION':
+    if new_type == 'DOUBLE':
         db.engine.execute(
             'ALTER TABLE {0} '
             'ALTER COLUMN "{1}" '
             'TYPE DOUBLE PRECISION USING "{1}"::double precision'
             .format(table_name, table_col))
-    if new_type in ['VARCHAR(10)', 'VARCHAR(25)', 'VARCHAR(255)']:
-        length = 255
-        if new_type == 'VARCHAR(10)':
-            length = 10
-        elif new_type == 'VARCHAR(25)':
-            length = 25
-        elif new_type == 'VARCHAR(255)':
-            length = 255
-        if current_type == 'date':
-            db.engine.execute(
-                'ALTER TABLE {0} '
-                'ALTER COLUMN "{1}" '
-                'TYPE VARCHAR({2}) USING to_char("{1}", \'DD/MM/YYYY\')'
-                .format(table_name, table_col, length))
-        elif current_type == 'timestamp with time zone':
-            db.engine.execute(
-                'ALTER TABLE {0} '
-                'ALTER COLUMN "{1}" '
-                'TYPE VARCHAR({2}) '
-                'USING to_char("{1}", \'DD/MM/YYYY HH24:MI:SS\')'
-                .format(table_name, table_col, length))
-        else:
-            db.engine.execute(
-                'ALTER TABLE {0} '
-                'ALTER COLUMN "{1}" '
-                'TYPE VARCHAR({2})'
-                .format(table_name, table_col, length))
     if new_type == 'TEXT':
         if current_type == 'date':
             db.engine.execute(
@@ -123,12 +90,6 @@ def change_attribute_type(table_name, table_col, new_type):
                 'ALTER COLUMN "{1}" '
                 'TYPE TEXT'
                 .format(table_name, table_col))
-    if new_type == 'BOOLEAN':
-        db.engine.execute(
-            'ALTER TABLE {0} '
-            'ALTER COLUMN "{1}" '
-            'TYPE BOOLEAN USING "{1}"::boolean'
-            .format(table_name, table_col))
     if new_type == 'DATE':
         if current_type == 'timestamp with time zone':
             db.engine.execute(

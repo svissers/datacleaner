@@ -18,7 +18,8 @@ def upload():
     # Clear any files from previous (unfinished) uploads
     filelist = os.listdir('./file_queue/')
     for f in filelist:
-        os.remove(os.path.join('./file_queue/', f))
+        if not f.startswith('.'):
+            os.remove(os.path.join('./file_queue/', f))
 
     form = UploadForm()
     if form.validate_on_submit():
