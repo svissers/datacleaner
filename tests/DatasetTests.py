@@ -4,9 +4,11 @@ from app.Project.operations import *
 from app.Data.Import.operations import *
 from app.Data.operations import *
 from app.Data.helpers import *
+from app.Data.Transform.operations import *
 from flask_testing import TestCase
 from shutil import copyfile
 from os import remove
+from sqlalchemy.exc import InvalidRequestError
 
 
 class DatasetTests(TestCase):
@@ -80,3 +82,52 @@ class DatasetTests(TestCase):
         self.assertTrue(len(table.columns) == 8)
         remove('file_queue/left.csv')
         remove('file_queue/right.csv')
+
+    def test_rename_column(self):
+        upload_csv('test', 'test', 'CSVs/test.csv', self.project.id)
+        dataset = get_dataset_with_id(1)
+        table = table_name_to_object(dataset.working_copy)
+        self.assertTrue(len(table.columns) == 4)
+        self.assertTrue(db.session.query(table).filter_by(hallo=1).first())
+        with self.assertRaises(InvalidRequestError):
+            db.session.query(table).filter_by(hello=1).first()
+        db.session.commit()
+        rename_attribute(table.name, 'hallo', 'hello')
+        table = table_name_to_object(dataset.working_copy)
+        self.assertTrue(db.session.query(table).filter_by(hello=1).first())
+        with self.assertRaises(InvalidRequestError):
+            db.session.query(table).filter_by(hallo=1).first()
+        self.assertTrue(len(table.columns) == 4)
+
+    def test_delete_column(self):
+        upload_csv('test', 'test', 'CSVs/test.csv', self.project.id)
+        dataset = get_dataset_with_id(1)
+        table = table_name_to_object(dataset.working_copy)
+        self.assertTrue(len(table.columns) == 4)
+        self.assertTrue(db.session.query(table).filter_by(hallo=1).first())
+        db.session.commit()
+        delete_attribute(table.name, 'hallo')
+        table = table_name_to_object(dataset.working_copy)
+        with self.assertRaises(InvalidRequestError):
+            db.session.query(table).filter_by(hallo=1).first()
+        self.assertTrue(len(table.columns) == 3)
+
+    def test_restore_original(self):
+        upload_csv('test', 'test', 'CSVs/test.csv', self.project.id)
+        dataset = get_dataset_with_id(1)
+        table = table_name_to_object(dataset.working_copy)
+        delete_attribute(table.name, 'hallo')
+        table = table_name_to_object(dataset.working_copy)
+        with self.assertRaises(InvalidRequestError):
+            db.session.query(table).filter_by(hallo=1).first()
+        self.assertTrue(len(table.columns) == 3)
+        restore_original(table.name)
+        table = table_name_to_object(dataset.working_copy)
+        self.assertTrue(db.session.query(table).filter_by(hallo=1).first())
+        self.assertTrue(len(table.columns) == 4)
+
+
+
+
+
+
