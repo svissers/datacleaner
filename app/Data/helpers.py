@@ -13,7 +13,14 @@ def extract_columns_from_db(table):
         start = str(column).find('.') + 1
         col_name = str(column)[start:]
         if col_name != 'index':
+            col_type = ''
+            if str(column.type) == 'BIGINT':
+                col_type = 'INTEGER'
+            elif str(column.type) == 'DOUBLE PRECISION':
+                col_type = 'DOUBLE'
+            else:
+                col_type = str(column.type)
             columns.append(
-                (col_name, str(column.type))
+                (col_name, col_type)
             )
     return columns
