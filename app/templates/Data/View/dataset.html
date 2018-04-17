@@ -55,7 +55,7 @@
                         <option data-type="{{ column[1] }}">{{ column[0] }}</option>
                     {% endfor %}
                 </select>
-                <span id="type-display" class="float-right text-muted" style="margin-top: 9px">TYPE: BIGINT</span>
+                <span id="type-display" class="float-right text-muted" style="margin-top: 9px"></span>
             </div>
             <div class="card-body">
                 <div class="row-fluid">
@@ -114,15 +114,16 @@
     }
 
     function update_chart(){
+        var column_type = $('#stat-column-select option:selected').data('type');
         $.getJSON(
             '{{ url_for('view_bp.get_column_chart') }}',
             {
             dataset_id: '{{ dataset.id }}',
             column_name: $('#stat-column-select').val(),
-            column_type: $('#stat-column-select option:selected').data('type')
+            column_type: column_type
             },
             function (data) {
-                if (data['data']['labels'].length > 500){
+                if (data['data']['labels'].length > 250){
                     alert('That\'s a lot of categories! Our charting software has difficulty displaying large amounts of categories.\nTry filtering your data or changing the datatype of the column.')
                 }
                 chart = new Chart(ctx, data);

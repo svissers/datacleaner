@@ -1,13 +1,21 @@
 from app.Data.models import Dataset
 from app import database
 import pandas
+import numpy as np
 import datetime
 from app.Data.operations import get_dataset_with_id
 
 
 def upload_csv(name, description, file, project):
     db_engine = database.engine
-    csv_dataframe = pandas.read_csv(file)
+    df = pandas.read_csv(file)
+
+    for column in df:
+        try:
+            if not np.issubdtype(df[column].dtype, np.number):
+                df[column] = pandas.to_datetime(df[column])
+        except:
+            continue
 
     table_name = str(datetime.datetime.now())
     table_name = table_name.replace(" ", "")
@@ -17,8 +25,8 @@ def upload_csv(name, description, file, project):
     original = "og" + table_name
     working_copy = "wc" + table_name
 
-    csv_dataframe.to_sql(name=original, con=db_engine, if_exists="fail")
-    csv_dataframe.to_sql(name=working_copy, con=db_engine, if_exists="fail")
+    df.to_sql(name=original, con=db_engine, if_exists="fail")
+    df.to_sql(name=working_copy, con=db_engine, if_exists="fail")
 
     new_dataset = Dataset(name, original, working_copy, description, project)
     database.session.add(new_dataset)
@@ -57,21 +65,35 @@ def upload_joined(
         project_id
 ):
     db_engine = database.engine
-    dataframe_left = pandas.read_csv('./file_queue/' + left_file)
-    dataframe_right = pandas.read_csv('./file_queue/' + right_file)
+    df_left = pandas.read_csv('./file_queue/' + left_file)
+    df_right = pandas.read_csv('./file_queue/' + right_file)
     result_dataframe = pandas.DataFrame()
+
+    for column in df_left:
+        try:
+            if not np.issubdtype(df_left[column].dtype, np.number):
+                df_left[column] = pandas.to_datetime(df_left[column])
+        except:
+            continue
+
+    for column in df_right:
+        try:
+            if not np.issubdtype(df_right[column].dtype, np.number):
+                df_right[column] = pandas.to_datetime(df_right[column])
+        except:
+            continue
 
     suffixes = ('left', 'right')
 
     if join_type == "cross join":
-        dataframe_left['temp'] = 0
-        dataframe_right['temp'] = 0
-        result_dataframe = pandas.merge(dataframe_left, dataframe_right, on='temp')
+        df_left['temp'] = 0
+        df_right['temp'] = 0
+        result_dataframe = pandas.merge(df_left, df_right, on='temp')
         result_dataframe = result_dataframe.drop(labels=['temp'], axis=1)
     elif join_type == "inner join":
         result_dataframe = pandas.merge(
-            dataframe_left,
-            dataframe_right,
+            df_left,
+            df_right,
             left_on=left_column,
             right_on=right_column,
             how='inner',
@@ -79,8 +101,8 @@ def upload_joined(
         )
     elif join_type == "left outer join":
         result_dataframe = pandas.merge(
-            dataframe_left,
-            dataframe_right,
+            df_left,
+            df_right,
             left_on=left_column,
             right_on=right_column,
             how='left',
@@ -88,8 +110,8 @@ def upload_joined(
         )
     elif join_type == "right outer join":
         result_dataframe = pandas.merge(
-            dataframe_left,
-            dataframe_right,
+            df_left,
+            df_right,
             left_on=left_column,
             right_on=right_column,
             how='right',
@@ -97,8 +119,8 @@ def upload_joined(
         )
     elif join_type == "full outer join":
         result_dataframe = pandas.merge(
-            dataframe_left,
-            dataframe_right,
+            df_left,
+            df_right,
             left_on=left_column,
             right_on=right_column,
             how='outer',
