@@ -1,5 +1,6 @@
 from app import database as db
-
+import re
+import datetime
 
 def table_name_to_object(sql_table_name):
     meta = db.MetaData(db.engine)
@@ -24,3 +25,18 @@ def extract_columns_from_db(table):
                 (col_name, col_type)
             )
     return columns
+
+def extract_tables_from_dump(file):
+    tables = []
+    tables = re.findall(r"CREATE(?: TEMPORARY)? TABLE(?: IF(?: NOT)? EXISTS)? ([^\s]*) ?\(", file, re.IGNORECASE)
+    tables = list(set(re.findall(r"INSERT INTO ([^\s]*) ", file, re.IGNORECASE) + tables))
+    tabledict = {}
+    table_name = str(datetime.datetime.now())
+    table_name = table_name.replace(" ", "")
+    table_name = table_name.replace("-", "")
+    table_name = table_name.replace(":", "")
+    table_name = table_name.replace(".", "")
+    table_name = "og" + table_name + "_"
+    for index in range(len(tables)):
+        tabledict[tables[index]] = table_name+str(index)
+    return tabledict
