@@ -247,7 +247,7 @@ def normalize_attribute(table_name, attr):
     :param attr: attribute to normalize
     """
     df = pd.read_sql_table(table_name, db.engine)
-    df[attr] = (df[attr] - df[attr].mean()) / df[attr].std(ddof=0)
+    df[attr + '_normalized'] = (df[attr] - df[attr].mean()) / df[attr].std(ddof=0)
     db.engine.execute(
         'DROP TABLE "{0}"'.format(table_name)
     )
@@ -265,13 +265,15 @@ def remove_outliers(table_name, attr, value, smaller_than=False):
     """
     if smaller_than:
         db.engine.execute(
-            'DELETE FROM "{0}" '
+            'UPDATE "{0}" '
+            'SET "{1}" = NULL '
             'WHERE "{1}" < {2}'
             .format(table_name, attr, value)
         )
     else:  # greater than
         db.engine.execute(
-            'DELETE FROM "{0}" '
+            'UPDATE "{0}" '
+            'SET "{1}" = NULL '
             'WHERE "{1}" > {2}'
             .format(table_name, attr, value)
         )
