@@ -19,6 +19,8 @@ def extract_columns_from_db(table):
                 col_type = 'INTEGER'
             elif str(column.type) == 'DOUBLE PRECISION':
                 col_type = 'DOUBLE'
+            elif str(column.type) == 'TIMESTAMP WITHOUT TIME ZONE':
+                col_type = 'TIMESTAMP'
             else:
                 col_type = str(column.type)
             columns.append(
@@ -40,3 +42,13 @@ def extract_tables_from_dump(file):
     for index in range(len(tables)):
         tabledict[tables[index]] = table_name+str(index)
     return tabledict
+
+def escape_quotes(string):
+    return_string = ''
+    for c in string:
+        if c == '\'':
+            return_string += '\''
+        elif c == '"':
+            return_string += '\"'
+        return_string += c
+    return return_string
