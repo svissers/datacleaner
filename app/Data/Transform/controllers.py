@@ -40,15 +40,11 @@ def rename_column():
     new_name = request.form['new_name']
     try:
         rename_attribute(dataset.working_copy, col, new_name)
-        create_action(
-            'Renamed column {0} to {1}'.format(col, new_name),
-            dataset.id,
-            current_user.id
-        )
     except:
         flash('An unexpected error occured while renaming the column', 'danger')
     else:
         flash('Column renamed successfully.', 'success')
+        create_action('Renamed column {0} to {1}'.format(col, new_name), dataset.id, current_user.id)
 
     return redirect(request.referrer)
 
@@ -60,15 +56,11 @@ def delete_column():
     col = request.form['column']
     try:
         delete_attribute(dataset.working_copy, col)
-        create_action(
-            'Deleted column {0}'.format(col),
-            dataset.id,
-            current_user.id
-        )
     except:
-        flash('An unexpected error occured while deleting the column', 'danger')
+        flash('Failed to delete column {0} from {1}'.format(col, dataset.working_copy), 'danger')
     else:
         flash('Column deleted successfully.', 'success')
+        create_action('Deleted column {0}'.format(col), dataset.id, current_user.id)
 
     return redirect(request.referrer)
 
@@ -80,17 +72,11 @@ def one_hot_encode_column():
     col = request.form['column']
     try:
         one_hot_encode(dataset.working_copy, col)
-        create_action(
-            'One-hot-encoded {0}'.format(col),
-            dataset.id,
-            current_user.id
-        )
     except:
-        flash('An unexpected error occured while one-hot-encoding the column',
-              'danger'
-              )
+        flash('An unexpected error occured while one-hot-encoding column {0}'.format(col), 'danger')
     else:
         flash('Column one-hot-encoded successfully.', 'success')
+        create_action('One-hot-encoded {0}'.format(col), dataset.id, current_user.id)
 
     return redirect(request.referrer)
 
@@ -102,17 +88,13 @@ def normalize_column():
     col = request.form['column']
     try:
         normalize_attribute(dataset.working_copy, col)
-        create_action(
-            'Normalized {0}'.format(col),
-            dataset.id,
-            current_user.id
-        )
     except:
         flash('An unexpected error occured while normalizing the column',
               'danger'
               )
     else:
         flash('Column normalized successfully.', 'success')
+        create_action('Normalized {0}'.format(col), dataset.id, current_user.id)
 
     return redirect(request.referrer)
 
@@ -142,15 +124,12 @@ def discretize_column():
             discretize_width(dataset.working_copy, column, edge_list)
 
     except ValueError:
-        flash('Invalid list of edges provided.',
-              'danger'
-              )
+        flash('Invalid list of edges provided.', 'danger')
     except:
-        flash('An unexpected error occured while discretizing the column',
-              'danger'
-              )
+        flash('An unexpected error occured while discretizing the column', 'danger')
     else:
         flash('Column discretized successfully.', 'success')
+        create_action('column {0} discretized', dataset.id, current_user.id)
 
     return redirect(request.referrer)
 
@@ -220,9 +199,8 @@ def delete_predicate():
             flash('no rows found with condition "{0}"'.format(condition), 'warning')
         else:
             flash('successfully deleted rows using condition "{0}"'.format(condition), 'success')
-        create_action('rows deleted with condition "{0}"'.format(condition), dataset.id, current_user.id)
-    except Exception as e:
-        print(e)
+            create_action('rows deleted with condition "{0}"'.format(condition), dataset.id, current_user.id)
+    except:
         flash('condition "{0}" not valid'.format(condition), 'danger')
 
     return redirect(request.referrer)
@@ -232,12 +210,13 @@ def delete_predicate():
 @login_required
 def reset():
     dataset = get_dataset_with_id(request.args.get('dataset_id'))
-    restore_original(dataset.working_copy)
-    create_action(
-        'restored dataset to original state',
-        dataset.id,
-        current_user.id
-    )
+    try:
+        restore_original(dataset.working_copy)
+    except:
+        flash('Failed to restore original', 'danger')
+    else:
+        flash('restored dataset to original state', 'success')
+        create_action('restored dataset to original state', dataset.id, current_user.id)
     return redirect(request.referrer)
 
 
@@ -247,16 +226,16 @@ def change_type():
     dataset = get_dataset_with_id(request.args.get('dataset_id'))
     table = table_name_to_object(dataset.working_copy)
     col = request.form['column']
-    col = col[:col.find('(')-1]
+    col = col[:col.find('(') - 1]
     new_type = request.form['type']
     if col != '' and new_type != '':
         try:
             change_attribute_type(table.name, col, new_type)
-            create_action('type {0} changed to {1}'.format(col, new_type), dataset.id, current_user.id)
         except:
             flash('{0} could not be converted to {1}'.format(col, new_type), 'danger')
         else:
             flash('{0} successfully  converted to {1}'.format(col, new_type), 'success')
+            create_action('type {0} changed to {1}'.format(col, new_type), dataset.id, current_user.id)
 
     return redirect(request.referrer)
 
@@ -269,26 +248,33 @@ def find_and_replace():
     find = request.form['find']
     match_mode = request.form['match-mode']
     replace = request.form['replace']
-
-    if match_mode == 'full-match':
-        find_replace(dataset.working_copy, col, find, replace)
-    elif match_mode == 'substring-match':
-        replace_mode = request.form['replace-mode']
-        if replace_mode == 'full-replace':
-            substring_find_replace(dataset.working_copy,
-                                   col,
-                                   find,
-                                   replace,
-                                   full=True)
-        elif replace_mode == 'substring-replace':
-            substring_find_replace(dataset.working_copy,
-                                   col,
-                                   find,
-                                   replace,
-                                   full=False)
-    elif match_mode == 'regex-match':
-        regex_find_replace(dataset.working_copy, col, find, replace)
-
+    try:
+        if match_mode == 'full-match':
+            find_replace(dataset.working_copy, col, find, replace)
+        elif match_mode == 'substring-match':
+            replace_mode = request.form['replace-mode']
+            if replace_mode == 'full-replace':
+                substring_find_replace(dataset.working_copy,
+                                       col,
+                                       find,
+                                       replace,
+                                       full=True)
+            elif replace_mode == 'substring-replace':
+                substring_find_replace(dataset.working_copy,
+                                       col,
+                                       find,
+                                       replace,
+                                       full=False)
+        elif match_mode == 'regex-match':
+            regex_find_replace(dataset.working_copy, col, find, replace)
+    except:
+        flash('failed to find and replace {0} with {1}'.format(find, replace), 'danger')
+    else:
+        flash('successfully replaced {0} with {1}'.format(find, replace), 'success')
+        create_action(
+            'replaced {0} with {1} in column {2}'.format(find, replace, col),
+            dataset.id,
+            current_user.id)
     return redirect(request.referrer)
 
 
@@ -298,53 +284,55 @@ def fill_null():
     dataset = get_dataset_with_id(request.args.get('dataset_id'))
     column_and_type = request.form['column']
     column_name = column_and_type[:column_and_type.find(' ')]
-    column_type = column_and_type[column_and_type.find('(')+1:column_and_type.rfind(')')]
+    column_type = column_and_type[column_and_type.find('(') + 1:column_and_type.rfind(')')]
     fill_value = request.form['fill_value']
 
-    try:
-        if fill_value == '~option-average~':
-            if column_type not in ['INTEGER', 'BIGINT', 'DOUBLE PRECISION']:
-                flash('Operation not supported for this column type.', 'danger')
-            else:
+    if fill_value == '~option-average~':
+        if column_type not in ['INTEGER', 'BIGINT', 'DOUBLE PRECISION']:
+            flash('Operation not supported for this column type.', 'danger')
+        else:
+            try:
                 fill_null_with_average(dataset.working_copy, column_name)
+            except:
+                flash('Failed to fill column {0} with average'.format(column_name), 'danger')
+            else:
+                flash('Fill operation completed successfully', 'success')
                 create_action(
                     'Filled null values in {0} with average'.format(column_name),
                     dataset.id,
                     current_user.id
                 )
-        elif fill_value == '~option-median~':
-            if column_type not in ['INTEGER', 'BIGINT', 'DOUBLE PRECISION']:
-                flash('Operation not supported for this column type.', 'danger')
-            else:
+    elif fill_value == '~option-median~':
+        if column_type not in ['INTEGER', 'BIGINT', 'DOUBLE PRECISION']:
+            flash('Operation not supported for this column type.', 'danger')
+        else:
+            try:
                 fill_null_with_median(dataset.working_copy, column_name)
+            except:
+                flash('Failed to fill column {0} with median'.format(column_name), 'danger')
+            else:
+                flash('Fill operation completed successfully', 'success')
                 create_action(
                     'Filled null values in {0} with median'.format(column_name),
                     dataset.id,
                     current_user.id
                 )
-        else:
-            is_text_type = column_type in ['TEXT',
-                                           'VARCHAR(10)',
-                                           'VARCHAR(25)',
-                                           'VARCHAR(255)']
+    else:
+        is_text_type = column_type == 'TEXT'
+        try:
             fill_null_with(
                 dataset.working_copy,
                 column_name,
                 fill_value,
                 is_text_type
             )
+        except:
+            flash('Failed to fill column {0} with {1}'.format(column_name, fill_value), 'danger')
+        else:
+            flash('Fill operation completed successfully', 'success')
             create_action(
-                'Filled null values in {0} with {1}'
-                .format(column_name, fill_value),
+                'Filled null values in {0} with {1}'.format(column_name, fill_value),
                 dataset.id,
-                current_user.id
-            )
-    except:
-        flash(
-            'An unexpected error occured while performing the operation',
-            'danger'
-            )
-    else:
-        flash('Fill operation completed successfully', 'success')
+                current_user.id)
 
     return redirect(request.referrer)
