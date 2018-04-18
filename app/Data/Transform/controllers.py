@@ -10,7 +10,7 @@ from flask import (
 )
 from flask_login import login_required, current_user
 from app.Data.operations import create_action, get_dataset_with_id
-from app.Data.helpers import table_name_to_object
+from app.Data.helpers import table_name_to_object, escape_quotes
 from app.Data.Transform.operations import (
     restore_original,
     change_attribute_type,
@@ -213,19 +213,18 @@ def delete_predicate():
                 condition += ' !~ '
             else:
                 condition += request.form[operators[0]]
-            condition += '\'' + request.form[conditions[0]] + '\''
+            condition += '\'' + escape_quotes(request.form[conditions[0]]) + '\''
 
     try:
-        delete_rows(table.name, condition)
-        create_action('rows deleted with condition "{0}"'
-                      .format(condition), dataset.id, current_user.id
-                      )
-    except:
+        if delete_rows(table.name, condition) is False:
+            flash('no rows found with condition "{0}"'.format(condition), 'warning')
+        else:
+            flash('successfully deleted rows using condition "{0}"'.format(condition), 'success')
+        create_action('rows deleted with condition "{0}"'.format(condition), dataset.id, current_user.id)
+    except Exception as e:
+        print(e)
         flash('condition "{0}" not valid'.format(condition), 'danger')
-    else:
-        flash('successfully deleted rows using condition "{0}"'
-              .format(condition), 'success'
-              )
+
     return redirect(request.referrer)
 
 
