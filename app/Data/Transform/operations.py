@@ -78,7 +78,7 @@ def change_attribute_type(table_name, table_col, new_type):
                 'ALTER COLUMN "{1}" '
                 'TYPE TEXT USING to_char("{1}", \'DD/MM/YYYY\')'
                 .format(table_name, table_col))
-        elif current_type == 'timestamp with time zone':
+        elif current_type == 'timestamp without time zone':
             db.engine.execute(
                 'ALTER TABLE {0} '
                 'ALTER COLUMN "{1}" '
@@ -91,7 +91,7 @@ def change_attribute_type(table_name, table_col, new_type):
                 'TYPE TEXT'
                 .format(table_name, table_col))
     if new_type == 'DATE':
-        if current_type == 'timestamp with time zone':
+        if current_type == 'timestamp without time zone':
             db.engine.execute(
                 'ALTER TABLE {0} '
                 'ALTER COLUMN "{1}" '
@@ -108,13 +108,13 @@ def change_attribute_type(table_name, table_col, new_type):
             db.engine.execute(
                 'ALTER TABLE {0} '
                 'ALTER COLUMN "{1}" '
-                'TYPE TIMESTAMP WITH TIME ZONE'
+                'TYPE TIMESTAMP '
                 .format(table_name, table_col))
         else:
             db.engine.execute(
                 'ALTER TABLE {0} '
                 'ALTER COLUMN "{1}" '
-                'TYPE TIMESTAMP WITH TIME ZONE '
+                'TYPE TIMESTAMP '
                 'USING to_timestamp("{1}", \'DD/MM/YYYY HH24:MI:SS\')'
                 .format(table_name, table_col))
 
@@ -320,9 +320,11 @@ def remove_outliers(table_name, attr, value, smaller_than=False):
 
 def delete_rows(table_name, condition):
 
-    db.engine.execute(
+    result = db.engine.execute(
         'DELETE FROM "{0}" WHERE {1}'.format(table_name, condition)
     )
+    if result.rowcount == 0:
+        return False
 
 
 def discretize_width(table_name, attr, intervals, dataframe=None, name=None):

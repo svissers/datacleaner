@@ -34,7 +34,7 @@ class DatasetTests(TestCase):
         dataset = get_dataset_with_id(1)
         table = table_name_to_object(dataset.working_copy)
         self.assertTrue(db.session.query(table).count() == 10)
-        self.assertTrue(db.session.query(table).filter_by(test='test1').first())
+        self.assertTrue(db.session.query(table).filter_by(text='test1').first())
 
     def test_delete_dataset(self):
         upload_csv('test', 'test', 'CSVs/test.csv', self.project.id)
@@ -88,15 +88,15 @@ class DatasetTests(TestCase):
         dataset = get_dataset_with_id(1)
         table = table_name_to_object(dataset.working_copy)
         self.assertTrue(len(table.columns) == 4)
-        self.assertTrue(db.session.query(table).filter_by(hallo=1).first())
+        self.assertTrue(db.session.query(table).filter_by(number=1).first())
         with self.assertRaises(InvalidRequestError):
-            db.session.query(table).filter_by(hello=1).first()
+            db.session.query(table).filter_by(num=1).first()
         db.session.commit()
-        rename_attribute(table.name, 'hallo', 'hello')
+        rename_attribute(table.name, 'number', 'num')
         table = table_name_to_object(dataset.working_copy)
-        self.assertTrue(db.session.query(table).filter_by(hello=1).first())
+        self.assertTrue(db.session.query(table).filter_by(num=1).first())
         with self.assertRaises(InvalidRequestError):
-            db.session.query(table).filter_by(hallo=1).first()
+            db.session.query(table).filter_by(number=1).first()
         self.assertTrue(len(table.columns) == 4)
 
     def test_delete_column(self):
@@ -104,27 +104,34 @@ class DatasetTests(TestCase):
         dataset = get_dataset_with_id(1)
         table = table_name_to_object(dataset.working_copy)
         self.assertTrue(len(table.columns) == 4)
-        self.assertTrue(db.session.query(table).filter_by(hallo=1).first())
+        self.assertTrue(db.session.query(table).filter_by(number=1).first())
         db.session.commit()
-        delete_attribute(table.name, 'hallo')
+        delete_attribute(table.name, 'number')
         table = table_name_to_object(dataset.working_copy)
         with self.assertRaises(InvalidRequestError):
-            db.session.query(table).filter_by(hallo=1).first()
+            db.session.query(table).filter_by(number=1).first()
         self.assertTrue(len(table.columns) == 3)
 
     def test_restore_original(self):
         upload_csv('test', 'test', 'CSVs/test.csv', self.project.id)
         dataset = get_dataset_with_id(1)
         table = table_name_to_object(dataset.working_copy)
-        delete_attribute(table.name, 'hallo')
+        delete_attribute(table.name, 'number')
         table = table_name_to_object(dataset.working_copy)
         with self.assertRaises(InvalidRequestError):
-            db.session.query(table).filter_by(hallo=1).first()
+            db.session.query(table).filter_by(number=1).first()
         self.assertTrue(len(table.columns) == 3)
         restore_original(table.name)
         table = table_name_to_object(dataset.working_copy)
-        self.assertTrue(db.session.query(table).filter_by(hallo=1).first())
+        self.assertTrue(db.session.query(table).filter_by(number=1).first())
         self.assertTrue(len(table.columns) == 4)
+
+    def test_change_types(self):
+        upload_csv('test', 'test', 'CSVs/test.csv', self.project.id)
+        dataset = get_dataset_with_id(1)
+        table = table_name_to_object(dataset.working_copy)
+        col = extract_columns_from_db(table)
+        print(col)
 
 
 

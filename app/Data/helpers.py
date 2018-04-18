@@ -18,9 +18,22 @@ def extract_columns_from_db(table):
                 col_type = 'INTEGER'
             elif str(column.type) == 'DOUBLE PRECISION':
                 col_type = 'DOUBLE'
+            elif str(column.type) == 'TIMESTAMP WITHOUT TIME ZONE':
+                col_type = 'TIMESTAMP'
             else:
                 col_type = str(column.type)
             columns.append(
                 (col_name, col_type)
             )
     return columns
+
+
+def escape_quotes(string):
+    return_string = ''
+    for c in string:
+        if c == '\'':
+            return_string += '\''
+        elif c == '"':
+            return_string += '\"'
+        return_string += c
+    return return_string
