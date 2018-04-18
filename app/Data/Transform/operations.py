@@ -394,3 +394,33 @@ def discretize_eq_freq(table_name, attr, intervals):
         discretize_width(table_name, attr, edge_list, df, column_name)
     except Exception as e:
         print('EQUAL FREQUENCY DISCRETIZATION FAILED:\n' + str(e))
+
+
+def extract_from_date_time(table_name, attr, element):
+    """
+    Extracts given element from attr of type timeastamp/date/time
+    :param table_name: table to perform operation on
+    :param attr: attribute to extract from
+    :param element: element to extract
+    """
+    try:
+        if element in ['date', 'time']:
+            db.engine.execute(
+                'ALTER TABLE IF EXISTS {0} '
+                'ADD COLUMN "{1}_from_{2}" {3};'
+                'UPDATE "{0}" '
+                'SET "{1}_from_{2}" =  "{2}"::timestamp::{1};'
+                .format(table_name, element, attr, element.upper())
+            )
+        else:
+            db.engine.execute(
+                'ALTER TABLE IF EXISTS {0} '
+                'ADD COLUMN "{1}_from_{2}" TEXT;'
+                'UPDATE "{0}" '
+                'SET "{2}" = EXTRACT({1} FROM "{2}");'
+                .format(table_name, element, attr)
+            )
+    except:
+        pass #flash
+    else:
+        pass #flash + action
