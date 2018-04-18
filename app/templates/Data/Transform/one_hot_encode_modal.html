@@ -15,12 +15,7 @@
                             <td>
                                 <select class="custom-select" name="column">
                                     {% for column in columns %}
-                                        {% if
-                                        column[1] == 'TEXT' or
-                                        column[1] == 'VARCHAR(10)' or
-                                        column[1] == 'VARCHAR(25)' or
-                                        column[1] == 'VARCHAR(255)'
-                                        %}
+                                        {% if column[1] == 'TEXT' %}
                                         <option>{{ column[0] }}</option>
                                         {% endif %}
                                     {% endfor %}

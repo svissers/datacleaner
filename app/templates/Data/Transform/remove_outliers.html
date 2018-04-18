@@ -1,0 +1,55 @@
+<div class="modal fade" id="remove_outliers_modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <form method="post" action="#">
+                    <table class="table" width="100%">
+                        <thead>
+                        <tr class="table-primary">
+                            <th>Column:</th>
+                            <th>Operator:</th>
+                            <th>Value:</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>
+                                <select class="custom-select" name="column">
+                                    {% for column in columns %}
+                                        {% if
+                                            column[1] == 'INTEGER' or
+                                            column[1] == 'DOUBLE' or
+                                            column[1] == 'TIMESTAMP' or
+                                            column[1] == 'DATE' or
+                                            column[1] == 'TIME'
+                                        %}
+                                        <option>{{ column[0] }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td width="5%">
+                                <select class="custom-select" name="outlier-operator">
+                                    <option value="gt"> > </option>
+                                    <option value="st"> < </option>
+                                    <option value="egt"> ≥ </option>
+                                    <option value="est"> ≤ </option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="outlier-edge" required>
+                            </td>
+                            <td width="5%">
+                                <button type="submit" class="btn btn-success btn-block">
+                                    Remove
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
