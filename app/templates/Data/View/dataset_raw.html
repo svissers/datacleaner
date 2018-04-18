@@ -50,7 +50,7 @@
 
 {% block main_content %}
 <form name="delete-form" method="POST" action="{{ url_for('transform_bp.delete_selection', table_name=dataset.working_copy) }}">
-        <table id="user_table" class="table" cellspacing="0" width="100%">
+        <table id="user_table" class="table table-bordered table-striped" cellspacing="0" width="100%">
             <thead>
             <tr style="background-color: #eef5f8">
                 <th>
