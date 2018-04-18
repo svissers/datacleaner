@@ -281,7 +281,7 @@ def normalize_attribute(table_name, attr):
     """
     try:
         df = pd.read_sql_table(table_name, db.engine)
-        df[attr] = (df[attr] - df[attr].mean()) / df[attr].std(ddof=0)
+        df[attr + '_normalized'] = (df[attr] - df[attr].mean()) / df[attr].std(ddof=0)
         db.engine.execute(
             'DROP TABLE "{0}"'.format(table_name)
         )
