@@ -302,13 +302,15 @@ def remove_outliers(table_name, attr, value, smaller_than=False):
     try:
         if smaller_than:
             db.engine.execute(
-                'DELETE FROM "{0}" '
+                'UPDATE "{0}" '
+                'SET "{1}" = NULL '
                 'WHERE "{1}" < {2}'
                 .format(table_name, attr, value)
             )
         else:  # greater than
             db.engine.execute(
-                'DELETE FROM "{0}" '
+                'UPDATE "{0}" '
+                'SET "{1}" = NULL '
                 'WHERE "{1}" > {2}'
                 .format(table_name, attr, value)
             )
