@@ -5,6 +5,14 @@ from flask_login import login_required
 import zipfile as zf
 import os
 from app.Project.operations import get_project_with_id
+from app.Data.helpers import extract_tables_from_dump
+from app import database as db
+from sqlalchemy.sql import text
+from app.Data.models import Dataset
+import pandas as pd
+
+import re
+import sys
 
 _upload = Blueprint('upload_bp', __name__, url_prefix='/data/upload')
 
@@ -41,9 +49,9 @@ def upload():
                 code=308
             )
         elif filename.lower()[-4:] == '.sql':
-            return redirect(url_for('upload_bp.dump'), code=308)
+            return redirect(url_for('upload_bp.dump', project_id=project_id), code=308)
         elif filename.lower()[-5:] == '.dump':
-            return redirect(url_for('upload_bp.dump'), code=308)
+            return redirect(url_for('upload_bp.dump', project_id=project_id), code=308)
         else:
             flash('Filetype not supported.', 'danger')
 
@@ -129,6 +137,70 @@ def zip():
 @login_required
 def dump():
     # TODO: implement .sql/.dump upload
+    form = UploadForm()
+    project_id = request.args.get('project_id')
+    print project_id
+    name = form.name.data
+    description = form.description.data
+    file = request.files['file'].read()
+    #tabledict: contains table names in dump as keys, newly generated, non overlapping names as values
+    tabledict = extract_tables_from_dump(file)
+    for old_table_name in tabledict:
+        file = re.sub(old_table_name, tabledict[old_table_name], file)
+    file = re.sub('`', '', file)
+    # file = re.sub('auto_increment', 'serial', file)
+    # file =  re.sub(r'int ?\([\d]+\)', "int", file, flags=re.IGNORECASE)
+    # file =  re.sub(r'mediumtext', "text", file, flags=re.IGNORECASE)
+    # file =  re.sub(r'[^\) ?];', "", file, flags=re.IGNORECASE)
+    try:
+        statement = str(file)#.decode("utf-8")
+        result = db.session.execute(statement)
+        db.session.commit()
+    except:
+        print "Unexpected error:", sys.exc_info()[0]
+        raise
+
+    for old_table_name in tabledict:
+        table_name = tabledict[old_table_name]
+        original = table_name
+        working_copy = "wc" + table_name[2:]
+        #result = s.execute('SELECT * FROM my_table WHERE my_column = :val', {'val': 5})
+        connection = db.session.connection()
+
+        # statement = text('ALTER TABLE :name RENAME TO :og')
+        # print statement
+        # result = db.engine.execute(statement, {'name':table_name, 'og':original})
+
+        # connection.execute(statement, {'name':table_name, 'og':original})
+        # db.session.commit()
+        # connection.execute(text('CREATE TABLE :wc AS TABLE :og'), {'wc':working_copy, 'og':original})
+        dataframe = pd.read_sql_table(original, db.engine)
+        dataframe.to_sql(name=original, con=db.engine, if_exists="replace")
+        dataframe.to_sql(name=working_copy, con=db.engine, if_exists="replace")
+
+        # db.session.execute(text('alter table '+original+' drop constraint '+original+'_pkey'))
+        # db.session.execute(text('CREATE TABLE '+working_copy+' AS TABLE '+original))#, {'wc':working_copy, 'og':original})
+        # db.session.commit()
+        # db.session.execute(text('ALTER TABLE '+working_copy+' ADD COLUMN index SERIAL PRIMARY KEY;'))
+        # db.session.execute(text('ALTER TABLE '+original+' ADD COLUMN index SERIAL PRIMARY KEY;'))
+        # db.session.commit()
+
+        # result_dataframe.to_sql(name=original, con=db_engine, if_exists="fail")
+        # result_dataframe.to_sql(name=working_copy, con=db_engine, if_exists="fail")
+
+        new_dataset = Dataset(
+            name,
+            original,
+            working_copy,
+            description,
+            project_id
+        )
+        db.session.add(new_dataset)
+        db.session.commit()
+
+    #TODO give user interface with option to join tables, do that and then delete the table you just created
+    #extract columns
+
     return redirect(request.referrer)
 
 
