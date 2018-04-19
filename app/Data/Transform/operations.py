@@ -5,25 +5,19 @@ import numpy as np
 
 
 def rename_attribute(table_name, column, new_name):
-    try:
-        db.engine.execute(
-            'ALTER TABLE {0} '
-            'RENAME COLUMN "{1}" TO "{2}"'
-            .format(table_name, column, new_name)
-        )
-    except Exception as e:
-        print("RENAMING FAILED: "+str(e))
+    db.engine.execute(
+        'ALTER TABLE {0} '
+        'RENAME COLUMN "{1}" TO "{2}"'
+        .format(table_name, column, new_name)
+    )
 
 
 def delete_attribute(table_name, column):
-    try:
-        db.engine.execute(
-            'ALTER TABLE {0} '
-            'DROP COLUMN "{1}"'
-            .format(table_name, column)
-        )
-    except:
-        print("DELETING FAILED")
+    db.engine.execute(
+        'ALTER TABLE {0} '
+        'DROP COLUMN "{1}"'
+        .format(table_name, column)
+    )
 
 
 def restore_original(table_name):
@@ -31,20 +25,17 @@ def restore_original(table_name):
     Resets given table to its original state
     :param table_name: name of the the table to be reset
     """
-    try:
-        # Original tables are prepended with og
-        # Thus we replace wc with og and have the name of the table
-        # with the original data
-        original = 'og' + table_name[2:]
-        db.engine.execute(
-            'DROP TABLE "{0}"'.format(table_name)
-        )
-        db.engine.execute(
-            'CREATE TABLE "{0}" AS SELECT * FROM "{1}"'
-            .format(table_name, original)
-        )
-    except:
-        print("FAILED TO RESTORE ORIGINAL")
+    # Original tables are prepended with og
+    # Thus we replace wc with og and have the name of the table
+    # with the original data
+    original = 'og' + table_name[2:]
+    db.engine.execute(
+        'DROP TABLE "{0}"'.format(table_name)
+    )
+    db.engine.execute(
+        'CREATE TABLE "{0}" AS SELECT * FROM "{1}"'
+        .format(table_name, original)
+    )
 
 
 def change_attribute_type(table_name, table_col, new_type):
@@ -125,13 +116,10 @@ def drop_attribute(table_name, attr):
     :param table_name: table to perform the operation on
     :param attr: attribute to drop
     """
-    try:
-        db.engine.execute(
-            'ALTER TABLE "{0}" DROP COLUMN IF EXISTS "{1}"'.
-            format(table_name, attr)
-        )
-    except:
-        print("FAILED TO DROP ATTRIBUTE {0} FROM {1}".format(attr, table_name))
+    db.engine.execute(
+        'ALTER TABLE "{0}" DROP COLUMN IF EXISTS "{1}"'.
+        format(table_name, attr)
+    )
 
 
 def one_hot_encode(table_name, attr):
@@ -141,23 +129,20 @@ def one_hot_encode(table_name, attr):
     :param attr: attribute to one hot encode
     :return:
     """
-    try:
-        dataframe = pd.read_sql_table(table_name, db.engine)
-        one_hot = pd.get_dummies(dataframe[attr])
-        print('OH', one_hot)
-        dataframe = dataframe.join(one_hot)
-        print('DF', dataframe)
-        db.engine.execute(
-            'DROP TABLE "{0}"'.format(table_name)
-        )
-        dataframe.to_sql(
-            name=table_name,
-            con=db.engine,
-            if_exists="fail",
-            index=False
-        )
-    except:
-        print('ONE-HOT ENCODING FAILED')
+    dataframe = pd.read_sql_table(table_name, db.engine)
+    one_hot = pd.get_dummies(dataframe[attr])
+    print('OH', one_hot)
+    dataframe = dataframe.join(one_hot)
+    print('DF', dataframe)
+    db.engine.execute(
+        'DROP TABLE "{0}"'.format(table_name)
+    )
+    dataframe.to_sql(
+        name=table_name,
+        con=db.engine,
+        if_exists="fail",
+        index=False
+    )
 
 
 def fill_null_with(table_name, attr, value, text_type):
@@ -168,23 +153,20 @@ def fill_null_with(table_name, attr, value, text_type):
     :param text_type: indicates whether column is a text type
     :param value: value to insert
     """
-    try:
-        if text_type:
-            db.engine.execute(
-                'UPDATE "{0}" '
-                'SET "{1}" = \'{2}\' '
-                'WHERE ("{1}" = \'\') IS NOT FALSE'
-                .format(table_name, attr, value)
-            )
-        else:
-            db.engine.execute(
-                'UPDATE "{0}" '
-                'SET "{1}" = {2} '
-                'WHERE "{1}" IS NULL'
-                .format(table_name, attr, value)
-            )
-    except Exception as e:
-        print('FILL NULL FAILED WITH FOLLOWING MESSAGE:\n' + str(e))
+    if text_type:
+        db.engine.execute(
+            'UPDATE "{0}" '
+            'SET "{1}" = \'{2}\' '
+            'WHERE ("{1}" = \'\') IS NOT FALSE'
+            .format(table_name, attr, value)
+        )
+    else:
+        db.engine.execute(
+            'UPDATE "{0}" '
+            'SET "{1}" = {2} '
+            'WHERE "{1}" IS NULL'
+            .format(table_name, attr, value)
+        )
 
 
 def fill_null_with_average(table_name, attr):
@@ -193,17 +175,14 @@ def fill_null_with_average(table_name, attr):
     :param table_name: table to perform the operation on
     :param attr: attribute containing NULL values
     """
-    try:
-        dataframe = pd.read_sql_table(table_name, db.engine, columns=[attr])
-        average = dataframe[attr].mean()
-        db.engine.execute(
-            'UPDATE "{0}" '
-            'SET "{1}" = {2} '
-            'WHERE "{1}" IS NULL'
-            .format(table_name, attr, average)
-        )
-    except:
-        print('FILL AVERAGE FAILED')
+    dataframe = pd.read_sql_table(table_name, db.engine, columns=[attr])
+    average = dataframe[attr].mean()
+    db.engine.execute(
+        'UPDATE "{0}" '
+        'SET "{1}" = {2} '
+        'WHERE "{1}" IS NULL'
+        .format(table_name, attr, average)
+    )
 
 
 def fill_null_with_median(table_name, attr):
@@ -212,65 +191,53 @@ def fill_null_with_median(table_name, attr):
     :param table_name: table to perform the operation on
     :param attr: attribute containing NULL values
     """
-    try:
-        dataframe = pd.read_sql_table(table_name, db.engine, columns=[attr])
-        median = dataframe[attr].median()
-        db.engine.execute(
-            'UPDATE "{0}" '
-            'SET "{1}" = {2} '
-            'WHERE "{1}" IS NULL'
-            .format(table_name, attr, median)
-        )
-    except:
-        print('FILL MEAN FAILED')
+    dataframe = pd.read_sql_table(table_name, db.engine, columns=[attr])
+    median = dataframe[attr].median()
+    db.engine.execute(
+        'UPDATE "{0}" '
+        'SET "{1}" = {2} '
+        'WHERE "{1}" IS NULL'
+        .format(table_name, attr, median)
+    )
 
 
 def find_replace(table_name, attr, find, replace):
-    try:
-        db.engine.execute(
-            'UPDATE "{0}" '
-            'SET "{1}" = \'{2}\' '
-            'WHERE "{1}" = \'{3}\' '
-            .format(table_name, attr, replace, find)
-        )
-    except:
-        print('FIND-REPLACE FAILED')
+    db.engine.execute(
+        'UPDATE "{0}" '
+        'SET "{1}" = \'{2}\' '
+        'WHERE "{1}" = \'{3}\' '
+        .format(table_name, attr, replace, find)
+    )
 
 
 def substring_find_replace(table_name, attr, find, replace, full=False):
-    try:
-        if full:
-            db.engine.execute(
-                'UPDATE "{0}" '
-                'SET "{1}" = \'{2}\' '
-                'WHERE "{1}" LIKE \'%%{3}%%\' '
-                .format(table_name, attr, replace, find)
-            )
-        else:
-            db.engine.execute(
-                'UPDATE "{0}" '
-                'SET "{1}" = REPLACE("{1}", \'{2}\', \'{3}\')'
-                .format(table_name, attr, find, replace)
-            )
-    except Exception as e:
-        print('FIND-REPLACE FAILED\n' + str(e))
+    if full:
+        db.engine.execute(
+            'UPDATE "{0}" '
+            'SET "{1}" = \'{2}\' '
+            'WHERE "{1}" LIKE \'%%{3}%%\' '
+            .format(table_name, attr, replace, find)
+        )
+    else:
+        db.engine.execute(
+            'UPDATE "{0}" '
+            'SET "{1}" = REPLACE("{1}", \'{2}\', \'{3}\')'
+            .format(table_name, attr, find, replace)
+        )
 
 
 def regex_find_replace(table_name, attr, regex, replace):
+    is_valid = True
     try:
-        is_valid = True
-        try:
-            re.compile(regex)
-        except re.error:
-            is_valid = False
-        if is_valid:
-            db.engine.execute(
-                'UPDATE "{0}" '
-                'SET "{1}" = REGEXP_REPLACE("{1}", \'{2}\', \'{3}\')'
-                .format(table_name, attr, regex, replace)
-            )
-    except Exception as e:
-        print('REGEX FIND-REPLACE FAILED:\n' + str(e))
+        re.compile(regex)
+    except re.error:
+        is_valid = False
+    if is_valid:
+        db.engine.execute(
+            'UPDATE "{0}" '
+            'SET "{1}" = REGEXP_REPLACE("{1}", \'{2}\', \'{3}\')'
+            .format(table_name, attr, regex, replace)
+        )
 
 
 def normalize_attribute(table_name, attr):
@@ -279,15 +246,12 @@ def normalize_attribute(table_name, attr):
     :param table_name: table to perform the operation on
     :param attr: attribute to normalize
     """
-    try:
-        df = pd.read_sql_table(table_name, db.engine)
-        df[attr + '_normalized'] = (df[attr] - df[attr].mean()) / df[attr].std(ddof=0)
-        db.engine.execute(
-            'DROP TABLE "{0}"'.format(table_name)
-        )
-        df.to_sql(name=table_name, con=db.engine, if_exists="fail", index=False)
-    except:
-        print('NORMALIZATION FAILED')
+    df = pd.read_sql_table(table_name, db.engine)
+    df[attr + '_normalized'] = (df[attr] - df[attr].mean()) / df[attr].std(ddof=0)
+    db.engine.execute(
+        'DROP TABLE "{0}"'.format(table_name)
+    )
+    df.to_sql(name=table_name, con=db.engine, if_exists="fail", index=False)
 
 
 def remove_outliers(table_name, attr, value, smaller_than=False):
@@ -299,23 +263,20 @@ def remove_outliers(table_name, attr, value, smaller_than=False):
     :param smaller_than:  if true values smaller than are filtered,
                           values greater than otherwise
     """
-    try:
-        if smaller_than:
-            db.engine.execute(
-                'UPDATE "{0}" '
-                'SET "{1}" = NULL '
-                'WHERE "{1}" < {2}'
-                .format(table_name, attr, value)
-            )
-        else:  # greater than
-            db.engine.execute(
-                'UPDATE "{0}" '
-                'SET "{1}" = NULL '
-                'WHERE "{1}" > {2}'
-                .format(table_name, attr, value)
-            )
-    except:
-        print('REMOVE OUTLIERS FAILED')
+    if smaller_than:
+        db.engine.execute(
+            'UPDATE "{0}" '
+            'SET "{1}" = NULL '
+            'WHERE "{1}" < {2}'
+            .format(table_name, attr, value)
+        )
+    else:  # greater than
+        db.engine.execute(
+            'UPDATE "{0}" '
+            'SET "{1}" = NULL '
+            'WHERE "{1}" > {2}'
+            .format(table_name, attr, value)
+        )
 
 
 def delete_rows(table_name, condition):
@@ -338,25 +299,22 @@ def discretize_width(table_name, attr, intervals, dataframe=None, name=None):
         - [int]: non-uniform interval edges
     :param dataframe: Dataframe if data has already been read from sql
     """
-    try:
-        if dataframe is not None:
-            df = dataframe
-        else:
-            df = pd.read_sql_table(table_name, db.engine)
-        if name is not None:
-            column_name = name
-        elif isinstance(intervals, list):
-            column_name = attr + '_custom_intervals'
-        else:
-            column_name = attr + '_' + str(intervals) + '_eq_intervals'
+    if dataframe is not None:
+        df = dataframe
+    else:
+        df = pd.read_sql_table(table_name, db.engine)
+    if name is not None:
+        column_name = name
+    elif isinstance(intervals, list):
+        column_name = attr + '_custom_intervals'
+    else:
+        column_name = attr + '_' + str(intervals) + '_eq_intervals'
 
-        df[column_name] = pd.cut(df[attr], intervals, precision=9).apply(str)
-        db.engine.execute(
-            'DROP TABLE "{0}"'.format(table_name)
-        )
-        df.to_sql(name=table_name, con=db.engine, if_exists="fail", index=False)
-    except Exception as e:
-        print('WIDTH DISCRETIZATION FAILED:\n' + str(e))
+    df[column_name] = pd.cut(df[attr], intervals, precision=9).apply(str)
+    db.engine.execute(
+        'DROP TABLE "{0}"'.format(table_name)
+    )
+    df.to_sql(name=table_name, con=db.engine, if_exists="fail", index=False)
 
 
 def discretize_eq_freq(table_name, attr, intervals):
