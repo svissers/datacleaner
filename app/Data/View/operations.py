@@ -93,7 +93,8 @@ def get_chart_data_numerical(table_name, column):
             data[row] = 1
     result = []
     for key in data:
-        result.append((key, data[key]))
+        if isinstance(key, str) and key is not None:
+            result.append((key, data[key]))
     result.sort(key=lambda tup: tup[0])
     labels, values = map(list, zip(*result))
     colours = []

@@ -254,29 +254,33 @@ def normalize_attribute(table_name, attr):
     df.to_sql(name=table_name, con=db.engine, if_exists="fail", index=False)
 
 
-def remove_outliers(table_name, attr, value, smaller_than=False):
+def nullify_outliers(table_name, attr, value, operator):
     """
-    Removes outliers based on provided value
+    Removes outliers bases on given value and operator
     :param table_name: table to perform the operation on
-    :param attr: attribute to search for outliers
-    :param value: extrema value
-    :param smaller_than:  if true values smaller than are filtered,
-                          values greater than otherwise
+    :param attr:
+    :param value:
+    :param operator:
+    :return:
     """
-    if smaller_than:
-        db.engine.execute(
-            'UPDATE "{0}" '
-            'SET "{1}" = NULL '
-            'WHERE "{1}" < {2}'
-            .format(table_name, attr, value)
-        )
-    else:  # greater than
-        db.engine.execute(
-            'UPDATE "{0}" '
-            'SET "{1}" = NULL '
-            'WHERE "{1}" > {2}'
-            .format(table_name, attr, value)
-        )
+
+    symbol = str()
+
+    if operator == 'gt':
+        symbol = '>'
+    elif operator == 'st':
+        symbol = '<'
+    elif operator == 'egt':
+        symbol = '>='
+    elif operator == 'est':
+        symbol = '<='
+
+    db.engine.execute(
+        'UPDATE "{0}" '
+        'SET "{1}" = NULL '
+        'WHERE "{1}" {3} {2}'
+        .format(table_name, attr, value, symbol)
+    )
 
 
 def delete_rows(table_name, condition):

@@ -26,7 +26,8 @@ from app.Data.Transform.operations import (
     discretize_eq_freq,
     find_replace,
     regex_find_replace,
-    substring_find_replace
+    substring_find_replace,
+    nullify_outliers
 )
 
 _transform = Blueprint('transform_bp', __name__, url_prefix='/data/transform')
@@ -236,6 +237,24 @@ def change_type():
         else:
             flash('{0} successfully  converted to {1}'.format(col, new_type), 'success')
             create_action('type {0} changed to {1}'.format(col, new_type), dataset.id, current_user.id)
+
+    return redirect(request.referrer)
+
+
+@_transform.route('/remove_outliers', methods=['POST'])
+@login_required
+def remove_outliers():
+    dataset = get_dataset_with_id(request.args.get('dataset_id'))
+    col = request.form['column']
+    operator = request.form['outlier-operator']
+    edge = request.form['outlier-edge']
+
+    try:
+        nullify_outliers(dataset.working_copy, col, edge, operator)
+    except Exception as e:
+        flash('An unexpected error occured while removing outliers:\n' + str(e), 'danger')
+    else:
+        flash('Outliers removed successfully.', 'success')
 
     return redirect(request.referrer)
 
