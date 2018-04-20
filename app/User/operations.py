@@ -59,7 +59,7 @@ def delete_user_with_id(user_id):
         raise RuntimeError('No user associated with this id.')
     else:
         for project in user.projects:
-            delete_project_with_id(project.id, user_id)
+            delete_project_with_id(project.project_id, user_id)
         db.session.delete(user)
         db.session.commit()
 

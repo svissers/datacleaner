@@ -62,7 +62,11 @@
         <tr>
             <td>{{ action.time }}</td>
             <td>{{ action.description }}</td>
-            <td>{{ action.user.username }}</td>
+            {% if action.user.username %}
+                <td>{{ action.user.username }}</td>
+            {% else %}
+                <td><span class="text-muted">DELETED USER</span></td>
+            {% endif %}
         </tr>
     {% endfor %}
     </tbody>

@@ -99,5 +99,5 @@ def update_disabled():
 def delete():
     selected_user = request.form.getlist('user_id[]')
     for user in selected_user:
-        delete_user_with_id(user)
+        delete_user_with_id(int(user))
     return redirect(request.referrer)
