@@ -2,6 +2,7 @@ from app import database as db
 import re
 import datetime
 
+
 def table_name_to_object(sql_table_name):
     meta = db.MetaData(db.engine)
     table = db.Table(sql_table_name, meta, autoload=True)
@@ -28,6 +29,7 @@ def extract_columns_from_db(table):
             )
     return columns
 
+
 def extract_tables_from_dump(file):
     tables = []
     tables = re.findall(r"CREATE(?: TEMPORARY)? TABLE(?: IF(?: NOT)? EXISTS)? ([^\s]*) ?\(", file, re.IGNORECASE)
@@ -42,6 +44,7 @@ def extract_tables_from_dump(file):
     for index in range(len(tables)):
         tabledict[tables[index]] = table_name+str(index)
     return tabledict
+
 
 def escape_quotes(string):
     return_string = ''

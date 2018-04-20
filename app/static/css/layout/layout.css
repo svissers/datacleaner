@@ -34,3 +34,7 @@ padding: 3px 10px !important;
 width: 1px !important;
 white-space: nowrap !important;
 }
+
+table.dataTable th {
+white-space: nowrap !important;
+}

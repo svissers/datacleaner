@@ -149,9 +149,7 @@ def get_column_chart():
         'data': {'label': column_name + ' data'}
     }
 
-    if column_type in [
-        'TEXT', 'VARCHAR(10)', 'VARCHAR(25)', 'VARCHAR(255)', 'BOOLEAN'
-    ]:
+    if column_type in ['TEXT']:
         data = get_chart_data_categorical(dataset.working_copy, column_name)
         if len(data[0]) <= 50:
             stats['type'] = 'pie'

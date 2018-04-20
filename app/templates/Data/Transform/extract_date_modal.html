@@ -1,0 +1,42 @@
+<div class="modal fade" id="extract_from_date_modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <form method="post" action="{{ url_for('transform_bp.extract', dataset_id=dataset.id) }}">
+                    <table class="table" width="100%">
+                        <thead>
+                        <tr class="table-primary">
+                            <th>Column:</th>
+                            <th>Extract:</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>
+                                <select class="custom-select" id="extract-from-select" name="column">
+                                    <option selected disabled>Select...</option>
+                                    {% for column in columns %}
+                                        {% if column[1] in ['TIMESTAMP', 'DATE'] %}
+                                        <option data-type="{{ column[1] }}">{{ column[0] }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td width="35%">
+                                <select class="custom-select" id="extract-part-select"  name="extract">
+                                </select>
+                            </td>
+                            <td width="5%">
+                                <button type="submit" class="btn btn-success btn-block">
+                                    Extract
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

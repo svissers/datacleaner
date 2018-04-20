@@ -329,33 +329,30 @@ def discretize_eq_freq(table_name, attr, intervals):
     :param attr: attribute to discretize
     :param intervals: number of equal frequency intervals
     """
-    try:
-        df = pd.read_sql_table(table_name, db.engine)
-        attr_length = len(df[attr])
-        elements_per_interval = attr_length//intervals
-        sorted_data = list(df[attr].sort_values())
-        selector = 0
-        edge_list = []
-        while selector < attr_length:
-            try:
-                edge_list.append(sorted_data[selector])
-                selector += elements_per_interval
-            except IndexError:
-                pass
-        if edge_list[-1] != sorted_data[-1] and len(edge_list) == intervals + 1:
-            edge_list[-1] = sorted_data[-1]
-        elif edge_list[-1] != sorted_data[-1] and len(edge_list) != intervals + 1:
-            edge_list.append(sorted_data[-1])
+    df = pd.read_sql_table(table_name, db.engine)
+    attr_length = len(df[attr])
+    elements_per_interval = attr_length//intervals
+    sorted_data = list(df[attr].sort_values())
+    selector = 0
+    edge_list = []
+    while selector < attr_length:
+        try:
+            edge_list.append(sorted_data[selector])
+            selector += elements_per_interval
+        except IndexError:
+            pass
+    if edge_list[-1] != sorted_data[-1] and len(edge_list) == intervals + 1:
+        edge_list[-1] = sorted_data[-1]
+    elif edge_list[-1] != sorted_data[-1] and len(edge_list) != intervals + 1:
+        edge_list.append(sorted_data[-1])
 
-        # Extend outer edges with 0.1% to include min and max values
-        edge_list[0] = edge_list[0]-edge_list[0]*0.001
-        edge_list[-1] = edge_list[-1]+edge_list[-1]*0.001
+    # Extend outer edges with 0.1% to include min and max values
+    edge_list[0] = edge_list[0]-edge_list[0]*0.001
+    edge_list[-1] = edge_list[-1]+edge_list[-1]*0.001
 
-        column_name = attr + '_' + str(intervals) + '_eq_freq_intervals'
+    column_name = attr + '_' + str(intervals) + '_eq_freq_intervals'
 
-        discretize_width(table_name, attr, edge_list, df, column_name)
-    except Exception as e:
-        print('EQUAL FREQUENCY DISCRETIZATION FAILED:\n' + str(e))
+    discretize_width(table_name, attr, edge_list, df, column_name)
 
 
 def extract_from_date_time(table_name, attr, element):
@@ -365,24 +362,27 @@ def extract_from_date_time(table_name, attr, element):
     :param attr: attribute to extract from
     :param element: element to extract
     """
-    try:
-        if element in ['date', 'time']:
-            db.engine.execute(
-                'ALTER TABLE IF EXISTS {0} '
-                'ADD COLUMN "{1}_from_{2}" {3};'
-                'UPDATE "{0}" '
-                'SET "{1}_from_{2}" =  "{2}"::timestamp::{1};'
-                .format(table_name, element, attr, element.upper())
-            )
-        else:
-            db.engine.execute(
-                'ALTER TABLE IF EXISTS {0} '
-                'ADD COLUMN "{1}_from_{2}" TEXT;'
-                'UPDATE "{0}" '
-                'SET "{2}" = EXTRACT({1} FROM "{2}");'
-                .format(table_name, element, attr)
-            )
-    except:
-        pass #flash
+    if element == 'date':
+        db.engine.execute(
+            'ALTER TABLE IF EXISTS {0} '
+            'ADD COLUMN "{1} from {2}" DATE;'
+            'UPDATE "{0}" '
+            'SET "{1} from {2}" =  "{2}"::timestamp::date;'
+            .format(table_name, element, attr)
+        )
+    elif element == 'time':
+        db.engine.execute(
+            'ALTER TABLE IF EXISTS {0} '
+            'ADD COLUMN "{1} from {2}" TEXT;'
+            'UPDATE "{0}" '
+            'SET "{1} from {2}" =  "{2}"::timestamp::time;'
+            .format(table_name, element, attr,)
+        )
     else:
-        pass #flash + action
+        db.engine.execute(
+            'ALTER TABLE IF EXISTS {0} '
+            'ADD COLUMN "{1} from {2}" TEXT;'
+            'UPDATE "{0}" '
+            'SET "{1} from {2}" = EXTRACT({1} FROM "{2}");'
+            .format(table_name, element, attr)
+        )
