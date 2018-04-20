@@ -139,7 +139,7 @@ def dump():
     # TODO: implement .sql/.dump upload
     form = UploadForm()
     project_id = request.args.get('project_id')
-    print project_id
+    print(project_id)
     name = form.name.data
     description = form.description.data
     file = request.files['file'].read()
@@ -157,7 +157,7 @@ def dump():
         result = db.session.execute(statement)
         db.session.commit()
     except:
-        print "Unexpected error:", sys.exc_info()[0]
+        print("Unexpected error:", sys.exc_info()[0])
         raise
 
     for old_table_name in tabledict:

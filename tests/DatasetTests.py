@@ -5,10 +5,11 @@ from app.Data.Import.operations import *
 from app.Data.operations import *
 from app.Data.helpers import *
 from app.Data.Transform.operations import *
+from app.Data.View.operations import *
 from flask_testing import TestCase
 from shutil import copyfile
 from os import remove
-from sqlalchemy.exc import InvalidRequestError
+from sqlalchemy.exc import InvalidRequestError, DataError
 
 
 class DatasetTests(TestCase):
@@ -26,7 +27,7 @@ class DatasetTests(TestCase):
         db.session.remove()
         db.drop_all()
         for table in db.engine.table_names():
-            db.engine.execute('DROP TABLE ' + table)
+            db.engine.execute('DROP TABLE "{0}"'.format(table))
 
     def test_upload_csv(self):
         upload_csv('test', 'test', 'CSVs/test.csv', self.project.id)
@@ -35,6 +36,17 @@ class DatasetTests(TestCase):
         table = table_name_to_object(dataset.working_copy)
         self.assertTrue(db.session.query(table).count() == 10)
         self.assertTrue(db.session.query(table).filter_by(text='test1').first())
+
+    def test_get_dataset(self):
+        self.assertTrue(get_datasets(self.user_id, self.project.id).count() == 0)
+        upload_csv('test', 'test', 'CSVs/test.csv', self.project.id)
+        self.assertTrue(get_datasets(self.user_id, self.project.id).count() == 1)
+
+    def test_get_dataset_with_id(self):
+        self.assertIsNone(get_dataset_with_id(1))
+        upload_csv('test', 'test', 'CSVs/test.csv', self.project.id)
+        self.assertIsNotNone(get_dataset_with_id(1))
+        self.assertTrue(get_dataset_with_id(1).name == 'test')
 
     def test_delete_dataset(self):
         upload_csv('test', 'test', 'CSVs/test.csv', self.project.id)
@@ -131,7 +143,54 @@ class DatasetTests(TestCase):
         dataset = get_dataset_with_id(1)
         table = table_name_to_object(dataset.working_copy)
         col = extract_columns_from_db(table)
-        print(col)
+        self.assertTrue(col[0][0] == 'number')
+        self.assertTrue(col[0][1] == 'DOUBLE')
+        self.assertTrue(col[2][0] == 'time')
+        self.assertTrue(col[2][1] == 'TIMESTAMP')
+        change_attribute_type(table.name, col[0][0], 'TEXT')
+        change_attribute_type(table.name, col[2][0], 'DATE')
+        table = table_name_to_object(dataset.working_copy)
+        col = extract_columns_from_db(table)
+        self.assertTrue(col[0][0] == 'number')
+        self.assertTrue(col[0][1] == 'TEXT')
+        self.assertTrue(col[1][0] == 'text')
+        self.assertTrue(col[1][1] == 'TEXT')
+        with self.assertRaises(DataError):
+            change_attribute_type(table.name, col[0][0], 'DATE')
+        with self.assertRaises(DataError):
+            change_attribute_type(table.name, col[1][0], 'INTEGER')
+
+    def test_delete_rows(self):
+        upload_csv('test', 'test', 'CSVs/test.csv', self.project.id)
+        dataset = get_dataset_with_id(1)
+        table = table_name_to_object(dataset.working_copy)
+        self.assertTrue(db.session.query(table).filter_by(text='test1').first())
+        self.assertTrue(db.session.query(table).filter_by(number=1).first())
+        delete_rows(table.name, '"text"=\'test1\' or "number"=\'1\'')
+        self.assertIsNone(db.session.query(table).filter_by(text='test1').first())
+        self.assertIsNone(db.session.query(table).filter_by(number=1).first())
+
+    def test_numeric_operations(self):
+        upload_csv('test', 'test', 'CSVs/test.csv', self.project.id)
+        dataset = get_dataset_with_id(1)
+        table = table_name_to_object(dataset.working_copy)
+        self.assertTrue(get_most_frequent_value(table.name, 'text') == ('test1', 2))
+        self.assertTrue(get_number_of_values(table.name) == 10)
+        self.assertTrue(get_number_of_distinct_values(table.name, 'text') == 9)
+        self.assertTrue(get_number_of_null_values(table.name, 'number') == 3)
+        self.assertTrue(int(float(get_average_value(table.name, 'number'))) == -146692)
+        self.assertTrue(get_maximum_value(table.name, 'number') == 4787)
+        self.assertTrue(get_minimum_value(table.name, 'number') == -1034534)
+
+    def test_create_action(self):
+        upload_csv('test', 'test', 'CSVs/test.csv', self.project.id)
+        self.assertIsNone(db.session.query(Action).filter_by(description='test').first())
+        self.assertIsNone(db.session.query(Action).filter_by(dataset_id=1).first())
+        self.assertIsNone(db.session.query(Action).filter_by(user_id=self.user_id).first())
+        create_action('test', 1, self.user_id)
+        self.assertTrue(db.session.query(Action).filter_by(description='test').first())
+        self.assertTrue(db.session.query(Action).filter_by(dataset_id=1).first())
+        self.assertTrue(db.session.query(Action).filter_by(user_id=self.user_id).first())
 
 
 
