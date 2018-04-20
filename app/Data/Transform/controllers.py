@@ -27,7 +27,8 @@ from app.Data.Transform.operations import (
     find_replace,
     regex_find_replace,
     substring_find_replace,
-    nullify_outliers
+    nullify_outliers,
+    extract_from_date_time
 )
 
 _transform = Blueprint('transform_bp', __name__, url_prefix='/data/transform')
@@ -251,10 +252,11 @@ def remove_outliers():
 
     try:
         nullify_outliers(dataset.working_copy, col, edge, operator)
-    except Exception as e:
-        flash('An unexpected error occured while removing outliers:\n' + str(e), 'danger')
+    except:
+        flash('An unexpected error occured while removing outliers.', 'danger')
     else:
         flash('Outliers removed successfully.', 'success')
+        create_action('Removed values from {0} if {1} {2}.'.format(col, operator, edge), dataset.id, current_user.id)
 
     return redirect(request.referrer)
 
@@ -353,5 +355,22 @@ def fill_null():
                 'Filled null values in {0} with {1}'.format(column_name, fill_value),
                 dataset.id,
                 current_user.id)
+
+    return redirect(request.referrer)
+
+
+@_transform.route('/extract', methods=['POST'])
+@login_required
+def extract():
+    dataset = get_dataset_with_id(request.args.get('dataset_id'))
+    column = request.form['column']
+    part = request.form['extract']
+
+    try:
+        extract_from_date_time(dataset.working_copy, column, part)
+    except:
+        flash('An error occured while extracting {0} from {1}.'.format(part, column), 'danger')
+    else:
+        flash('Extraction successful.', 'success')
 
     return redirect(request.referrer)
