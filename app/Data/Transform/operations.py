@@ -278,7 +278,7 @@ def nullify_outliers(table_name, attr, value, operator):
     db.engine.execute(
         'UPDATE "{0}" '
         'SET "{1}" = NULL '
-        'WHERE "{1}" {3} {2}'
+        'WHERE "{1}" {3} \'{2}\''
         .format(table_name, attr, value, symbol)
     )
 
