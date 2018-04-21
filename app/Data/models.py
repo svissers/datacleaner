@@ -10,10 +10,10 @@ class Dataset(db.Model):
     __tablename__ = 'dataset'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    name = db.Column(db.String(50))
-    original_data = db.Column(db.String(50), unique=True)
-    working_copy = db.Column(db.String(50), unique=True)
-    description = db.Column(db.String(255))
+    name = db.Column(db.String(50), nullable=False)
+    original_data = db.Column(db.String(50), unique=True, nullable=False)
+    working_copy = db.Column(db.String(50), unique=True, nullable=False)
+    description = db.Column(db.String(255), nullable=False)
 
     # View is parent of action, thus this relationship helper class
     actions = db.relationship(
@@ -46,8 +46,8 @@ class Action(db.Model):
     __tablename__ = 'action'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    time = db.Column(db.DateTime, default=datetime.utcnow)
-    description = db.Column(db.String(255))
+    time = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    description = db.Column(db.String(255), nullable=False)
 
     # Action is child of view, thus this foreign key
     dataset_id = db.Column(
@@ -56,6 +56,7 @@ class Action(db.Model):
             'dataset.id',
             ondelete='CASCADE'
         )
+        , nullable=False
     )
 
     # Action is child of user, thus this foreign key

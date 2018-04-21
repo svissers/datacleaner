@@ -9,15 +9,16 @@ class Access(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     project_id = db.Column(
         db.Integer,
-        db.ForeignKey(
-            'project.id',
-            ondelete='CASCADE'
-        )
+        db.ForeignKey('project.id',ondelete='CASCADE'),
+        nullable=False
     )
-    user_id = db.Column(db.Integer, db.ForeignKey('user_data.id'))
+    user_id = db.Column(db.Integer,
+                        db.ForeignKey('user_data.id'),
+                        nullable=False
+                        )
 
-    user = db.relationship('User', backref=backref('projects',
-                                                   cascade="all,delete")
+    user = db.relationship('User',
+                           backref=backref('projects', cascade="all,delete")
                            )
 
 
@@ -25,8 +26,8 @@ class Project(db.Model):
     """Represents table holding all projects"""
     __tablename__ = 'project'
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    name = db.Column(db.String(25))
-    description = db.Column(db.Text())
+    name = db.Column(db.String(25), nullable=False)
+    description = db.Column(db.Text(), nullable=False)
     owner_id = db.Column(db.Integer,
                          db.ForeignKey('user_data.id'),
                          nullable=False)
