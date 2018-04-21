@@ -16,9 +16,8 @@
                                 <select class="custom-select" name="column">
                                     {% for column in columns %}
                                         {% if
-                                        column[1] == 'BIGINT' or
                                         column[1] == 'INTEGER' or
-                                        column[1] == 'DOUBLE PRECISION'
+                                        column[1] == 'DOUBLE'
                                         %}
                                         <option>{{ column[0] }}</option>
                                         {% endif %}
