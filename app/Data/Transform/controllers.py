@@ -372,5 +372,6 @@ def extract():
         flash('An error occured while extracting {0} from {1}.'.format(part, column), 'danger')
     else:
         flash('Extraction successful.', 'success')
+        create_action('Extract {0} from {1}'.format(part, column), dataset.id, current_user.id)
 
     return redirect(request.referrer)
