@@ -30,7 +30,6 @@ from app.Data.View.operations import get_maximum_value, \
     get_number_of_distinct_values
 
 
-
 _view = Blueprint('view_bp', __name__, url_prefix='/data/view')
 
 
@@ -60,7 +59,6 @@ def retrieve():
     sql_table_name = request.args.get('sql_table_name', None)
 
     if sql_table_name is None:
-        print(sql_table_name + " FAIL")
         return '{}'
 
     meta = db.MetaData(db.engine)
@@ -209,7 +207,7 @@ def get_column_info():
         '# Distinct Values': distinct
     }
 
-    if column_type in ['INTEGER', 'BIGINT', 'DOUBLE PRECISION']:
+    if column_type in ['INTEGER', 'DOUBLE']:
         stats['Biggest Value'] = get_maximum_value(dataset.working_copy,
                                                    column_name
                                                    )
