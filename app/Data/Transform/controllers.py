@@ -39,7 +39,7 @@ _transform = Blueprint('transform_bp', __name__, url_prefix='/data/transform')
 def rename_column():
     dataset = get_dataset_with_id(request.args.get('dataset_id'))
     col = request.form['column']
-    new_name = request.form['new_name']
+    new_name = escape_quotes(request.form['new_name'])
     try:
         rename_attribute(dataset.working_copy, col, new_name)
     except:
@@ -248,7 +248,7 @@ def remove_outliers():
     dataset = get_dataset_with_id(request.args.get('dataset_id'))
     col = request.form['column']
     operator = request.form['outlier-operator']
-    edge = request.form['outlier-edge']
+    edge = escape_quotes(request.form['outlier-edge'])
 
     try:
         nullify_outliers(dataset.working_copy, col, edge, operator)
@@ -266,9 +266,9 @@ def remove_outliers():
 def find_and_replace():
     dataset = get_dataset_with_id(request.args.get('dataset_id'))
     col = request.form['column']
-    find = request.form['find']
+    find = escape_quotes(request.form['find'])
     match_mode = request.form['match-mode']
-    replace = request.form['replace']
+    replace = escape_quotes(request.form['replace'])
     try:
         if match_mode == 'full-match':
             find_replace(dataset.working_copy, col, find, replace)
@@ -306,7 +306,7 @@ def fill_null():
     column_and_type = request.form['column']
     column_name = column_and_type[:column_and_type.find(' ')]
     column_type = column_and_type[column_and_type.find('(') + 1:column_and_type.rfind(')')]
-    fill_value = request.form['fill_value']
+    fill_value = escape_quotes(request.form['fill_value'])
 
     if fill_value == '~option-average~':
         if column_type not in ['INTEGER', 'BIGINT', 'DOUBLE PRECISION']:
