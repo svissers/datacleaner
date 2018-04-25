@@ -304,7 +304,7 @@ def find_and_replace():
 def fill_null():
     dataset = get_dataset_with_id(request.args.get('dataset_id'))
     column_and_type = request.form['column']
-    column_name = column_and_type[:column_and_type.find(' ')]
+    column_name = column_and_type[:column_and_type.find('(')-1]
     column_type = column_and_type[column_and_type.find('(') + 1:column_and_type.rfind(')')]
     fill_value = escape_quotes(request.form['fill_value'])
 
