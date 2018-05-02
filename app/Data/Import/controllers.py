@@ -148,6 +148,7 @@ def dump():
     for old_table_name in tabledict:
         file = re.sub(old_table_name, tabledict[old_table_name], file)
     file = re.sub('`', '', file)
+    file =  re.sub(r'VARCHAR ?\([\d]+\)', "TEXT", file, flags=re.IGNORECASE)
     # file = re.sub('auto_increment', 'serial', file)
     # file =  re.sub(r'int ?\([\d]+\)', "int", file, flags=re.IGNORECASE)
     # file =  re.sub(r'mediumtext', "text", file, flags=re.IGNORECASE)
@@ -166,10 +167,6 @@ def dump():
         working_copy = "wc" + table_name[2:]
         #result = s.execute('SELECT * FROM my_table WHERE my_column = :val', {'val': 5})
         connection = db.session.connection()
-
-        # statement = text('ALTER TABLE :name RENAME TO :og')
-        # print statement
-        # result = db.engine.execute(statement, {'name':table_name, 'og':original})
 
         # connection.execute(statement, {'name':table_name, 'og':original})
         # db.session.commit()
