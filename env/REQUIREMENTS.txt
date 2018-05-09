@@ -9,5 +9,4 @@ psycopg2-binary
 wtforms
 pandas
 sqlalchemy-datatables
-StringIO
-io
+wordcloud
