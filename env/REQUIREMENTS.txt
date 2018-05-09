@@ -10,3 +10,4 @@ wtforms
 pandas
 sqlalchemy-datatables
 StringIO
+io

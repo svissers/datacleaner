@@ -30,8 +30,10 @@ from app.Data.View.operations import get_maximum_value, \
     get_number_of_distinct_values, \
     get_bag_of_words
 import csv
-import StringIO
-
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 _view = Blueprint('view_bp', __name__, url_prefix='/data/view')
 
 
@@ -326,7 +328,7 @@ def download_features():
                 return jsonify(None)
         bow = get_bag_of_words(dataset.working_copy, column, stopwords, blacklist)
         bow = [(index, bow[index][0], bow[index][1]) for index in range(len(bow))]
-        si = StringIO.StringIO()
+        si = StringIO()
         cw = csv.writer(si)
         cw.writerow(["index", 'word', 'occurences'])
         cw.writerows(bow)
