@@ -58,6 +58,47 @@
                 <span id="type-display" class="float-right text-muted" style="margin-top: 9px"></span>
             </div>
             <div class="card-body">
+                <div class="btn-toolbar justify-content-between" role="toolbar">
+                  <div class="input-group">
+                      <select id="stat-visualization-select" class="custom-select"></select>
+                  </div>
+                    <div class="input-group">
+                      <select id="date-bin-select" class="custom-select" hidden>
+                          <option id="date-bin-select-init" value="" disabled selected>Select bin type...</option>
+                          <option value="YEAR">Year</option>
+                          <option value="MONTH">Month</option>
+                          <option value="DOW">Day of the week</option>
+                      </select>
+                  </div>
+                    <div class="input-group">
+                      <select id="datetime-bin-select" class="custom-select" hidden>
+                          <option id="datetime-bin-select-init" value="" disabled selected>Select bin type...</option>
+                          <option value="YEAR">Year</option>
+                          <option value="MONTH">Month</option>
+                          <option value="DOW">Day of the week</option>
+                          <option value="TOD">Time of day</option>
+                      </select>
+                  </div>
+                  <div id="num-bin-buttons" class="btn-group" role="group" hidden>
+                    <button id="min-bin-button" type="button" class="btn btn-outline-secondary">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <button id="bin-button" type="button" class="btn btn-outline-secondary" disabled>
+                        10
+                    </button>
+                      <select id="num-bin-select" class="custom-select"
+                              style="border-radius: 0; border-color: #9fa5aa; border-left-width: 0; border-right-width: 0;">
+                          <option id="num-bin-select-init" value="" disabled selected>
+                              Select bin type...
+                          </option>
+                          <option value="EW">Equal width</option>
+                          <option value="EF">Equal frequency</option>
+                      </select>
+                    <button id="plus-bin-button" type="button" class="btn btn-outline-secondary">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                  </div>
+                </div>
                 <div class="row-fluid">
                     <canvas id="stats-chart" width="95%"></canvas>
                 </div>
@@ -89,6 +130,57 @@
 
     var ctx = document.getElementById('stats-chart').getContext('2d');
     var chart;
+
+    function update_ui() {
+        var visualization_select = $("#stat-visualization-select");
+        var num_buttons = $("#num-bin-buttons");
+        var date_select = $("#date-bin-select");
+        var datetime_select = $("#datetime-bin-select");
+        num_buttons.prop('hidden', true);
+        date_select.prop('hidden', true);
+        datetime_select.prop('hidden', true);
+        $('#num-bin-select-init').prop({selected: true});
+        $('#date-bin-select-init').prop({selected: true});
+        $('#datetime-bin-select-init').prop({selected: true});
+        visualization_select.empty();
+        visualization_select.append($('<option>', {
+            value: '',
+            text: 'Select chart type...',
+            disabled: true,
+            selected: true
+        }));
+        visualization_select.append($('<option>', {
+            value: 'BAR',
+            text: 'Bar chart'
+        }));
+        visualization_select.append($('<option>', {
+            value: 'PIE',
+            text: 'Pie chart'
+        }));
+        var col_type = $('#stat-column-select option:selected').data('type');
+        if (col_type === "INTEGER" || col_type === "DOUBLE") {
+            $("#bin-button").html(10);
+           num_buttons.prop('hidden', false);
+        } else if (col_type === "TEXT") {
+            visualization_select.append($('<option>', {
+                value: 'WC',
+                text: 'Word cloud'
+            }));
+
+        } else if (col_type === "DATE") {
+            visualization_select.append($('<option>', {
+                value: 'LINE',
+                text: 'Line chart'
+            }));
+           date_select.prop('hidden', false);
+        } else if (col_type === "TIMESTAMP") {
+            visualization_select.append($('<option>', {
+                value: 'LINE',
+                text: 'Line chart'
+            }));
+           datetime_select.prop('hidden', false);
+        }
+    }
 
     function update_stats(){
         $.getJSON(
@@ -131,14 +223,33 @@
     }
 
     $(document).ready(function () {
+        update_ui();
         update_stats();
-        update_chart();
+        {#update_chart();#}
     });
 
     $('#stat-column-select').on('change', function () {
+        update_ui();
         update_stats();
         chart.destroy();
-        update_chart();
+        {#update_chart();#}
     });
+
+    $('#min-bin-button').on('click', function () {
+        var btn = $("#bin-button");
+        var val = Number(btn.html());
+        if (val != 1) {
+            btn.html(val-1);
+        }
+        {#update_chart();#}
+    });
+
+    $('#plus-bin-button').on('click', function () {
+        var btn = $("#bin-button");
+        var val = Number(btn.html());
+        btn.html(val+1);
+        {#update_chart();#}
+    });
+
     </script>
 {% endblock %}
