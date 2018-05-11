@@ -26,13 +26,13 @@
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link current-section" href="{{ url_for('view_bp.join', project_id=project.id) }}">
+            <a class="nav-link sidebar-link" href="{{ url_for('view_bp.join', project_id=project.id) }}">
                 <i class="fas fa-random fa-rotate-270 fa-fw"></i>
                 Merge data
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link sidebar-link" href="{{ url_for('view_bp.compare_view', project_id=project.id) }}">
+            <a class="nav-link current-section" href="{{ url_for('view_bp.view', dataset_id=1) }}">
                 <i class="fas fa-chart-pie fa-fw"></i>
                 Compare view
             </a>
@@ -93,66 +93,44 @@
     <div class="row">
         <div class="container">
             <form method=post action="#">
-                <h2>Join existing datasets:</h2>
-                <table id="join_table" class="table table-bordered" width="100%">
+                <h2>Select 2-4 datasets:</h2>
+                <table id="compare_table" class="table table-bordered" width="100%">
                     <thead>
                     <tr>
-                        <th>Left</th>
-                        <th>Join type</th>
-                        <th>Right</th>
-                        <th>Name</th>
-                        <th>Description</th>
+                        <th>Dataset 1</th>
+                        <th>Dataset 2</th>
+	                    <th></th>
                     </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td>
                                 <select class="custom-select file-select" name="file-left" id="file-left" required>
-                                    <option value="" disabled selected>Select file</option>
+                                    <option value="" disabled selected></option>
                                     {% for dataset in project.datasets %}
                                         <option value="{{ dataset.id }}">{{ dataset.name }}</option>
                                     {% endfor %}
                                 </select>
-                                <hr/>
-                                <select class="custom-select" name="column-left" id="column-left" required>
-                                    <option value="" disabled selected>Select column</option>
-                                    {# Dynamically genererated options #}
-                                </select>
                             </td>
                             <td>
-                                <select class="custom-select" name="join-type" id="join-type">
-                                    <option>cross</option>
-                                    <option>inner</option>
-                                    <option>left outer</option>
-                                    <option>right outer</option>
-                                    <option>full outer</option>
-                                </select>
-                            </td>
-                            <td>
-                                <select class="custom-select file-select" name="file-right" id="file-right" required>
-                                    <option value="" disabled selected>Select file</option>
+                                <select class="custom-select file-select" name="file-left" id="file-left" required>
+                                    <option value="" disabled selected></option>
                                     {% for dataset in project.datasets %}
                                         <option value="{{ dataset.id }}">{{ dataset.name }}</option>
                                     {% endfor %}
                                 </select>
-                                <hr/>
-                                <select class="custom-select" name="column-right" id="column-right" required>
-                                    <option value="" disabled selected>Select column</option>
-                                    {# Dynamically genererated options #}
-                                </select>
                             </td>
-                            <td>
-                                <input type="text" class="form-control" name="join-name" id="join-name" required>
-                            </td>
-                            <td>
-                                <input type="text" class="form-control" name="join-description" id="join-description" required>
+                            <td width="5%">
+                                <button type="button" class="btn btn-info btn-block add-dataset-btn">
+                                    <i class="fas fa-plus"></i>
+                                </button>
                             </td>
                         </tr>
                     </tbody>
                 </table>
                 <button type="submit" class="btn btn-success pull-right" name="button" value="upload">
                     <i class="fas fa-upload"></i>
-                    Join
+                    Compare
                 </button>
             </form>
         </div>
@@ -160,13 +138,77 @@
 </div>
 {% endblock %}
 
-{% block modals %}
-{% include 'Data/Import/edit_modal.html' %}
-{% endblock %}
-
 {% block scripts %}
     {{ super() }}
-	<script src="{{ url_for('static', filename='js/layout/navbar_side.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/Data/Import/dataset_join.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/Data/Import/edit_modal.js') }}"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
+	<script>
+		var counter = 2;
+		var datasets = '';
+		{% for dataset in project.datasets %}
+			datasets += '<option value="{{ dataset.id }}">{{ dataset.name }}</option>'
+		{% endfor %}
+
+		$(document).on('click', '.add-dataset-btn', function () {
+		    if (counter === 2) {
+                $('#compare_table').find('thead th:last').before(
+                    '<th>dataset 3</th>' +
+	                '<th></th>'
+                );
+                $('#compare_table').find('tbody td:last').before(
+                    '<td>' +
+	                '<select class="custom-select file-select" name="file-left" id="file-left" required>' +
+                    '<option value="" disabled selected></option>' + datasets +
+                    '</select>' +
+	                '</td>' +
+		            '<td width="5%"id="dataset 3">' +
+		            '<button type="button" class="btn btn-warning btn-block remove-dataset-btn">' +
+		            '<i class="fas fa-minus"></i>' +
+		            '</button>' +
+		            '</td>'
+                );
+                counter = 3;
+            }
+            else if (counter === 3) {
+			    $('#compare_table thead th:nth-child(5)').remove();
+			    $('#compare_table tbody td:nth-child(5)').remove();
+		        $('#compare_table').find('thead th:last').before(
+                    '<th>dataset 4</th>'
+                );
+                $('#compare_table').find('tbody td:last').before(
+                    '<td>' +
+	                '<select class="custom-select file-select" name="file-left" id="file-left" required>' +
+                    '<option value="" disabled selected></option>' + datasets +
+                    '</select>' +
+	                '</td>'
+                );
+                counter = 4;
+		    }
+		});
+
+		$(document).on('click', '.remove-dataset-btn', function () {
+		    if (counter === 3) {
+			    $('#compare_table thead th:nth-child(4)').remove();
+			    $('#compare_table tbody td:nth-child(4)').remove();
+			    $('#compare_table thead th:nth-child(3)').remove();
+			    $('#compare_table tbody td:nth-child(3)').remove();
+			    counter = 2;
+		    }
+		    else if (counter === 4) {
+			    $('#compare_table thead th:nth-child(4)').remove();
+			    $('#compare_table tbody td:nth-child(4)').remove();
+
+                $('#compare_table').find('thead th:last').after(
+	                '<th></th>'
+                );
+                $('#compare_table').find('tbody td:last').after(
+		            '<td width="5%"id="dataset 3">' +
+		            '<button type="button" class="btn btn-info btn-block add-dataset-btn">' +
+		            '<i class="fas fa-plus"></i>' +
+		            '</button>' +
+		            '</td>'
+                );
+                counter = 3;
+		    }
+		});
+	</script>
 {% endblock %}

@@ -30,7 +30,7 @@ from app.Data.View.operations import get_maximum_value, \
     get_number_of_distinct_values, \
     get_bag_of_words
 import csv
-import StringIO
+from io import StringIO
 
 _view = Blueprint('view_bp', __name__, url_prefix='/data/view')
 
@@ -229,7 +229,6 @@ def view():
     """
     Show entries of a specific table,
     or just list tables in the system if no parameter is provided
-    or just list tables in the system if no parameter is provided
     """
     project_id = request.args.get('project_id', default=None)
     dataset_id = request.args.get('dataset_id', default=None)
@@ -252,6 +251,23 @@ def view():
             project=project,
             upload_form=upload_form,
             edit_form=edit_form
+        )
+    else:
+        return redirect('main_bp.dashboard')
+
+
+@_view.route('/compare', methods=['GET', 'POST'])
+@login_required
+def compare_view():
+    """
+    Show compare view for specified tables
+    """
+    project_id = request.args.get('project_id', default=None)
+    if project_id is not None:
+        project = get_project_with_id(project_id)
+        return render_template(
+            'Data/View/compare_view.html',
+            project=project
         )
     else:
         return redirect('main_bp.dashboard')
@@ -294,6 +310,7 @@ def history():
     else:
         return redirect('main_bp.dashboard')
 
+
 @_view.route('/bag_of_words', methods=['GET'])
 @login_required
 def bag_of_words():
@@ -303,11 +320,12 @@ def bag_of_words():
     blacklist = []
     if dataset_id is not None and column is not None:
         dataset = get_dataset_with_id(dataset_id)
-        if dataset == None:
+        if dataset is None:
             return jsonify(None)
         bow = get_bag_of_words(dataset.working_copy, column, stopwords, blacklist)
         return jsonify(bow)
     return jsonify(None)
+
 
 @_view.route('/download_features', methods=['POST'])
 @login_required
@@ -316,17 +334,19 @@ def download_features():
     column = request.form.get('column_name', default=None)
     stopwords = bool(request.form.get('stopwords', default=False))
     # blacklist = []
-    blacklist = request.files['blacklist'].read().split("\n")
+    print(request.files['blacklist'].read().decode('utf-8').split("\n"))
+    blacklist = request.files['blacklist'].read().decode('utf-8').split("\n")
+    print(blacklist)
     if dataset_id is None:
         return redirect(request.referrer)
     else:
         if dataset_id is not None and column is not None:
             dataset = get_dataset_with_id(dataset_id)
-            if dataset == None:
+            if dataset is None:
                 return jsonify(None)
         bow = get_bag_of_words(dataset.working_copy, column, stopwords, blacklist)
         bow = [(index, bow[index][0], bow[index][1]) for index in range(len(bow))]
-        si = StringIO.StringIO()
+        si = StringIO()
         cw = csv.writer(si)
         cw.writerow(["index", 'word', 'occurences'])
         cw.writerows(bow)
