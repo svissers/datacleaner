@@ -6,6 +6,12 @@ from app.Data.models import Dataset
 from app.Data.operations import get_dataset_with_id
 import collections
 import string
+from wordcloud import WordCloud
+try:
+    from StringIO import StringIO
+except:
+    from io import StringIO
+from flask import make_response
 
 def get_most_frequent_value(table_name, column):
     return db.engine.execute(
@@ -237,7 +243,7 @@ def join_datasets(left_id,
     db.session.add(new_dataset)
     db.session.commit()
 
-def get_bag_of_words(table_name, column, stopwords, blacklist = []):
+def get_frequency(table_name, column, stopwords, blacklist = []):
     #filter punctuation
     df = pd.read_sql_table(table_name, db.engine)
     # print df[column]
@@ -274,3 +280,20 @@ def get_bag_of_words(table_name, column, stopwords, blacklist = []):
     #entry --> (word, wordcount)
     frequent_words = [entry for entry in c.most_common() if entry[1] > threshold]
     return frequent_words
+
+def get_wordcloud(table_name, column, stopwords, blacklist = []):
+    df = pd.read_sql_table(table_name, db.engine)
+    text = "\n".join(df[column])
+    wordcloud = WordCloud(width=1000, height=500).generate(text)
+    image = wordcloud.to_image()
+    # basewidth = 500
+    # wpercent = (basewidth / float(image.size[0]))
+    # hsize = int((float(image.size[1]) * float(wpercent)))
+    # image = image.resize((basewidth, hsize))#, PIL.Image.ANTIALIAS)
+    output = StringIO()
+    image.save(output, 'PNG', quality=100)
+    output.seek(0)
+    response=make_response(output.getvalue())
+    response.headers['Content-Type'] = 'image/png'
+
+    return response
