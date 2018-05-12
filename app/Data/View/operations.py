@@ -82,9 +82,35 @@ def get_minimum_value(table_name, column):
     ).first()[0]
 
 
-def get_chart_data_numerical(table_name, column):
+def get_chart_data_numerical(table_name, column, bins=10, eq='width'):
     df = pd.read_sql_table(table_name, db.engine, columns=[column])
-    intervals = pd.cut(df[column], 10, precision=9).apply(str)
+    edges = []
+    if eq == 'width':
+        min_val = df.min()
+        max_val = df.max()
+        width = (max_val + min_val)/bins
+        edges = np.arange(min_val, max_val, width)
+    elif eq == 'freq':
+        attr_length = len(df)
+        elements_per_interval = attr_length // bins
+        sorted_data = list(df[column].sort_values())
+        selector = 0
+        while selector < attr_length:
+            try:
+                edges.append(sorted_data[selector])
+                selector += elements_per_interval
+            except IndexError:
+                pass
+        if edges[-1] != sorted_data[-1] and len(edges) == bins + 1:
+            edges[-1] = sorted_data[-1]
+        elif edges[-1] != sorted_data[-1] and len(edges) != bins + 1:
+            edges.append(sorted_data[-1])
+
+        # Extend outer edges with 0.1% to include min and max values
+        edges[0] = edges[0] - edges[0] * 0.001
+        edges[-1] = edges[-1] + edges[-1] * 0.001
+
+    intervals = pd.cut(df[column], edges).apply(str)
     data = {}
     for row in intervals:
         if row in data:
@@ -123,6 +149,61 @@ def get_chart_data_categorical(table_name, column):
             result.append((key, data[key]))
     result.sort(key=lambda tup: tup[0])
     labels, values = map(list, zip(*result))
+    colours = []
+    body_colours = []
+    border_colours = []
+    while len(colours) < len(labels):
+        random_colour = list(np.random.choice(range(256), size=3))
+        if random_colour not in colours:
+            colours.append(random_colour)
+            body_colours.append('rgba' + str(tuple(random_colour + [0.2])))
+            border_colours.append('rgba' + str(tuple(random_colour + [1.0])))
+    return labels, values, body_colours, border_colours
+
+
+def get_chart_data_date_or_timestamp(table_name, column, bins):
+    df = pd.read_sql_table(table_name, db.engine, columns=[column])
+    data = {}
+    if bins == 'YEAR':
+        df = df[column].dt.year
+    elif bins == 'MONTH':
+        df = df[column].dt.month
+        data = {key: 0 for key in range(1, 13)}
+    elif bins == 'WOY':
+        df = df[column].dt.week
+        data = {key: 0 for key in range(1, 53)}
+    elif bins == 'QUARTER':
+        df = df[column].dt.quarter
+        data = {key: 0 for key in range(1, 5)}
+    elif bins == 'DOW':
+        df = df[column].dt.weekday
+        data = {key: 0 for key in range(7)}
+    elif bins == 'TOD':
+        df = df[column].dt.hour
+        data = {key: 0 for key in range(24)}
+    for value in df:
+        if value in data:
+            data[value] += 1
+        elif value not in data and bins == 'YEAR':
+            data[value] = 1
+    result = []
+
+    for key in data:
+        if key is not None:
+            result.append((key, data[key]))
+    result.sort(key=lambda tup: tup[0])
+    labels, values = map(list, zip(*result))
+    if bins == 'MONTH':
+        labels = ['January', 'February', 'March', 'April', 'May', 'June',
+                  'July', 'August', 'September', 'October', 'November',
+                  'December'
+                  ]
+    elif bins == 'DOW':
+        labels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday',
+                  'Saturday', 'Sunday'
+                  ]
+    elif bins == 'QUARTER':
+        labels = ['Q1', 'Q2', 'Q3', 'Q4']
     colours = []
     body_colours = []
     border_colours = []

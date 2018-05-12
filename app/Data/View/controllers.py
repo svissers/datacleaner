@@ -26,6 +26,7 @@ from app.Data.View.operations import get_maximum_value, \
     get_average_value, \
     get_chart_data_numerical, \
     get_chart_data_categorical, \
+    get_chart_data_date_or_timestamp, \
     get_number_of_values, \
     get_number_of_distinct_values
 
@@ -136,6 +137,158 @@ def get_columns():
     return jsonify(column_names)
 
 
+@_view.route('/get_num_chart', methods=['GET'])
+@login_required
+def get_num_chart():
+    dataset = get_dataset_with_id(request.args.get('dataset_id'))
+    column_name = request.args.get('column_name')
+    chart_type = request.args.get('chart_type')
+    bin_type = request.args.get('bin_type')
+    bin_number = int(request.args.get('bin_number'))
+
+    data = get_chart_data_numerical(
+            table_name=dataset.working_copy,
+            column=column_name,
+            bins=bin_number,
+            eq=bin_type
+    )
+
+    stats = {
+        'type': chart_type,
+        'data': {
+            'labels': data[0],
+            'datasets': [{
+                'label': column_name,
+                'data': data[1],
+                'backgroundColor': data[2],
+                'borderColor': data[3],
+                'borderWidth': 1
+            }]
+        }
+    }
+
+    if chart_type == 'bar':
+        stats['options'] = {
+            'legend': {
+              'display': False
+            },
+            'scaleShowValues': True,
+            'scales': {
+                'yAxes': [{
+                    'ticks': {
+                        'beginAtZero': True
+                    }
+                }],
+                'xAxes': [{
+                    'ticks': {
+                        'autoSkip': False
+                    }
+                }]
+            }
+        }
+
+    return jsonify(stats)
+
+
+@_view.route('/get_text_chart', methods=['GET'])
+@login_required
+def get_text_chart():
+    dataset = get_dataset_with_id(request.args.get('dataset_id'))
+    column_name = request.args.get('column_name')
+    chart_type = request.args.get('chart_type')
+
+    if chart_type == 'cloud':
+        pass
+    else:
+        data = get_chart_data_categorical(dataset.working_copy, column_name)
+
+        stats = {
+            'type': chart_type,
+            'data': {
+                'labels': data[0],
+                'datasets': [{
+                    'label': column_name,
+                    'data': data[1],
+                    'backgroundColor': data[2],
+                    'borderColor': data[3],
+                    'borderWidth': 1
+                }]
+            }
+        }
+
+        if chart_type == 'bar':
+            stats['options'] = {
+                'scaleShowValues': True,
+                'scales': {
+                    'yAxes': [{
+                        'ticks': {
+                            'beginAtZero': True
+                        }
+                    }],
+                    'xAxes': [{
+                        'ticks': {
+                            'autoSkip': False
+                        }
+                    }]
+                },
+                'legend': {
+                    'display': False
+                }
+            }
+        if len(data[0]) > 50:
+            stats = {
+                'warning': True
+            }
+
+        return jsonify(stats)
+
+
+@_view.route('/get_date_or_timestamp_chart', methods=['GET'])
+@login_required
+def get_date_or_timestamp_chart():
+    dataset = get_dataset_with_id(request.args.get('dataset_id'))
+    column_name = request.args.get('column_name')
+    chart_type = request.args.get('chart_type')
+    bin_type = request.args.get('bin_type')
+
+    data = get_chart_data_date_or_timestamp(
+            dataset.working_copy,
+            column_name,
+            bin_type
+    )
+
+    stats = {
+        'type': chart_type,
+        'data': {
+            'labels': data[0],
+            'datasets': [{
+                'label': column_name,
+                'data': data[1],
+                'backgroundColor': data[2],
+                'borderColor': data[3],
+                'borderWidth': 1
+            }]
+        }
+    }
+
+    if chart_type == 'bar' or chart_type == 'line':
+        stats['options'] = {
+            'scaleShowValues': True,
+            'scales': {
+                'yAxes': [{
+                    'ticks': {
+                        'beginAtZero': True
+                    }
+                }]
+            },
+            'legend': {
+                'display': False
+            }
+        }
+
+        return jsonify(stats)
+
+
 @_view.route('/get_column_chart', methods=['GET'])
 @login_required
 def get_column_chart():
@@ -143,9 +296,7 @@ def get_column_chart():
     column_name = request.args.get('column_name')
     column_type = request.args.get('column_type')
 
-    stats = {
-        'data': {'label': column_name + ' data'}
-    }
+    stats = {}
 
     if column_type in ['TEXT']:
         data = get_chart_data_categorical(dataset.working_copy, column_name)

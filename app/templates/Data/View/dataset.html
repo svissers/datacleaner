@@ -62,45 +62,59 @@
                   <div class="input-group">
                       <select id="stat-visualization-select" class="custom-select"></select>
                   </div>
-                    <div class="input-group">
-                      <select id="date-bin-select" class="custom-select" hidden>
-                          <option id="date-bin-select-init" value="" disabled selected>Select bin type...</option>
+                    <div id="date-bin-select" class="input-group" hidden>
+                      <select  class="custom-select">
                           <option value="YEAR">Year</option>
                           <option value="MONTH">Month</option>
+                          <option value="WOY">Week of the year</option>
+                          <option value="QUARTER">Quarter</option>
                           <option value="DOW">Day of the week</option>
                       </select>
+                        <div class="input-group-append">
+                            <button id="update-bin-btn1" class="btn btn-outline-success" type="button">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
                   </div>
-                    <div class="input-group">
-                      <select id="datetime-bin-select" class="custom-select" hidden>
-                          <option id="datetime-bin-select-init" value="" disabled selected>Select bin type...</option>
+                    <div id="datetime-bin-select" class="input-group" hidden>
+                      <select class="custom-select">
                           <option value="YEAR">Year</option>
                           <option value="MONTH">Month</option>
+                          <option value="WOY">Week of the year</option>
+                          <option value="QUARTER">Quarter</option>
                           <option value="DOW">Day of the week</option>
                           <option value="TOD">Time of day</option>
                       </select>
+                        <div class="input-group-append">
+                            <button id="update-bin-btn2" class="btn btn-outline-success" type="button">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
                   </div>
-                  <div id="num-bin-buttons" class="btn-group" role="group" hidden>
-                    <button id="min-bin-button" type="button" class="btn btn-outline-secondary">
-                        <i class="fas fa-minus"></i>
-                    </button>
-                    <button id="bin-button" type="button" class="btn btn-outline-secondary" disabled>
-                        10
-                    </button>
-                      <select id="num-bin-select" class="custom-select"
-                              style="border-radius: 0; border-color: #9fa5aa; border-left-width: 0; border-right-width: 0;">
-                          <option id="num-bin-select-init" value="" disabled selected>
-                              Select bin type...
-                          </option>
-                          <option value="EW">Equal width</option>
-                          <option value="EF">Equal frequency</option>
-                      </select>
-                    <button id="plus-bin-button" type="button" class="btn btn-outline-secondary">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                  </div>
+                    <div id="num-bin-buttons" class="input-group" hidden>
+                        <div class="input-group-prepend">
+                            <input type="text"
+                                   id="bin-num-field"
+                                   class="form-control"
+                                   placeholder="# intervals"
+                                   value="5"
+                                   style="width: 120px;
+                                   border-top-right-radius: 0;
+                                   border-bottom-right-radius: 0">
+                        </div>
+                        <select class="custom-select" id="num-bin-select">
+                          <option value="width">Equal width</option>
+                          <option value="freq">Equal frequency</option>
+                        </select>
+                        <div class="input-group-append">
+                            <button id="update-bin-btn3" class="btn btn-outline-success" type="button">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="row-fluid">
-                    <canvas id="stats-chart" width="95%"></canvas>
+                <div id="canvas-row" class="row-fluid">
+                    <canvas id="stats-chart" width="auto" style="margin-top: 20px"></canvas>
                 </div>
                 <hr/>
                 <div class="row-fluid">
@@ -150,32 +164,32 @@
             selected: true
         }));
         visualization_select.append($('<option>', {
-            value: 'BAR',
+            value: 'bar',
             text: 'Bar chart'
         }));
         visualization_select.append($('<option>', {
-            value: 'PIE',
+            value: 'pie',
             text: 'Pie chart'
         }));
         var col_type = $('#stat-column-select option:selected').data('type');
         if (col_type === "INTEGER" || col_type === "DOUBLE") {
-            $("#bin-button").html(10);
+            $("#bin-num-field").val(5);
            num_buttons.prop('hidden', false);
         } else if (col_type === "TEXT") {
             visualization_select.append($('<option>', {
-                value: 'WC',
+                value: 'cloud',
                 text: 'Word cloud'
             }));
 
         } else if (col_type === "DATE") {
             visualization_select.append($('<option>', {
-                value: 'LINE',
+                value: 'line',
                 text: 'Line chart'
             }));
            date_select.prop('hidden', false);
         } else if (col_type === "TIMESTAMP") {
             visualization_select.append($('<option>', {
-                value: 'LINE',
+                value: 'line',
                 text: 'Line chart'
             }));
            datetime_select.prop('hidden', false);
@@ -206,49 +220,98 @@
     }
 
     function update_chart(){
+        if (typeof chart != 'undefined') {
+            chart.destroy();
+        }
         var column_type = $('#stat-column-select option:selected').data('type');
-        $.getJSON(
-            '{{ url_for('view_bp.get_column_chart') }}',
-            {
-            dataset_id: '{{ dataset.id }}',
-            column_name: $('#stat-column-select').val(),
-            column_type: column_type
-            },
-            function (data) {
-                if (data['data']['labels'].length > 250){
-                    alert('That\'s a lot of categories! Our charting software has difficulty displaying large amounts of categories.\nTry filtering your data or changing the datatype of the column.')
-                }
-                chart = new Chart(ctx, data);
-        });
+        var chart_type = $('#stat-visualization-select option:selected').val();
+        var column_name = $('#stat-column-select').val();
+        if (column_type === 'INTEGER' || column_type === 'DOUBLE') {
+            $.getJSON(
+                '{{ url_for('view_bp.get_num_chart') }}',
+                {
+                dataset_id: '{{ dataset.id }}',
+                column_name: column_name,
+                chart_type: chart_type,
+                bin_type: $("#num-bin-select option:selected").val(),
+                bin_number: $("#bin-num-field").val()
+                },
+                function (data) {
+                    chart = new Chart(ctx, data);
+            });
+        } else if (column_type === 'TEXT') {
+            $.getJSON(
+                '{{ url_for('view_bp.get_text_chart') }}',
+                {
+                dataset_id: '{{ dataset.id }}',
+                column_name: column_name,
+                chart_type: chart_type
+                },
+                function (data) {
+                    if (data['warning']){
+                        alert(
+                            'That\'s a lot of categories! ' +
+                            'Our charting software has difficulty displaying large amounts of categories.' +
+                            '\nTry filtering your data or changing the datatype of the column.')
+                    }
+                    else {
+                        chart = new Chart(ctx, data);
+                    }
+            });
+        } else if (column_type === 'DATE') {
+            $.getJSON(
+                '{{ url_for('view_bp.get_date_or_timestamp_chart') }}',
+                {
+                    dataset_id: '{{ dataset.id }}',
+                    column_name: column_name,
+                    bin_type: $("#date-bin-select option:selected").val(),
+                    chart_type: chart_type
+                },
+                function (data) {
+                    chart = new Chart(ctx, data);
+                });
+        } else if (column_type === 'TIMESTAMP') {
+            $.getJSON(
+                '{{ url_for('view_bp.get_date_or_timestamp_chart') }}',
+                {
+                    dataset_id: '{{ dataset.id }}',
+                    column_name: column_name,
+                    bin_type: $("#datetime-bin-select option:selected").val(),
+                    chart_type: chart_type
+                },
+                function (data) {
+                    chart = new Chart(ctx, data);
+                });
+        }
     }
 
     $(document).ready(function () {
         update_ui();
         update_stats();
-        {#update_chart();#}
     });
 
     $('#stat-column-select').on('change', function () {
         update_ui();
         update_stats();
-        chart.destroy();
-        {#update_chart();#}
-    });
-
-    $('#min-bin-button').on('click', function () {
-        var btn = $("#bin-button");
-        var val = Number(btn.html());
-        if (val != 1) {
-            btn.html(val-1);
+        if (typeof chart != 'undefined') {
+            chart.destroy();
         }
-        {#update_chart();#}
     });
 
-    $('#plus-bin-button').on('click', function () {
-        var btn = $("#bin-button");
-        var val = Number(btn.html());
-        btn.html(val+1);
-        {#update_chart();#}
+    $('#stat-visualization-select').on('change', function () {
+        update_chart();
+    });
+
+    $('#update-bin-btn1').on('click', function () {
+        update_chart();
+    });
+
+    $('#update-bin-btn2').on('click', function () {
+        update_chart();
+    });
+
+    $('#update-bin-btn3').on('click', function () {
+        update_chart();
     });
 
     </script>
