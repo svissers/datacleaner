@@ -114,7 +114,8 @@
                     </div>
                 </div>
                 <div id="canvas-row" class="row-fluid">
-                    <canvas id="stats-chart" width="auto" style="margin-top: 20px"></canvas>
+                    <img id="wordcloud" hidden>
+                    <canvas id="stats-chart" width="auto" style="margin-top: 20px" hidden></canvas>
                 </div>
                 <hr/>
                 <div class="row-fluid">
@@ -200,7 +201,6 @@
     }
 
     function update_stats(){
-        $("#wordcloud").attr("src", '{{ url_for("view_bp.wordcloud")}}?dataset_id={{ dataset.id }}&column_name='+$('#stat-column-select').val());
 
         //update stats col
         $.getJSON(
@@ -344,7 +344,17 @@
     });
 
     $('#stat-visualization-select').on('change', function () {
-        update_chart();
+        var canvas = $('#stats-chart');
+        var wordcloud = $('#wordcloud');
+        if ($('#stat-visualization-select').val() === 'cloud') {
+            canvas.prop('hidden', true);
+            wordcloud.prop('hidden', false);
+            wordcloud.attr("src", '{{ url_for("view_bp.wordcloud")}}?dataset_id={{ dataset.id }}&column_name='+$('#stat-column-select').val());
+        } else {
+            canvas.prop('hidden', false);
+            wordcloud.prop('hidden', true);
+            update_chart();
+        }
     });
 
     $('#update-bin-btn1').on('click', function () {
