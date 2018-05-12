@@ -129,20 +129,10 @@ def one_hot_encode(table_name, attr):
     :param attr: attribute to one hot encode
     :return:
     """
-    dataframe = pd.read_sql_table(table_name, db.engine)
-    one_hot = pd.get_dummies(dataframe[attr])
-    print('OH', one_hot)
-    dataframe = dataframe.join(one_hot)
-    print('DF', dataframe)
-    db.engine.execute(
-        'DROP TABLE "{0}"'.format(table_name)
-    )
-    dataframe.to_sql(
-        name=table_name,
-        con=db.engine,
-        if_exists="fail",
-        index=False
-    )
+    df = pd.read_sql_table(table_name, db.engine)
+    one_hot = pd.get_dummies(df[attr])
+    df = df.join(one_hot)
+    df.to_sql(name=table_name, con=db.engine, if_exists="replace", index=False)
 
 
 def fill_null_with(table_name, attr, value, text_type):
@@ -248,10 +238,7 @@ def normalize_attribute(table_name, attr):
     """
     df = pd.read_sql_table(table_name, db.engine)
     df[attr + '_normalized'] = (df[attr] - df[attr].mean()) / df[attr].std(ddof=0)
-    db.engine.execute(
-        'DROP TABLE "{0}"'.format(table_name)
-    )
-    df.to_sql(name=table_name, con=db.engine, if_exists="fail", index=False)
+    df.to_sql(name=table_name, con=db.engine, if_exists="replace", index=False)
 
 
 def nullify_outliers(table_name, attr, value, operator):
@@ -292,7 +279,7 @@ def delete_rows(table_name, condition):
         return False
 
 
-def discretize_width(table_name, attr, intervals, dataframe=None, name=None):
+def discretize_width(table_name, attr, intervals):
     """
     Discretizes table_name.attr into a number of equal-width
     intervals equal to interval amount
@@ -301,24 +288,20 @@ def discretize_width(table_name, attr, intervals, dataframe=None, name=None):
     :param intervals:
         - int: number of equal width intervals
         - [int]: non-uniform interval edges
-    :param dataframe: Dataframe if data has already been read from sql
     """
-    if dataframe is not None:
-        df = dataframe
-    else:
-        df = pd.read_sql_table(table_name, db.engine)
-    if name is not None:
-        column_name = name
-    elif isinstance(intervals, list):
+    df = pd.read_sql_table(table_name, db.engine)
+    if isinstance(intervals, list):
         column_name = attr + '_custom_intervals'
+        df[column_name] = pd.cut(df[attr], intervals).apply(str)
     else:
         column_name = attr + '_' + str(intervals) + '_eq_intervals'
+        min_val = df[attr].min()
+        max_val = df[attr].max()
+        width = (max_val + min_val)/intervals
+        edges = np.arange(min_val, max_val, width)
+        df[column_name] = pd.cut(df[attr], edges).apply(str)
 
-    df[column_name] = pd.cut(df[attr], intervals, precision=9).apply(str)
-    db.engine.execute(
-        'DROP TABLE "{0}"'.format(table_name)
-    )
-    df.to_sql(name=table_name, con=db.engine, if_exists="fail", index=False)
+    df.to_sql(name=table_name, con=db.engine, if_exists="replace", index=False)
 
 
 def discretize_eq_freq(table_name, attr, intervals):
@@ -352,7 +335,8 @@ def discretize_eq_freq(table_name, attr, intervals):
 
     column_name = attr + '_' + str(intervals) + '_eq_freq_intervals'
 
-    discretize_width(table_name, attr, edge_list, df, column_name)
+    df[column_name] = pd.cut(df[attr], edge_list).apply(str)
+    df.to_sql(name=table_name, con=db.engine, if_exists="replace", index=False)
 
 
 def extract_from_date_time(table_name, attr, element):
