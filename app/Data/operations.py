@@ -15,6 +15,7 @@ def get_datasets(user_id, project_id=None):
 
 
 def get_dataset_with_id(dataset_id):
+    '''returns None if no such dataset exists'''
     return db.session.query(Dataset).filter(Dataset.id == dataset_id).first()
 
 
