@@ -365,7 +365,7 @@ def get_frequency(table_name, column, stopwords, blacklist = []):
 def get_wordcloud(table_name, column, stopwords, blacklist = []):
     df = pd.read_sql_table(table_name, db.engine)
     text = "\n".join(df[column])
-    wordcloud = WordCloud(width=1000, height=500).generate(text)
+    wordcloud = WordCloud(width=1000, height=500, background_color='white').generate(text)
     image = wordcloud.to_image()
     # basewidth = 500
     # wpercent = (basewidth / float(image.size[0]))
