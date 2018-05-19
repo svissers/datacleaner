@@ -219,10 +219,8 @@
 	    {% endfor %}
     }
     function update_chart(i){
-        chart = [];
 	    {% for dataset in datasets %}
 		    var j = {{ loop.index0 }};
-				document.getElementById("test").innerHTML = i;
 		    if (i === j) {
 			        var column_type = $('#stat-column-select' + i.toString() + ' option:selected').data('type');
 		        $.getJSON(
@@ -236,7 +234,8 @@
 		                if (data['data']['labels'].length > 250){
 		                    alert('That\'s a lot of categories! Our charting software has difficulty displaying large amounts of categories.\nTry filtering your data or changing the datatype of the column.')
 		                }
-		                chart.push(new Chart(ctx[i], data));
+		                chart[i] = new Chart(ctx[i], data);
+				document.getElementById("test").innerHTML = chart.length;
 		        });
             }
 	    {% endfor %}
@@ -249,22 +248,24 @@
     });
     $('#stat-column-select0').on('change', function () {
         update_stats();
+        chart[0].destroy();
         update_chart(0);
     });
     $('#stat-column-select1').on('change', function () {
         update_stats();
+        chart[1].destroy();
         update_chart(1);
     });
     $('#stat-column-select2').on('change', function () {
         update_stats();
+        chart[2].destroy();
         update_chart(2);
     });
     $('#stat-column-select3').on('change', function () {
         update_stats();
+        chart[3].destroy();
         update_chart(3);
     });
-
-
 
     </script>
 {% endblock %}
