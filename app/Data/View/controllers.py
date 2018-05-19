@@ -415,6 +415,22 @@ def compare_view():
     project_id = request.args.get('project_id', default=None)
     if project_id is not None:
         project = get_project_with_id(project_id)
+        if request.method == 'POST':
+            dataset_ids = []
+            try:
+                for i in range(4):
+                    dataset_ids.append(request.form['dataset' + str(i+1)])
+            except:
+                pass
+            datasets = []
+            columns = []
+            for i in dataset_ids:
+                ds = get_dataset_with_id(i)
+                table = table_name_to_object(ds.working_copy)
+                columns.append(extract_columns_from_db(table))
+                datasets.append(ds)
+            return render_template('Data/View/compare.html', datasets=datasets, project=project, columns=columns)
+
         return render_template(
             'Data/View/compare_view.html',
             project=project

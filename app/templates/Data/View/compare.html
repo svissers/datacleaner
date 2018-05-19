@@ -1,0 +1,270 @@
+{% extends "layout/main.html" %}
+
+{% block styles %}
+    {{ super() }}
+{% endblock %}
+
+{% block sidebar_content %}
+    <ul class="nav nav-pills flex-column">
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="{{ url_for('main_bp.dashboard') }}">
+                <i class="fas fa-home fa-fw"></i>
+                Return to Dashboard
+            </a>
+        </li>
+        <!-- Project banner -->
+        <li class="nav-item">
+            <a class="nav-link not-clickable active" href="#">
+                <i class="fas fa-sitemap fa-fw"></i>
+                Project
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="{{ url_for('view_bp.view', project_id=project.id) }}">
+                <i class="fas fa-upload fa-fw"></i>
+                Upload data
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" href="{{ url_for('view_bp.join', project_id=project.id) }}">
+                <i class="fas fa-random fa-rotate-270 fa-fw"></i>
+                Merge data
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link current-section" href="{{ url_for('view_bp.compare_view', project_id=project.id) }}">
+                <i class="fas fa-chart-pie fa-fw"></i>
+                Compare view
+            </a>
+        </li>
+        <!-- Datasets banner -->
+        <li class="nav-item">
+            <a class="nav-link not-clickable active" href="#">
+                <i class="fas fa-database fa-fw"></i>
+                Datasets
+            </a>
+        </li>
+    {% for dataset in project.datasets %}
+        <li class="nav-item">
+            <a class="nav-link sidebar-link" data-toggle="collapse"
+               href="#sidebar-{{ dataset.id }}-info">
+                <i class="fas fa-caret-right fa-fw" id="sidebar-{{ dataset.id }}-toggle"></i>
+                {{ dataset.name }}
+            </a>
+        </li>
+        <!-- Collapsable dataset info card -->
+        <div class="collapse sidebar-collapse" id="sidebar-{{ dataset.id }}-info">
+            <div class="card card-body sidebar-card">
+                <h6>Description:</h6>
+                {{ dataset.description }}
+                <hr/>
+                <div class="row-fluid inline action-icons">
+                    <!-- Open project button -->
+                    <a href="{{ url_for('view_bp.view', dataset_id=dataset.id) }}">
+                        <i class="fas fa-folder-open"></i>
+                    </a>
+                    <!-- Edit project button -->
+                    <a href="#edit-dataset-modal" data-toggle="modal"
+                       data-target="#edit-dataset-modal"
+                       data-projectid="{{ dataset.id }}"
+                       data-title="{{ dataset.name }}"
+                       data-description="{{ dataset.description }}">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <!-- Delete project button -->
+                    <form id="delete-form-{{ dataset.id }}"
+                          action="{{ url_for('upload_bp.delete', dataset_id=dataset.id) }}"
+                          method="POST">
+                        <input type="hidden" name="dataset_id"
+                               value="{{ dataset.id }}">
+                        <a href="#" onclick="document.getElementById('delete-form-{{ dataset.id }}').submit()">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    </ul>
+{% endblock %}
+
+{% block main_content %}
+        <div class="card">
+            <div class="card-header">
+                {% for dataset in datasets %}
+		            {{ dataset.name }}:
+		            <select id="{{ 'stat-column-select' + (loop.index0)|string }}" class="custom-select" style="width: 15%">
+			            {% for column in columns[loop.index0] %}
+                            <option data-type="{{ column[1] }}">{{ column[0] }}</option>
+	                    {% endfor %}
+                    </select>
+		            &nbsp;
+		            &nbsp;
+                    {% endfor %}
+            </div>
+            <div class="card-body">
+                <div class="row-fluid">
+                <table border="solid" style="width: 100%">
+	                <tbody>
+	                <tr>
+	                {% for dataset in datasets %}
+		                {% if loop.index0 != 2 %}
+		                <td width="50%">
+                        <canvas id="{{ 'stats-chart' + (loop.index0)|string }}" style="width: 100%"></canvas>
+		                </td>
+		                {% else %}
+		                </tr>
+		                <tr>
+		                <td width="50%">
+                        <canvas id="{{ 'stats-chart' + (loop.index0)|string }}" style="width: 100%"></canvas>
+		                </td>
+		                {% endif %}
+	                {% endfor %}
+
+	                </tr>
+	                </tbody>
+                </table>
+                </div>
+                <hr/>
+                <div class="row-fluid">
+                    <table class="table table-bordered">
+                        <thead class="text-muted">
+                            <tr id="stat-names">
+                        </thead>
+                        <tbody>
+                            <tr id="stat-values"></tr>
+                        </tbody>
+                    </table>
+
+                <p id="test"></p>
+            </div>
+        </div>
+{% endblock %}
+
+
+{% block scripts %}
+    {{ super() }}
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
+    {% include 'Data/View/operations_scripts.html' %}
+    <script type="text/javascript" charset="utf-8">
+    {#  Cant move this to separate file because we need data provided by jinja template engine  #}
+    var ctx = [];
+    {% for dataset in datasets %}
+	    var i = {{ loop.index0 }};
+        ctx.push( document.getElementById('stats-chart' + i.toString()).getContext('2d'));
+    {% endfor %}
+
+    var chart = [];
+
+    function update_stats(){
+	    {% for dataset in datasets %}
+		    var i = {{ loop.index0 }};
+
+	        //update stats col
+	        $.getJSON(
+	            '{{ url_for('view_bp.get_column_info') }}',
+	            {
+	            dataset_id: '{{ datasets[loop.index0].id }}',
+	            column_name: $('#stat-column-select' + i.toString()).val()
+	            },
+	            function (data) {
+	                var name_section = $('#stat-names');
+	                var value_section = $('#stat-values');
+	                name_section.empty();
+	                value_section.empty();
+	                $.each(data, function(index, element) {
+	                    name_section.append('<td>' + index + '</td>');
+	                    value_section.append('<td>' + element + '</td>');
+	                });
+	        });
+	        //check if the type is text, if so: add bag of words column
+	        var bowtable = $('#bowtable');
+	        bowtable.empty();
+	        console.log(bowtable);
+	         if ($('#stat-column-select' + i.toString() + ' option:selected').data('type') === "TEXT"){
+	             bowtable.append('\
+	                 <table class="table table-bordered">\
+	                     <thead class="text-muted">\
+	                         <tr>\
+	                             <th>#</th>\
+	                             <th>Word</th>\
+	                             <th>Occurences</th>\
+	                        </tr>\
+	                     </thead>\
+	                     <tbody id="bow-values">\
+	                     </tbody>\
+	                 </table>'
+	             );
+	             $.getJSON(
+	                 '{{ url_for('view_bp.frequency') }}',
+	                 {
+	                     dataset_id: '{{ datasets[loop.index0].id }}',
+	                     column_name: $('#stat-column-select' + i.toString()).val(),
+	                     column_type: $('#stat-column-select' + i.toString() + ' option:selected').data('type')
+	                 },
+	                 function (data) {
+	                     var value_section = $('#bow-values');
+	                     value_section.empty();
+	                     data = data.slice(0,Math.min(10, data.length));
+	                     $.each(data, function(index, element) {
+	                        var row = $('<tr></tr>');
+	                        row.append('<td>' + index + '</td>');
+	                        row.append('<td>' + element[0] + '</td>');
+	                        row.append('<td>' + element[1] + '</td>');
+	                        value_section.append(row);
+	                     });
+	                 }
+	             );
+	         }
+	    {% endfor %}
+    }
+    function update_chart(i){
+        chart = [];
+	    {% for dataset in datasets %}
+		    var j = {{ loop.index0 }};
+				document.getElementById("test").innerHTML = i;
+		    if (i === j) {
+			        var column_type = $('#stat-column-select' + i.toString() + ' option:selected').data('type');
+		        $.getJSON(
+		            '{{ url_for('view_bp.get_column_chart') }}',
+		            {
+		            dataset_id: '{{ datasets[loop.index0].id }}',
+		            column_name: $('#stat-column-select' + i.toString()).val(),
+		            column_type: column_type
+		            },
+		            function (data) {
+		                if (data['data']['labels'].length > 250){
+		                    alert('That\'s a lot of categories! Our charting software has difficulty displaying large amounts of categories.\nTry filtering your data or changing the datatype of the column.')
+		                }
+		                chart.push(new Chart(ctx[i], data));
+		        });
+            }
+	    {% endfor %}
+    }
+    $(document).ready(function () {
+        update_stats();
+	    {% for dataset in datasets %}
+            update_chart({{ loop.index0 }});
+	    {% endfor %}
+    });
+    $('#stat-column-select0').on('change', function () {
+        update_stats();
+        update_chart(0);
+    });
+    $('#stat-column-select1').on('change', function () {
+        update_stats();
+        update_chart(1);
+    });
+    $('#stat-column-select2').on('change', function () {
+        update_stats();
+        update_chart(2);
+    });
+    $('#stat-column-select3').on('change', function () {
+        update_stats();
+        update_chart(3);
+    });
+
+
+
+    </script>
+{% endblock %}

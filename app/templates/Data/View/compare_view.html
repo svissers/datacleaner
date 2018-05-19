@@ -32,7 +32,7 @@
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link current-section" href="{{ url_for('view_bp.view', dataset_id=1) }}">
+            <a class="nav-link current-section" href="{{ url_for('view_bp.compare_view', project_id=project.id) }}">
                 <i class="fas fa-chart-pie fa-fw"></i>
                 Compare view
             </a>
@@ -92,7 +92,7 @@
 <div class="jumbotron">
     <div class="row">
         <div class="container">
-            <form method=post action="#">
+            <form method=post action="{{ url_for('view_bp.compare_view', project_id=project.id) }}">
                 <h2>Select 2-4 datasets:</h2>
                 <table id="compare_table" class="table table-bordered" width="100%">
                     <thead>
@@ -105,7 +105,7 @@
                     <tbody>
                         <tr>
                             <td>
-                                <select class="custom-select file-select" name="file-left" id="file-left" required>
+                                <select class="custom-select file-select" name="dataset1" id="dataset1" required>
                                     <option value="" disabled selected></option>
                                     {% for dataset in project.datasets %}
                                         <option value="{{ dataset.id }}">{{ dataset.name }}</option>
@@ -113,7 +113,7 @@
                                 </select>
                             </td>
                             <td>
-                                <select class="custom-select file-select" name="file-left" id="file-left" required>
+                                <select class="custom-select file-select" name="dataset2" id="dataset2" required>
                                     <option value="" disabled selected></option>
                                     {% for dataset in project.datasets %}
                                         <option value="{{ dataset.id }}">{{ dataset.name }}</option>
@@ -128,8 +128,7 @@
                         </tr>
                     </tbody>
                 </table>
-                <button type="submit" class="btn btn-success pull-right" name="button" value="upload">
-                    <i class="fas fa-upload"></i>
+                <button type="submit" class="btn btn-success pull-right" name="button" value="compare">
                     Compare
                 </button>
             </form>
@@ -151,12 +150,12 @@
 		$(document).on('click', '.add-dataset-btn', function () {
 		    if (counter === 2) {
                 $('#compare_table').find('thead th:last').before(
-                    '<th>dataset 3</th>' +
+                    '<th>Dataset 3</th>' +
 	                '<th></th>'
                 );
                 $('#compare_table').find('tbody td:last').before(
                     '<td>' +
-	                '<select class="custom-select file-select" name="file-left" id="file-left" required>' +
+	                '<select class="custom-select file-select" name="dataset3" id="dataset3" required>' +
                     '<option value="" disabled selected></option>' + datasets +
                     '</select>' +
 	                '</td>' +
@@ -172,11 +171,11 @@
 			    $('#compare_table thead th:nth-child(5)').remove();
 			    $('#compare_table tbody td:nth-child(5)').remove();
 		        $('#compare_table').find('thead th:last').before(
-                    '<th>dataset 4</th>'
+                    '<th>Dataset 4</th>'
                 );
                 $('#compare_table').find('tbody td:last').before(
                     '<td>' +
-	                '<select class="custom-select file-select" name="file-left" id="file-left" required>' +
+	                '<select class="custom-select file-select" name="dataset4" id="4" required>' +
                     '<option value="" disabled selected></option>' + datasets +
                     '</select>' +
 	                '</td>'
