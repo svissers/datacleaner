@@ -298,8 +298,14 @@ def discretize_width(table_name, attr, intervals):
         min_val = df[attr].min()
         max_val = df[attr].max()
         width = (max_val + min_val)/intervals
-        edges = np.arange(min_val, max_val, width)
-        df[column_name] = pd.cut(df[attr], edges).apply(str)
+        edges = list(np.arange(min_val, max_val, width))
+        if edges[-1] != float(max_val):
+            edges.append(max_val)
+        df[column_name] = pd.cut(
+                df[attr],
+                edges,
+                include_lowest=True
+        ).apply(str)
 
     df.to_sql(name=table_name, con=db.engine, if_exists="replace", index=False)
 
