@@ -109,13 +109,78 @@
 									<option data-type="{{ column[1] }}">{{ column[0] }}</option>
 								{% endfor %}
 							</select>
+							<select id="{{ 'stat-visualization-select' + loop.index0|string }}" class="custom-select" style="width: 30%"></select>
+
+							<div id="{{ 'date-bin-select' + loop.index0|string }}" class="input-group" style="width: 100%" hidden>
+									&emsp;
+									&emsp;
+								<select  class="custom-select">
+									<option value="YEAR">Year</option>
+									<option value="MONTH">Month</option>
+									<option value="WOY">Week of the year</option>
+									<option value="QUARTER">Quarter</option>
+									<option value="DOW">Day of the week</option>
+								</select>
+								<div class="input-group-append">
+									<button id="{{ 'update-bin-btn1' + loop.index0|string }}" class="btn btn-outline-success" type="button">
+										<i class="fas fa-sync-alt"></i>
+									</button>
+									&emsp;
+									&emsp;
+								</div>
+							</div>
+							<div id="{{ 'datetime-bin-select' + loop.index0|string }}" class="input-group" hidden>
+									&emsp;
+									&emsp;
+								<select class="custom-select">
+									<option value="YEAR">Year</option>
+									<option value="MONTH">Month</option>
+									<option value="WOY">Week of the year</option>
+									<option value="QUARTER">Quarter</option>
+									<option value="DOW">Day of the week</option>
+									<option value="TOD">Time of day</option>
+								</select>
+								<div class="input-group-append">
+									<button id="{{ 'update-bin-btn2' + loop.index0|string }}" class="btn btn-outline-success" type="button">
+										<i class="fas fa-sync-alt"></i>
+									</button>
+									&emsp;
+									&emsp;
+								</div>
+							</div>
+							<div id="{{ 'num-bin-buttons' + loop.index0|string }}" class="input-group" hidden>
+								<div class="input-group-prepend">
+									&emsp;
+									&emsp;
+									<input type="text"
+									       id="{{ 'bin-num-field' + loop.index0|string }}"
+									       class="form-control"
+									       placeholder="# intervals"
+									       value="5"
+									       style="width: 120px;
+									       border-top-right-radius: 0;
+									       border-bottom-right-radius: 0">
+								</div>
+								<select class="custom-select" id="{{ 'num-bin-select' + loop.index0|string }}" style="padding-richt: 20%">
+									<option value="width">Equal width</option>
+									<option value="freq">Equal frequency</option>
+								</select>
+								<div class="input-group-append">
+									<button id="{{ 'update-bin-btn3' + loop.index0|string }}" class="btn btn-outline-success" type="button">
+										<i class="fas fa-sync-alt"></i>
+									</button>
+									&emsp;
+									&emsp;
+								</div>
+							</div>
+							<img id="{{ 'wordcloud' + loop.index0|string }}" hidden>
 							<canvas id="{{ 'stats-chart' + loop.index0|string }}" style="width: 100%"></canvas>
 							<table class="table table-bordered">
 								<thead class="text-muted">
-								<tr id="{{ 'stat-names' + (loop.index0)|string }}">
+								<tr id="{{ 'stat-names' + loop.index0|string }}">
 								</thead>
 								<tbody>
-								<tr id="{{ 'stat-values' + (loop.index0)|string }}"></tr>
+								<tr id="{{ 'stat-values' + loop.index0|string }}"></tr>
 								</tbody>
 							</table>
 						</td>
@@ -142,6 +207,62 @@
 
     var chart = [];
 
+    function update_ui(i) {
+	    {% for dataset in datasets %}
+		    var j = {{ loop.index0 }};
+			if (i === j) {
+                var visualization_select = $("#stat-visualization-select" + i.toString());
+                var num_buttons = $("#num-bin-buttons" + i.toString());
+                var date_select = $("#date-bin-select" + i.toString());
+                var datetime_select = $("#datetime-bin-select" + i.toString());
+                num_buttons.prop('hidden', true);
+                date_select.prop('hidden', true);
+                datetime_select.prop('hidden', true);
+                $('#num-bin-select-init' + i.toString()).prop({selected: true});
+                $('#date-bin-select-init' + i.toString()).prop({selected: true});
+                $('#datetime-bin-select-init' + i.toString()).prop({selected: true});
+                visualization_select.empty();
+                visualization_select.append($('<option>', {
+                    value: '',
+                    text: 'Select chart type...',
+                    disabled: true,
+                    selected: true
+                }));
+                visualization_select.append($('<option>', {
+                    value: 'bar',
+                    text: 'Bar chart'
+                }));
+                visualization_select.append($('<option>', {
+                    value: 'pie',
+                    text: 'Pie chart'
+                }));
+                var col_type = $('#stat-column-select' + i.toString() + ' option:selected').data('type');
+                if (col_type === "INTEGER" || col_type === "DOUBLE") {
+                    $("#bin-num-field" + i.toString()).val(5);
+                    num_buttons.prop('hidden', false);
+                } else if (col_type === "TEXT") {
+                    visualization_select.append($('<option>', {
+                        value: 'cloud',
+                        text: 'Word cloud'
+                    }));
+
+                } else if (col_type === "DATE") {
+                    visualization_select.append($('<option>', {
+                        value: 'line',
+                        text: 'Line chart'
+                    }));
+                    date_select.prop('hidden', false);
+                } else if (col_type === "TIMESTAMP") {
+                    visualization_select.append($('<option>', {
+                        value: 'line',
+                        text: 'Line chart'
+                    }));
+                    datetime_select.prop('hidden', false);
+                }
+            }
+	    {% endfor %}
+    }
+
     function update_stats(i){
 	    {% for dataset in datasets %}
 		    var j = {{ loop.index0 }};
@@ -167,52 +288,222 @@
 	    {% endfor %}
     }
     function update_chart(i){
+        if (typeof chart[i] != 'undefined') {
+            chart[i].destroy();
+        }
 	    {% for dataset in datasets %}
 		    var j = {{ loop.index0 }};
 		    if (i === j) {
-			        var column_type = $('#stat-column-select' + i.toString() + ' option:selected').data('type');
-		        $.getJSON(
-		            '{{ url_for('view_bp.get_column_chart') }}',
-		            {
-		            dataset_id: '{{ datasets[loop.index0].id }}',
-		            column_name: $('#stat-column-select' + i.toString()).val(),
-		            column_type: column_type
-		            },
-		            function (data) {
-		                if (data['data']['labels'].length > 250){
-		                    alert('That\'s a lot of categories! Our charting software has difficulty displaying large amounts of categories.\nTry filtering your data or changing the datatype of the column.')
-		                }
-		                chart[i] = new Chart(ctx[i], data);
-		        });
+		        var column_type = $('#stat-column-select' + i.toString() + ' option:selected').data('type');
+		        var chart_type = $('#stat-visualization-select' + i.toString() + ' option:selected').val();
+		        var column_name = $('#stat-column-select' + i.toString()).val();
+		        if (column_type === 'INTEGER' || column_type === 'DOUBLE') {
+		            $.getJSON(
+		                '{{ url_for('view_bp.get_num_chart') }}',
+		                {
+		                dataset_id: '{{ datasets[loop.index0].id }}',
+		                column_name: column_name,
+		                chart_type: chart_type,
+		                bin_type: $("#num-bin-select" + i.toString() + " option:selected").val(),
+		                bin_number: $("#bin-num-field" + i.toString()).val()
+		                },
+		                function (data) {
+		                    chart[i] = new Chart(ctx[i], data);
+		            });
+		        } else if (column_type === 'TEXT') {
+		            $.getJSON(
+		                '{{ url_for('view_bp.get_text_chart') }}',
+		                {
+		                dataset_id: '{{ datasets[loop.index0].id }}',
+		                column_name: column_name,
+		                chart_type: chart_type
+		                },
+		                function (data) {
+		                    if (data['warning']){
+		                        alert(
+		                            'That\'s a lot of categories! ' +
+		                            'Our charting software has difficulty displaying large amounts of categories.' +
+		                            '\nTry filtering your data or changing the datatype of the column.')
+		                    }
+		                    else {
+		                        chart[i] = new Chart(ctx[i], data);
+		                    }
+		            });
+		        } else if (column_type === 'DATE') {
+		            $.getJSON(
+		                '{{ url_for('view_bp.get_date_or_timestamp_chart') }}',
+		                {
+		                    dataset_id: '{{ datasets[loop.index0].id }}',
+		                    column_name: column_name,
+		                    bin_type: $("#date-bin-select" + i.toString() + " option:selected").val(),
+		                    chart_type: chart_type
+		                },
+		                function (data) {
+		                    chart[i] = new Chart(ctx[i], data);
+		                });
+		        } else if (column_type === 'TIMESTAMP') {
+		            $.getJSON(
+		                '{{ url_for('view_bp.get_date_or_timestamp_chart') }}',
+		                {
+		                    dataset_id: '{{ datasets[loop.index0].id }}',
+		                    column_name: column_name,
+		                    bin_type: $("#datetime-bin-select" + i.toString() + " option:selected").val(),
+		                    chart_type: chart_type
+		                },
+		                function (data) {
+		                    chart[i] = new Chart(ctx, data);
+		                });
+		        }
             }
 	    {% endfor %}
     }
     $(document).ready(function () {
 	    {% for dataset in datasets %}
+		    update_ui({{ loop.index0 }});
 		    update_stats({{ loop.index0 }});
-            update_chart({{ loop.index0 }});
 	    {% endfor %}
     });
+
     $('#stat-column-select0').on('change', function () {
+        update_ui(0);
         update_stats(0);
-        chart[0].destroy();
-        update_chart(0);
+	    chart[0].destroy();
+	    $('#stats-chart0').prop('hidden', true);
+        $('#wordcloud0').attr('src', '').prop('hidden', true);
     });
+
+    $('#stat-visualization-select0').on('change', function () {
+        var canvas = $('#stats-chart0');
+        var wordcloud = $('#wordcloud0');
+        if ($('#stat-visualization-select0').val() === 'cloud') {
+            canvas.prop('hidden', true);
+            wordcloud.prop('hidden', false);
+            wordcloud.attr("src", '{{ url_for("view_bp.wordcloud")}}?dataset_id={{ datasets[0].id }}&column_name='+$('#stat-column-select0').val());
+        } else {
+            canvas.prop('hidden', false);
+            wordcloud.prop('hidden', true);
+            update_chart(0);
+        }
+    });
+
     $('#stat-column-select1').on('change', function () {
+        update_ui(1);
         update_stats(1);
-        chart[1].destroy();
-        update_chart(1);
+	    chart[1].destroy();
+        $('#stats-chart1').prop('hidden', true);
+        $('#wordcloud1').attr('src', '').prop('hidden', true);
     });
+
+    $('#stat-visualization-select1').on('change', function () {
+        var canvas = $('#stats-chart1');
+        var wordcloud = $('#wordcloud1');
+        if ($('#stat-visualization-select1').val() === 'cloud') {
+            canvas.prop('hidden', true);
+            wordcloud.prop('hidden', false);
+            wordcloud.attr("src", '{{ url_for("view_bp.wordcloud")}}?dataset_id={{ datasets[1].id }}&column_name='+$('#stat-column-select0').val());
+        } else {
+            canvas.prop('hidden', false);
+            wordcloud.prop('hidden', true);
+            update_chart(1);
+        }
+    });
+
     $('#stat-column-select2').on('change', function () {
+        update_ui(2);
         update_stats(2);
-        chart[2].destroy();
-        update_chart(2);
+	    chart[2].destroy();
+        $('#stats-chart2').prop('hidden', true);
+        $('#wordcloud2').attr('src', '').prop('hidden', true);
     });
+
+    $('#stat-visualization-select2').on('change', function () {
+        var canvas = $('#stats-chart2');
+        var wordcloud = $('#wordcloud2');
+        if ($('#stat-visualization-select2').val() === 'cloud') {
+            canvas.prop('hidden', true);
+            wordcloud.prop('hidden', false);
+            wordcloud.attr("src", '{{ url_for("view_bp.wordcloud")}}?dataset_id={{ datasets[2].id }}&column_name='+$('#stat-column-select0').val());
+        } else {
+            canvas.prop('hidden', false);
+            wordcloud.prop('hidden', true);
+            update_chart(2);
+        }
+    });
+
     $('#stat-column-select3').on('change', function () {
+        update_ui(3);
         update_stats(3);
-        chart[3].destroy();
-        update_chart(3);
+	    chart[3].destroy();
+        $('#stats-chart3').prop('hidden', true);
+        $('#wordcloud3').attr('src', '').prop('hidden', true);
+    });
+
+    $('#stat-visualization-select3').on('change', function () {
+        var canvas = $('#stats-chart3');
+        var wordcloud = $('#wordcloud3');
+        if ($('#stat-visualization-select3').val() === 'cloud') {
+            canvas.prop('hidden', true);
+            wordcloud.prop('hidden', false);
+            wordcloud.attr("src", '{{ url_for("view_bp.wordcloud")}}?dataset_id={{ datasets[3].id }}&column_name='+$('#stat-column-select3').val());
+        } else {
+            canvas.prop('hidden', false);
+            wordcloud.prop('hidden', true);
+            update_chart(3);
+        }
+    });
+
+    $('#update-bin-btn10').on('click', function () {
+	    update_chart(0);
+    });
+
+    $('#update-bin-btn20').on('click', function () {
+	    update_chart(0);
+    });
+
+    $('#update-bin-btn30').on('click', function () {
+	    update_chart(0);
+    });
+
+    $('#update-bin-btn11').on('click', function () {
+	    update_chart(1);
+    });
+
+    $('#update-bin-btn21').on('click', function () {
+	    update_chart(1);
+    });
+
+    $('#update-bin-btn31').on('click', function () {
+	    update_chart(1);
+    });
+
+    $('#update-bin-btn12').on('click', function () {
+	    update_chart(2);
+    });
+
+    $('#update-bin-btn22').on('click', function () {
+	    update_chart(2);
+    });
+
+    $('#update-bin-btn32').on('click', function () {
+	    update_chart(2);
+    });
+
+    $('#update-bin-btn13').on('click', function () {
+	    update_chart(3);
+    });
+
+    $('#update-bin-btn23').on('click', function () {
+	    update_chart(3);
+    });
+
+    $('#update-bin-btn33').on('click', function () {
+	    update_chart(3);
     });
 
     </script>
+
+
+
+
+
 {% endblock %}
