@@ -96,7 +96,9 @@ def get_chart_data_numerical(table_name, column, bins=10, eq='width'):
         min_val = df.min()
         max_val = df.max()
         width = (max_val + min_val)/bins
-        edges = np.arange(min_val, max_val, width)
+        edges = list(np.arange(min_val, max_val, width))
+        if edges[-1] != float(max_val):
+            edges.append(max_val)
     elif eq == 'freq':
         attr_length = len(df)
         elements_per_interval = attr_length // bins
@@ -117,7 +119,7 @@ def get_chart_data_numerical(table_name, column, bins=10, eq='width'):
         edges[0] = edges[0] - edges[0] * 0.001
         edges[-1] = edges[-1] + edges[-1] * 0.001
 
-    intervals = pd.cut(df[column], edges).apply(str)
+    intervals = pd.cut(df[column], edges, include_lowest=True).apply(str)
     data = {}
     for row in intervals:
         if row in data:
