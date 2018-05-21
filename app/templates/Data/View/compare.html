@@ -343,12 +343,6 @@
                 $('#datetime-bin-select-init' + i.toString()).prop({selected: true});
                 visualization_select.empty();
                 visualization_select.append($('<option>', {
-                    value: '',
-                    text: 'Select chart type...',
-                    disabled: true,
-                    selected: true
-                }));
-                visualization_select.append($('<option>', {
                     value: 'bar',
                     text: 'Bar chart'
                 }));
@@ -475,6 +469,7 @@
 	    {% for dataset in datasets %}
 		    update_ui({{ loop.index0 }});
 		    update_stats({{ loop.index0 }});
+		    update_chart({{ loop.index0 }});
 	    {% endfor %}
     });
 
@@ -482,7 +477,7 @@
         update_ui(0);
         update_stats(0);
 	    chart[0].destroy();
-	    $('#stats-chart0').prop('hidden', true);
+	    update_chart(0);
     });
 
     $('#stat-visualization-select0').on('change', function () {
@@ -499,7 +494,7 @@
         update_ui(1);
         update_stats(1);
 	    chart[1].destroy();
-        $('#stats-chart1').prop('hidden', true);
+	    update_chart(1);
     });
 
     $('#stat-visualization-select1').on('change', function () {
@@ -516,7 +511,7 @@
         update_ui(2);
         update_stats(2);
 	    chart[2].destroy();
-        $('#stats-chart2').prop('hidden', true);
+	    update_chart(2);
     });
 
     $('#stat-visualization-select2').on('change', function () {
@@ -533,7 +528,7 @@
         update_ui(3);
         update_stats(3);
 	    chart[3].destroy();
-        $('#stats-chart3').prop('hidden', true);
+	    update_chart(3);
     });
 
     $('#stat-visualization-select3').on('change', function () {
