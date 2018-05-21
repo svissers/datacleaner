@@ -240,12 +240,6 @@
                 if (col_type === "INTEGER" || col_type === "DOUBLE") {
                     $("#bin-num-field" + i.toString()).val(5);
                     num_buttons.prop('hidden', false);
-                } else if (col_type === "TEXT") {
-                    visualization_select.append($('<option>', {
-                        value: 'cloud',
-                        text: 'Word cloud'
-                    }));
-
                 } else if (col_type === "DATE") {
                     visualization_select.append($('<option>', {
                         value: 'line',
@@ -369,19 +363,14 @@
         update_stats(0);
 	    chart[0].destroy();
 	    $('#stats-chart0').prop('hidden', true);
-        $('#wordcloud0').attr('src', '').prop('hidden', true);
     });
 
     $('#stat-visualization-select0').on('change', function () {
         var canvas = $('#stats-chart0');
-        var wordcloud = $('#wordcloud0');
         if ($('#stat-visualization-select0').val() === 'cloud') {
             canvas.prop('hidden', true);
-            wordcloud.prop('hidden', false);
-            wordcloud.attr("src", '{{ url_for("view_bp.wordcloud")}}?dataset_id={{ datasets[0].id }}&column_name='+$('#stat-column-select0').val());
         } else {
             canvas.prop('hidden', false);
-            wordcloud.prop('hidden', true);
             update_chart(0);
         }
     });
@@ -391,19 +380,14 @@
         update_stats(1);
 	    chart[1].destroy();
         $('#stats-chart1').prop('hidden', true);
-        $('#wordcloud1').attr('src', '').prop('hidden', true);
     });
 
     $('#stat-visualization-select1').on('change', function () {
         var canvas = $('#stats-chart1');
-        var wordcloud = $('#wordcloud1');
         if ($('#stat-visualization-select1').val() === 'cloud') {
             canvas.prop('hidden', true);
-            wordcloud.prop('hidden', false);
-            wordcloud.attr("src", '{{ url_for("view_bp.wordcloud")}}?dataset_id={{ datasets[1].id }}&column_name='+$('#stat-column-select0').val());
         } else {
             canvas.prop('hidden', false);
-            wordcloud.prop('hidden', true);
             update_chart(1);
         }
     });
@@ -413,19 +397,14 @@
         update_stats(2);
 	    chart[2].destroy();
         $('#stats-chart2').prop('hidden', true);
-        $('#wordcloud2').attr('src', '').prop('hidden', true);
     });
 
     $('#stat-visualization-select2').on('change', function () {
         var canvas = $('#stats-chart2');
-        var wordcloud = $('#wordcloud2');
         if ($('#stat-visualization-select2').val() === 'cloud') {
             canvas.prop('hidden', true);
-            wordcloud.prop('hidden', false);
-            wordcloud.attr("src", '{{ url_for("view_bp.wordcloud")}}?dataset_id={{ datasets[2].id }}&column_name='+$('#stat-column-select0').val());
         } else {
             canvas.prop('hidden', false);
-            wordcloud.prop('hidden', true);
             update_chart(2);
         }
     });
@@ -435,19 +414,14 @@
         update_stats(3);
 	    chart[3].destroy();
         $('#stats-chart3').prop('hidden', true);
-        $('#wordcloud3').attr('src', '').prop('hidden', true);
     });
 
     $('#stat-visualization-select3').on('change', function () {
         var canvas = $('#stats-chart3');
-        var wordcloud = $('#wordcloud3');
         if ($('#stat-visualization-select3').val() === 'cloud') {
             canvas.prop('hidden', true);
-            wordcloud.prop('hidden', false);
-            wordcloud.attr("src", '{{ url_for("view_bp.wordcloud")}}?dataset_id={{ datasets[3].id }}&column_name='+$('#stat-column-select3').val());
         } else {
             canvas.prop('hidden', false);
-            wordcloud.prop('hidden', true);
             update_chart(3);
         }
     });
