@@ -96,96 +96,216 @@
 				<tbody>
 				<tr>
 					{% for dataset in datasets %}
-						{% if loop.index0 == 2 %}
-							</tr>
-							<tr>
-						{% endif %}
-						<td width="50%">
-							&nbsp;
-							&nbsp;
-							{{ dataset.name }}:
-							<select id="{{ 'stat-column-select' + loop.index0|string }}" class="custom-select" style="width: 50%">
-								{% for column in columns[loop.index0] %}
-									<option data-type="{{ column[1] }}">{{ column[0] }}</option>
-								{% endfor %}
-							</select>
-							<select id="{{ 'stat-visualization-select' + loop.index0|string }}" class="custom-select" style="width: 30%"></select>
+						{% if loop.index0 == 0 or loop.index0 == 1 %}
+							<td width="50%">
+								&nbsp;
+								&nbsp;
+								{{ dataset.name }}:
+								<select id="{{ 'stat-column-select' + loop.index0|string }}" class="custom-select" style="width: 50%">
+									{% for column in columns[loop.index0] %}
+										<option data-type="{{ column[1] }}">{{ column[0] }}</option>
+									{% endfor %}
+								</select>
+								<select id="{{ 'stat-visualization-select' + loop.index0|string }}" class="custom-select" style="width: 30%"></select>
 
-							<div id="{{ 'date-bin-select' + loop.index0|string }}" class="input-group" style="width: 100%" hidden>
+								<div id="{{ 'date-bin-select' + loop.index0|string }}" class="input-group" style="width: 100%" hidden>
 									&emsp;
 									&emsp;
-								<select  class="custom-select">
-									<option value="YEAR">Year</option>
-									<option value="MONTH">Month</option>
-									<option value="WOY">Week of the year</option>
-									<option value="QUARTER">Quarter</option>
-									<option value="DOW">Day of the week</option>
-								</select>
-								<div class="input-group-append">
-									<button id="{{ 'update-bin-btn1' + loop.index0|string }}" class="btn btn-outline-success" type="button">
-										<i class="fas fa-sync-alt"></i>
-									</button>
-									&emsp;
-									&emsp;
+									<select  class="custom-select">
+										<option value="YEAR">Year</option>
+										<option value="MONTH">Month</option>
+										<option value="WOY">Week of the year</option>
+										<option value="QUARTER">Quarter</option>
+										<option value="DOW">Day of the week</option>
+									</select>
+									<div class="input-group-append">
+										<button id="{{ 'update-bin-btn1' + loop.index0|string }}" class="btn btn-outline-success" type="button">
+											<i class="fas fa-sync-alt"></i>
+										</button>
+										&emsp;
+										&emsp;
+									</div>
 								</div>
-							</div>
-							<div id="{{ 'datetime-bin-select' + loop.index0|string }}" class="input-group" hidden>
+								<div id="{{ 'datetime-bin-select' + loop.index0|string }}" class="input-group" hidden>
 									&emsp;
 									&emsp;
-								<select class="custom-select">
-									<option value="YEAR">Year</option>
-									<option value="MONTH">Month</option>
-									<option value="WOY">Week of the year</option>
-									<option value="QUARTER">Quarter</option>
-									<option value="DOW">Day of the week</option>
-									<option value="TOD">Time of day</option>
-								</select>
-								<div class="input-group-append">
-									<button id="{{ 'update-bin-btn2' + loop.index0|string }}" class="btn btn-outline-success" type="button">
-										<i class="fas fa-sync-alt"></i>
-									</button>
-									&emsp;
-									&emsp;
+									<select class="custom-select">
+										<option value="YEAR">Year</option>
+										<option value="MONTH">Month</option>
+										<option value="WOY">Week of the year</option>
+										<option value="QUARTER">Quarter</option>
+										<option value="DOW">Day of the week</option>
+										<option value="TOD">Time of day</option>
+									</select>
+									<div class="input-group-append">
+										<button id="{{ 'update-bin-btn2' + loop.index0|string }}" class="btn btn-outline-success" type="button">
+											<i class="fas fa-sync-alt"></i>
+										</button>
+										&emsp;
+										&emsp;
+									</div>
 								</div>
-							</div>
-							<div id="{{ 'num-bin-buttons' + loop.index0|string }}" class="input-group" hidden>
-								<div class="input-group-prepend">
-									&emsp;
-									&emsp;
-									<input type="text"
-									       id="{{ 'bin-num-field' + loop.index0|string }}"
-									       class="form-control"
-									       placeholder="# intervals"
-									       value="5"
-									       style="width: 120px;
-									       border-top-right-radius: 0;
-									       border-bottom-right-radius: 0">
+								<div id="{{ 'num-bin-buttons' + loop.index0|string }}" class="input-group" hidden>
+									<div class="input-group-prepend">
+										&emsp;
+										&emsp;
+										<input type="text"
+										       id="{{ 'bin-num-field' + loop.index0|string }}"
+										       class="form-control"
+										       placeholder="# intervals"
+										       value="5"
+										       style="width: 120px;
+										       border-top-right-radius: 0;
+										       border-bottom-right-radius: 0">
+									</div>
+									<select class="custom-select" id="{{ 'num-bin-select' + loop.index0|string }}" style="padding-richt: 20%">
+										<option value="width">Equal width</option>
+										<option value="freq">Equal frequency</option>
+									</select>
+									<div class="input-group-append">
+										<button id="{{ 'update-bin-btn3' + loop.index0|string }}" class="btn btn-outline-success" type="button">
+											<i class="fas fa-sync-alt"></i>
+										</button>
+										&emsp;
+										&emsp;
+									</div>
 								</div>
-								<select class="custom-select" id="{{ 'num-bin-select' + loop.index0|string }}" style="padding-richt: 20%">
-									<option value="width">Equal width</option>
-									<option value="freq">Equal frequency</option>
-								</select>
-								<div class="input-group-append">
-									<button id="{{ 'update-bin-btn3' + loop.index0|string }}" class="btn btn-outline-success" type="button">
-										<i class="fas fa-sync-alt"></i>
-									</button>
-									&emsp;
-									&emsp;
-								</div>
-							</div>
-							<img id="{{ 'wordcloud' + loop.index0|string }}" hidden>
-							<canvas id="{{ 'stats-chart' + loop.index0|string }}" style="width: 100%"></canvas>
-							<table class="table table-bordered">
-								<thead class="text-muted">
-								<tr id="{{ 'stat-names' + loop.index0|string }}">
-								</thead>
-								<tbody>
-								<tr id="{{ 'stat-values' + loop.index0|string }}"></tr>
-								</tbody>
-							</table>
-						</td>
+							</td>
+						{% endif %}
 					{% endfor %}
-					</tr>
+
+				</tr>
+				<tr>
+					{% for dataset in datasets %}
+						{% if loop.index0 == 0 or loop.index0 == 1 %}
+							<td>
+								<canvas id="{{ 'stats-chart' + loop.index0|string }}" style="width: 100%"></canvas>
+							</td>
+						{% endif %}
+					{% endfor %}
+				</tr>
+				<tr>
+					{% for dataset in datasets %}
+						{% if loop.index0 == 0 or loop.index0 == 1 %}
+							<td>
+								<table class="table table-bordered">
+									<thead class="text-muted">
+									<tr id="{{ 'stat-names' + loop.index0|string }}">
+									</thead>
+									<tbody>
+									<tr id="{{ 'stat-values' + loop.index0|string }}"></tr>
+									</tbody>
+								</table>
+							</td>
+						{% endif %}
+					{% endfor %}
+				</tr>
+				<tr>
+					{% for dataset in datasets %}
+						{% if loop.index0 == 2 or loop.index0 == 3 %}
+							<td width="50%">
+								&nbsp;
+								&nbsp;
+								{{ dataset.name }}:
+								<select id="{{ 'stat-column-select' + loop.index0|string }}" class="custom-select" style="width: 50%">
+									{% for column in columns[loop.index0] %}
+										<option data-type="{{ column[1] }}">{{ column[0] }}</option>
+									{% endfor %}
+								</select>
+								<select id="{{ 'stat-visualization-select' + loop.index0|string }}" class="custom-select" style="width: 30%"></select>
+
+								<div id="{{ 'date-bin-select' + loop.index0|string }}" class="input-group" style="width: 100%" hidden>
+									&emsp;
+									&emsp;
+									<select  class="custom-select">
+										<option value="YEAR">Year</option>
+										<option value="MONTH">Month</option>
+										<option value="WOY">Week of the year</option>
+										<option value="QUARTER">Quarter</option>
+										<option value="DOW">Day of the week</option>
+									</select>
+									<div class="input-group-append">
+										<button id="{{ 'update-bin-btn1' + loop.index0|string }}" class="btn btn-outline-success" type="button">
+											<i class="fas fa-sync-alt"></i>
+										</button>
+										&emsp;
+										&emsp;
+									</div>
+								</div>
+								<div id="{{ 'datetime-bin-select' + loop.index0|string }}" class="input-group" hidden>
+									&emsp;
+									&emsp;
+									<select class="custom-select">
+										<option value="YEAR">Year</option>
+										<option value="MONTH">Month</option>
+										<option value="WOY">Week of the year</option>
+										<option value="QUARTER">Quarter</option>
+										<option value="DOW">Day of the week</option>
+										<option value="TOD">Time of day</option>
+									</select>
+									<div class="input-group-append">
+										<button id="{{ 'update-bin-btn2' + loop.index0|string }}" class="btn btn-outline-success" type="button">
+											<i class="fas fa-sync-alt"></i>
+										</button>
+										&emsp;
+										&emsp;
+									</div>
+								</div>
+								<div id="{{ 'num-bin-buttons' + loop.index0|string }}" class="input-group" hidden>
+									<div class="input-group-prepend">
+										&emsp;
+										&emsp;
+										<input type="text"
+										       id="{{ 'bin-num-field' + loop.index0|string }}"
+										       class="form-control"
+										       placeholder="# intervals"
+										       value="5"
+										       style="width: 120px;
+										       border-top-right-radius: 0;
+										       border-bottom-right-radius: 0">
+									</div>
+									<select class="custom-select" id="{{ 'num-bin-select' + loop.index0|string }}" style="padding-richt: 20%">
+										<option value="width">Equal width</option>
+										<option value="freq">Equal frequency</option>
+									</select>
+									<div class="input-group-append">
+										<button id="{{ 'update-bin-btn3' + loop.index0|string }}" class="btn btn-outline-success" type="button">
+											<i class="fas fa-sync-alt"></i>
+										</button>
+										&emsp;
+										&emsp;
+									</div>
+								</div>
+							</td>
+						{% endif %}
+					{% endfor %}
+
+				</tr>
+				<tr>
+					{% for dataset in datasets %}
+						{% if loop.index0 == 2 or loop.index0 == 3 %}
+							<td>
+								<canvas id="{{ 'stats-chart' + loop.index0|string }}" style="width: 100%"></canvas>
+							</td>
+						{% endif %}
+					{% endfor %}
+				</tr>
+				<tr>
+					{% for dataset in datasets %}
+						{% if loop.index0 == 2 or loop.index0 == 3 %}
+							<td>
+								<table class="table table-bordered">
+									<thead class="text-muted">
+									<tr id="{{ 'stat-names' + loop.index0|string }}">
+									</thead>
+									<tbody>
+									<tr id="{{ 'stat-values' + loop.index0|string }}"></tr>
+									</tbody>
+								</table>
+							</td>
+						{% endif %}
+					{% endfor %}
+				</tr>
 				</tbody>
 			</table>
 		</div>
