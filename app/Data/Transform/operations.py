@@ -135,7 +135,7 @@ def one_hot_encode(table_name, attr):
     df.to_sql(name=table_name, con=db.engine, if_exists="replace", index=False)
 
 
-def fill_null_with(table_name, attr, value, text_type):
+def fill_null_with(table_name, attr, value, text_type, date_type):
     """
     Fills all NULL values with provided value in table_name.attr
     :param table_name: table to perform the operation on
@@ -148,6 +148,13 @@ def fill_null_with(table_name, attr, value, text_type):
             'UPDATE "{0}" '
             'SET "{1}" = \'{2}\' '
             'WHERE ("{1}" = \'\') IS NOT FALSE'
+            .format(table_name, attr, value)
+        )
+    elif date_type:
+        db.engine.execute(
+            'UPDATE "{0}" '
+            'SET "{1}" = \'{2}\' '
+            'WHERE "{1}" IS NULL'
             .format(table_name, attr, value)
         )
     else:

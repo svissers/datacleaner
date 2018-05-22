@@ -340,12 +340,14 @@ def fill_null():
                 )
     else:
         is_text_type = column_type == 'TEXT'
+        is_date_type = column_type == 'DATE' or column_type == 'TIMESTAMP'
         try:
             fill_null_with(
                 dataset.working_copy,
                 column_name,
                 fill_value,
-                is_text_type
+                is_text_type,
+                is_date_type
             )
         except:
             flash('Failed to fill column {0} with {1}'.format(column_name, fill_value), 'danger')
