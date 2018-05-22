@@ -67,7 +67,7 @@ def delete_column():
     return redirect(request.referrer)
 
 
-@_transform.route('one_hot_encode_column', methods=['POST'])
+@_transform.route('/one_hot_encode_column', methods=['POST'])
 @login_required
 def one_hot_encode_column():
     dataset = get_dataset_with_id(request.args.get('dataset_id'))
@@ -83,7 +83,7 @@ def one_hot_encode_column():
     return redirect(request.referrer)
 
 
-@_transform.route('normalize_column', methods=['POST'])
+@_transform.route('/normalize_column', methods=['POST'])
 @login_required
 def normalize_column():
     dataset = get_dataset_with_id(request.args.get('dataset_id'))
