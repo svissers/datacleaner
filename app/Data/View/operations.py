@@ -13,6 +13,7 @@ except:
     from io import StringIO
 from flask import make_response
 
+
 def get_most_frequent_value(table_name, column):
     return db.engine.execute(
         'SELECT "{0}", COUNT("{0}") AS "frequency" '
@@ -91,11 +92,12 @@ def get_minimum_value(table_name, column):
 
 def get_chart_data_numerical(table_name, column, bins=10, eq='width'):
     df = pd.read_sql_table(table_name, db.engine, columns=[column])
+    df = df.dropna()
     edges = []
     if eq == 'width':
         min_val = df.min()
         max_val = df.max()
-        width = (max_val + min_val)/bins
+        width = abs(max_val - min_val)/bins
         edges = list(np.arange(min_val, max_val, width))
         if edges[-1] != float(max_val):
             edges.append(max_val)
