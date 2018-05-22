@@ -131,7 +131,7 @@ def discretize_column():
         flash('An unexpected error occured while discretizing the column', 'danger')
     else:
         flash('Column discretized successfully.', 'success')
-        create_action('column {0} discretized', dataset.id, current_user.id)
+        create_action('column {0} discretized'.format(column), dataset.id, current_user.id)
 
     return redirect(request.referrer)
 
@@ -198,10 +198,10 @@ def delete_predicate():
 
     try:
         if delete_rows(table.name, condition) is False:
-            flash('no rows found with condition "{0}"'.format(condition), 'warning')
+            flash('no rows found with condition {0}'.format(condition), 'warning')
         else:
-            flash('successfully deleted rows using condition "{0}"'.format(condition), 'success')
-            create_action('rows deleted with condition "{0}"'.format(condition), dataset.id, current_user.id)
+            flash('successfully deleted rows using condition {0}'.format(condition), 'success')
+            create_action('rows deleted with condition {0}'.format(condition), dataset.id, current_user.id)
     except:
         flash('condition "{0}" not valid'.format(condition), 'danger')
 

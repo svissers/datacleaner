@@ -508,34 +508,3 @@ def wordcloud():
         wordcloudresponse = get_wordcloud(dataset.working_copy, column, stopwords, blacklist)
         return wordcloudresponse
     return None
-
-
-
-
-# @_view.route('/download_features', methods=['POST'])
-# @login_required
-# def download_features():
-#     dataset_id = request.args.get('dataset_id', default=None)
-#     column = request.form.get('column_name', default=None)
-#     stopwords = bool(request.form.get('stopwords', default=False))
-#     # blacklist = []
-#     # print str(request.files['blacklist'].read().decode('utf-8'))
-#     blacklist = request.files['blacklist'].read().decode('utf-8').split("\n")
-#     if dataset_id is None:
-#         return redirect(request.referrer)
-#     else:
-#         if dataset_id is not None and column is not None:
-#             dataset = get_dataset_with_id(dataset_id)
-#             if dataset == None:
-#                 return jsonify(None)
-#         bow = get_bag_of_words(dataset.working_copy, column, stopwords, blacklist)
-#         bow = [(index, bow[index][0], bow[index][1]) for index in range(len(bow))]
-#         si = StringIO()
-#         cw = csv.writer(si)
-#         cw.writerow(["index", 'word', 'occurences'])
-#         cw.writerows(bow)
-#         return Response(
-#             si.getvalue(),
-#             mimetype="text/csv",
-#             headers={"Content-disposition": "attachment; filename=bag_of_words.csv"}
-#         )
