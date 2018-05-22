@@ -309,7 +309,7 @@ def fill_null():
     fill_value = escape_quotes(request.form['fill_value'])
 
     if fill_value == '~option-average~':
-        if column_type not in ['INTEGER', 'BIGINT', 'DOUBLE PRECISION']:
+        if column_type not in ['INTEGER', 'DOUBLE']:
             flash('Operation not supported for this column type.', 'danger')
         else:
             try:
@@ -324,7 +324,7 @@ def fill_null():
                     current_user.id
                 )
     elif fill_value == '~option-median~':
-        if column_type not in ['INTEGER', 'BIGINT', 'DOUBLE PRECISION']:
+        if column_type not in ['INTEGER', 'DOUBLE']:
             flash('Operation not supported for this column type.', 'danger')
         else:
             try:
