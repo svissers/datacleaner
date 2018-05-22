@@ -103,10 +103,11 @@ def join():
                           request.form['join-name'],
                           request.form['join-description']
                           )
-        except:
+        except Exception as e:
+            print(e)
             flash('An error occured while merging datasets.', 'danger')
         else:
-            flash('Datasets merged succesfully.', 'succes')
+            flash('Datasets merged succesfully.', 'success')
     project_id = request.args.get('project_id')
     edit_form = EditForm()
     return render_template(

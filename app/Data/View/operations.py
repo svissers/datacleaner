@@ -258,9 +258,6 @@ def join_datasets(left_id,
     )
     result_dataframe = None
 
-    print(dataframe_left)
-    print(dataframe_right)
-
     suffixes = ('left', 'right')
 
     if join_type == "cross":
@@ -268,7 +265,7 @@ def join_datasets(left_id,
         dataframe_right['temp'] = 0
         result_dataframe = pd.merge(dataframe_left, dataframe_right, on='temp')
         result_dataframe = result_dataframe.drop(labels=['temp'], axis=1)
-    elif join_type == "inner join":
+    elif join_type == "inner":
         result_dataframe = pd.merge(
             dataframe_left,
             dataframe_right,
