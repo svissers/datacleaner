@@ -166,6 +166,22 @@ def fill_null_with(table_name, attr, value, text_type, date_type):
         )
 
 
+def fill_null_with_nearest_neighbours(table_name, attr, *args):
+    """
+    Fills all NULL values with a value based on the nearest neighbour algo
+    :param table_name: table to perform the operation on
+    :param attr: attribute containing NULL values
+    """
+    dataframe = pd.read_sql_table(table_name, db.engine, columns=[attr])
+    X = np.array((dataframe[arg] for arg in args))
+    # average = dataframe[attr].mean()
+    # db.engine.execute(
+    #     'UPDATE "{0}" '
+    #     'SET "{1}" = {2} '
+    #     'WHERE "{1}" IS NULL'
+    #     .format(table_name, attr, average)
+    # )
+
 def fill_null_with_average(table_name, attr):
     """
     Fills all NULL values with average value in table_name.attr
@@ -308,10 +324,16 @@ def discretize_width(table_name, attr, intervals):
         edges = list(np.arange(min_val, max_val, width))
         if edges[-1] != float(max_val):
             edges.append(max_val)
+        labels = []
+        for index in range(len(edges)-1):
+            labels.append("{"+str(edges[index])+", "+str(edges[index+1])+"}")
+        df[column_name] = pd.cut(df[attr], edges, labels=labels).apply(str)
+
         df[column_name] = pd.cut(
                 df[attr],
                 edges,
-                include_lowest=True
+                include_lowest=True,
+                labels=labels
         ).apply(str)
 
     df.to_sql(name=table_name, con=db.engine, if_exists="replace", index=False)
@@ -347,8 +369,10 @@ def discretize_eq_freq(table_name, attr, intervals):
     edge_list[-1] = edge_list[-1]+edge_list[-1]*0.001
 
     column_name = attr + '_' + str(intervals) + '_eq_freq_intervals'
-
-    df[column_name] = pd.cut(df[attr], edge_list).apply(str)
+    labels = []
+    for index in range(len(edge_list)-1):
+        labels.append("{"+str(edge_list[index])+", "+str(edge_list[index+1])+"}")
+    df[column_name] = pd.cut(df[attr], edge_list, labels=labels).apply(str)
     df.to_sql(name=table_name, con=db.engine, if_exists="replace", index=False)
 
 
