@@ -288,7 +288,7 @@ def get_date_or_timestamp_chart():
             }
         }
 
-        return jsonify(stats)
+    return jsonify(stats)
 
 
 @_view.route('/get_column_chart', methods=['GET'])
